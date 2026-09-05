@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://galaxy-sim.local/schema/techs.schema.json",
+  "title": "TechsFile",
+  "type": "object",
+  "required": ["version", "branches", "techs"],
+  "additionalProperties": true,
+  "$defs": {
+    "dataCost": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "physics": { "type": "number", "minimum": 0 },
+        "engineering": { "type": "number", "minimum": 0 },
+        "bio": { "type": "number", "minimum": 0 }
+      }
+    },
+    "effect": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["unlockModule", "unlockHull", "unlockBuilding", "modifier", "ability"]
+        },
+        "id": { "type": "string" },
+        "target": { "type": "string" },
+        "stat": { "type": "string" },
+        "value": { "type": "number" }
+      }
+    }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "branches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "primaryData"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "primaryData": { "type": "string", "enum": ["physics", "engineering", "bio", "mixed"] }
+        }
+      }
+    },
+    "costModel": { "type": "object", "additionalProperties": true },
+    "techs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "branch", "tier", "phase", "requires"],
+        "additionalProperties": true,
+        "oneOf": [
+          { "required": ["cost", "effects"] },
+          { "required": ["repeatable", "baseCost", "costGrowth", "effectPerLevel"] }
+        ],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "branch": { "type": "string", "minLength": 1 },
+          "tier": { "type": "integer", "minimum": 0 },
+          "phase": { "type": "integer", "minimum": 1 },
+          "requires": { "type": "array", "items": { "type": "string" } },
+          "cost": { "$ref": "#/$defs/dataCost" },
+          "effects": { "type": "array", "items": { "$ref": "#/$defs/effect" } },
+          "effectPerLevel": { "type": "array", "items": { "$ref": "#/$defs/effect" } },
+          "repeatable": { "type": "boolean" },
+          "baseCost": { "$ref": "#/$defs/dataCost" },
+          "costGrowth": { "type": "number", "exclusiveMinimum": 1 }
+        }
+      }
+    }
+  }
+}

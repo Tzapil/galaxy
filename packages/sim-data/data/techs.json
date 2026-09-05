@@ -1,0 +1,2009 @@
+{
+  "$schema": "./schema/techs.schema.json",
+  "version": "1.0",
+  "notes": [
+    "Граф технологий — направленный ациклический граф (DAG), а не дерево: у узла может быть",
+    "несколько предпосылок, ветки переплетаются между собой.",
+    "",
+    "ВАЖНО ПРО БУТСТРАП. Всё, что нужно для производства самих научных данных, обязано быть",
+    "доступно с нулевого тика, иначе граф замыкается сам на себя:",
+    "  research_physics     требует кристаллы     → crystal_mine на старте",
+    "  research_engineering требует сплавы и электронику → alloy_works, electronics_plant на старте",
+    "  research_bio         требует медикаменты   → pharma_plant, farm, water_plant на старте",
+    "Технологии этих веток дают не доступ, а модификаторы выхода. Добыча редкого сырья тоже",
+    "открыта изначально: редкость возникает из географии месторождений, а не из уровня науки.",
+    "",
+    "Повторяемые технологии в конце каждой ветки обязательны: без них фракция доисследует",
+    "всё и застынет, а для партии на 10 000 лет это смерть."
+  ],
+  "branches": [
+    {
+      "id": "energy",
+      "name": "Энергетика",
+      "primaryData": "physics"
+    },
+    {
+      "id": "propulsion",
+      "name": "Двигательные системы",
+      "primaryData": "engineering"
+    },
+    {
+      "id": "kinetic",
+      "name": "Кинетическое вооружение",
+      "primaryData": "engineering"
+    },
+    {
+      "id": "beams",
+      "name": "Энергетическое вооружение",
+      "primaryData": "physics"
+    },
+    {
+      "id": "missiles",
+      "name": "Ракетное вооружение",
+      "primaryData": "engineering"
+    },
+    {
+      "id": "defense",
+      "name": "Защита",
+      "primaryData": "mixed"
+    },
+    {
+      "id": "hulls",
+      "name": "Корпуса и верфестроение",
+      "primaryData": "engineering"
+    },
+    {
+      "id": "industry",
+      "name": "Добыча и переработка",
+      "primaryData": "engineering"
+    },
+    {
+      "id": "biology",
+      "name": "Биология и жизнеобеспечение",
+      "primaryData": "bio"
+    },
+    {
+      "id": "colonization",
+      "name": "Колонизация и терраформирование",
+      "primaryData": "bio"
+    },
+    {
+      "id": "logistics",
+      "name": "Логистика",
+      "primaryData": "engineering"
+    },
+    {
+      "id": "cybernetics",
+      "name": "Кибернетика",
+      "primaryData": "mixed"
+    },
+    {
+      "id": "administration",
+      "name": "Администрация и связь",
+      "primaryData": "mixed"
+    }
+  ],
+  "costModel": {
+    "comment": "Ориентиры суммарной стоимости по тирам. Кривая ×5 за шаг — круче, чем ×3 в первой редакции: при ней всё дерево исследовалось за 20 лет, то есть технологическая эпоха заканчивалась раньше, чем фракции успевали столкнуться.",
+    "tier1": 800,
+    "tier2": 4800,
+    "tier3": 35700,
+    "tier4": 200000,
+    "tier5": 980000,
+    "repeatBase": "≈40 000, рост ×1.22 за уровень (администрация ×1.20)",
+    "targetPacing": "тир 1 к ~15 году, тир 2 к ~60, тир 3 к ~250, тир 4 к ~400. Дальше только повторяемые."
+  },
+  "techs": [
+    {
+      "id": "start",
+      "name": "Наследие предков",
+      "branch": "industry",
+      "tier": 0,
+      "phase": 1,
+      "requires": [],
+      "cost": {},
+      "effects": [
+        {
+          "type": "unlockHull",
+          "id": "shuttle"
+        },
+        {
+          "type": "unlockHull",
+          "id": "corvette"
+        },
+        {
+          "type": "unlockHull",
+          "id": "freighter"
+        },
+        {
+          "type": "unlockHull",
+          "id": "prospector"
+        },
+        {
+          "type": "unlockModule",
+          "id": "reactor_t1"
+        },
+        {
+          "type": "unlockModule",
+          "id": "thruster_t1"
+        },
+        {
+          "type": "unlockModule",
+          "id": "kinetic_t1"
+        },
+        {
+          "type": "unlockModule",
+          "id": "missile_t1"
+        },
+        {
+          "type": "unlockModule",
+          "id": "armor_t1"
+        },
+        {
+          "type": "unlockModule",
+          "id": "cargo_t1"
+        },
+        {
+          "type": "unlockModule",
+          "id": "sensor_t1"
+        },
+        {
+          "type": "unlockModule",
+          "id": "fuel_tank_t1"
+        },
+        {
+          "type": "unlockModule",
+          "id": "quarters_t1"
+        },
+        {
+          "type": "unlockModule",
+          "id": "mining_rig_t1"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "mine"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "ice_drill"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "gas_collector"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "quarry"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "farm"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "rare_earth_mine"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "crystal_mine"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "radioactive_mine"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "smelter"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "water_plant"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "refinery"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "food_plant"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "polymer_plant"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "ceramics_plant"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "pharma_plant"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "alloy_works"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "electronics_plant"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "reactor_works"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "thruster_works"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "weapon_works"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "armor_works"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "lifesupport_works"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "consumer_plant"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "hull_yard"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "shipyard"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "physics_lab"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "engineering_lab"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "bio_lab"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "solar_array"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "housing"
+        }
+      ]
+    },
+    {
+      "id": "materials_alloys",
+      "name": "Промышленная металлургия",
+      "branch": "industry",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": {
+        "engineering": 880
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "recipe:forge_alloys",
+          "stat": "outputMultiplier",
+          "value": 1.25
+        }
+      ]
+    },
+    {
+      "id": "microelectronics",
+      "name": "Микроэлектроника",
+      "branch": "industry",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": {
+        "engineering": 800,
+        "physics": 320
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "recipe:make_electronics",
+          "stat": "outputMultiplier",
+          "value": 1.25
+        }
+      ]
+    },
+    {
+      "id": "ceramics_industry",
+      "name": "Промышленная керамика",
+      "branch": "industry",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": {
+        "engineering": 640
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "recipe:fire_ceramics",
+          "stat": "outputMultiplier",
+          "value": 1.3
+        }
+      ]
+    },
+    {
+      "id": "composite_materials",
+      "name": "Композитные материалы",
+      "branch": "industry",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["materials_alloys", "ceramics_industry"],
+      "cost": {
+        "engineering": 4500
+      },
+      "effects": [
+        {
+          "type": "unlockBuilding",
+          "id": "composite_plant"
+        }
+      ]
+    },
+    {
+      "id": "optics_manufacturing",
+      "name": "Прецизионная оптика",
+      "branch": "industry",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["microelectronics"],
+      "cost": {
+        "physics": 3800,
+        "engineering": 1100
+      },
+      "effects": [
+        {
+          "type": "unlockBuilding",
+          "id": "optics_plant"
+        }
+      ]
+    },
+    {
+      "id": "radioactive_refining",
+      "name": "Обогащение радиоактивов",
+      "branch": "industry",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["start", "materials_alloys"],
+      "cost": {
+        "physics": 4000,
+        "engineering": 1900
+      },
+      "effects": [
+        {
+          "type": "unlockBuilding",
+          "id": "enrichment_plant"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "fission_plant"
+        }
+      ]
+    },
+    {
+      "id": "superconduction",
+      "name": "Сверхпроводимость",
+      "branch": "energy",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["radioactive_refining", "optics_manufacturing"],
+      "cost": {
+        "physics": 6100,
+        "engineering": 1400
+      },
+      "effects": [
+        {
+          "type": "unlockBuilding",
+          "id": "sc_plant"
+        }
+      ]
+    },
+    {
+      "id": "mining_2",
+      "name": "Тяжёлая горная техника",
+      "branch": "industry",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["materials_alloys"],
+      "cost": {
+        "engineering": 4200
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "mining_rig_t2"
+        }
+      ]
+    },
+    {
+      "id": "deep_mining",
+      "name": "Глубинная добыча",
+      "branch": "industry",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["mining_2", "automation_1"],
+      "cost": {
+        "engineering": 30200
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "family:extraction",
+          "stat": "outputMultiplier",
+          "value": 1.2
+        }
+      ]
+    },
+    {
+      "id": "industry_repeat",
+      "name": "Оптимизация производства",
+      "branch": "industry",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["deep_mining"],
+      "repeatable": true,
+      "baseCost": {
+        "engineering": 44000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "recipeOutput",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "id": "energy_grid",
+      "name": "Энергосети",
+      "branch": "energy",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": {
+        "engineering": 800
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "energyStorage",
+          "value": 1.5
+        }
+      ]
+    },
+    {
+      "id": "power_2",
+      "name": "Улучшенные реакторы",
+      "branch": "energy",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["materials_alloys", "energy_grid"],
+      "cost": {
+        "physics": 3200,
+        "engineering": 1600
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "reactor_t2"
+        }
+      ]
+    },
+    {
+      "id": "fusion_power",
+      "name": "Управляемый термоядерный синтез",
+      "branch": "energy",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["power_2", "superconduction"],
+      "cost": {
+        "physics": 30200,
+        "engineering": 10900
+      },
+      "effects": [
+        {
+          "type": "unlockBuilding",
+          "id": "fusion_plant"
+        }
+      ]
+    },
+    {
+      "id": "power_3",
+      "name": "Компактные реакторы",
+      "branch": "energy",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["power_2", "superconduction"],
+      "cost": {
+        "physics": 34400,
+        "engineering": 12600
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "reactor_t3"
+        }
+      ]
+    },
+    {
+      "id": "power_4",
+      "name": "Квантовые реакторы",
+      "branch": "energy",
+      "tier": 4,
+      "phase": 2,
+      "requires": ["power_3", "fusion_power"],
+      "cost": {
+        "physics": 192000,
+        "engineering": 72000
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "reactor_t4"
+        }
+      ]
+    },
+    {
+      "id": "energy_repeat",
+      "name": "Повышение КПД реакторов",
+      "branch": "energy",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["power_3"],
+      "repeatable": true,
+      "baseCost": {
+        "physics": 50000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "powerOutput",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "id": "propulsion_2",
+      "name": "Магнитоплазменная тяга",
+      "branch": "propulsion",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["materials_alloys"],
+      "cost": {
+        "engineering": 4000,
+        "physics": 1300
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "thruster_t2"
+        }
+      ]
+    },
+    {
+      "id": "gate_theory",
+      "name": "Теория врат",
+      "branch": "propulsion",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": {
+        "physics": 4300
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "gateTransitTime",
+          "value": 0.9
+        }
+      ]
+    },
+    {
+      "id": "efficient_drives",
+      "name": "Экономичные приводы",
+      "branch": "propulsion",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["propulsion_2", "gate_theory"],
+      "cost": {
+        "engineering": 26000
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "fuelPerJump",
+          "value": 0.85
+        }
+      ]
+    },
+    {
+      "id": "propulsion_3",
+      "name": "Инерционные компенсаторы",
+      "branch": "propulsion",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["propulsion_2", "superconduction"],
+      "cost": {
+        "engineering": 31900,
+        "physics": 10500
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "thruster_t3"
+        }
+      ]
+    },
+    {
+      "id": "propulsion_4",
+      "name": "Гравитационные приводы",
+      "branch": "propulsion",
+      "tier": 4,
+      "phase": 2,
+      "requires": ["propulsion_3", "power_4"],
+      "cost": {
+        "engineering": 176000,
+        "physics": 64000
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "thruster_t4"
+        }
+      ]
+    },
+    {
+      "id": "propulsion_repeat",
+      "name": "Форсирование двигателей",
+      "branch": "propulsion",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["propulsion_3"],
+      "repeatable": true,
+      "baseCost": {
+        "engineering": 44000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "family:thruster",
+          "stat": "thrust",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "id": "kinetic_2",
+      "name": "Тяжёлые рельсотроны",
+      "branch": "kinetic",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["materials_alloys"],
+      "cost": {
+        "engineering": 3700
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "kinetic_t2"
+        }
+      ]
+    },
+    {
+      "id": "kinetic_3",
+      "name": "Магнитное ускорение",
+      "branch": "kinetic",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["kinetic_2", "superconduction"],
+      "cost": {
+        "engineering": 30200,
+        "physics": 8800
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "kinetic_t3"
+        }
+      ]
+    },
+    {
+      "id": "kinetic_repeat",
+      "name": "Баллистическая оптимизация",
+      "branch": "kinetic",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["kinetic_3"],
+      "repeatable": true,
+      "baseCost": {
+        "engineering": 40000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "family:kinetic",
+          "stat": "damage",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "id": "energy_weapons_1",
+      "name": "Боевые лазеры",
+      "branch": "beams",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["optics_manufacturing"],
+      "cost": {
+        "physics": 4200
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "laser_t1"
+        }
+      ]
+    },
+    {
+      "id": "energy_weapons_2",
+      "name": "Когерентные излучатели",
+      "branch": "beams",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["energy_weapons_1", "superconduction"],
+      "cost": {
+        "physics": 26000,
+        "engineering": 5900
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "laser_t2"
+        }
+      ]
+    },
+    {
+      "id": "energy_weapons_3",
+      "name": "Тяжёлые лучевые орудия",
+      "branch": "beams",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["energy_weapons_2", "power_3"],
+      "cost": {
+        "physics": 152000,
+        "engineering": 40000
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "laser_t3"
+        }
+      ]
+    },
+    {
+      "id": "plasma_1",
+      "name": "Плазменное удержание",
+      "branch": "beams",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["energy_weapons_1", "superconduction"],
+      "cost": {
+        "physics": 29400,
+        "engineering": 8400
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "plasma_t1"
+        }
+      ]
+    },
+    {
+      "id": "plasma_2",
+      "name": "Плазменные пушки",
+      "branch": "beams",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["plasma_1", "power_2"],
+      "cost": {
+        "physics": 37800,
+        "engineering": 12600
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "plasma_t2"
+        }
+      ]
+    },
+    {
+      "id": "plasma_3",
+      "name": "Аннигиляционные заряды",
+      "branch": "beams",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["plasma_2", "power_3"],
+      "cost": {
+        "physics": 184000,
+        "engineering": 56000
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "plasma_t3"
+        }
+      ]
+    },
+    {
+      "id": "beams_repeat",
+      "name": "Фокусировка излучателей",
+      "branch": "beams",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["energy_weapons_3"],
+      "repeatable": true,
+      "baseCost": {
+        "physics": 52000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "family:laser",
+          "stat": "damage",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "id": "missiles_2",
+      "name": "Самонаводящиеся ракеты",
+      "branch": "missiles",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["microelectronics"],
+      "cost": {
+        "engineering": 3800
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "missile_t2"
+        }
+      ]
+    },
+    {
+      "id": "missiles_3",
+      "name": "Тяжёлые торпеды",
+      "branch": "missiles",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["missiles_2", "composite_materials"],
+      "cost": {
+        "engineering": 31100
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "missile_t3"
+        }
+      ]
+    },
+    {
+      "id": "missiles_repeat",
+      "name": "Боевые части повышенной мощности",
+      "branch": "missiles",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["missiles_3"],
+      "repeatable": true,
+      "baseCost": {
+        "engineering": 42000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "family:missile",
+          "stat": "damage",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "id": "armor_2",
+      "name": "Многослойная броня",
+      "branch": "defense",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["composite_materials"],
+      "cost": {
+        "engineering": 3500
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "armor_t2"
+        }
+      ]
+    },
+    {
+      "id": "armor_3",
+      "name": "Абляционное покрытие",
+      "branch": "defense",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["armor_2", "materials_alloys"],
+      "cost": {
+        "engineering": 29400
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "armor_t3"
+        }
+      ]
+    },
+    {
+      "id": "shields_1",
+      "name": "Дефлекторные поля",
+      "branch": "defense",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["superconduction"],
+      "cost": {
+        "physics": 21800,
+        "engineering": 5000
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "shield_t1"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "shield_works"
+        }
+      ]
+    },
+    {
+      "id": "shields_2",
+      "name": "Каскадные щиты",
+      "branch": "defense",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["shields_1", "power_2"],
+      "cost": {
+        "physics": 33600,
+        "engineering": 6700
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "shield_t2"
+        }
+      ]
+    },
+    {
+      "id": "shields_3",
+      "name": "Самовосстанавливающиеся щиты",
+      "branch": "defense",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["shields_2", "power_3"],
+      "cost": {
+        "physics": 168000,
+        "engineering": 48000
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "shield_t3"
+        }
+      ]
+    },
+    {
+      "id": "point_defense_1",
+      "name": "Точечная оборона",
+      "branch": "defense",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["microelectronics"],
+      "cost": {
+        "engineering": 1100
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "pd_t1"
+        }
+      ]
+    },
+    {
+      "id": "point_defense_2",
+      "name": "Автоматические турели",
+      "branch": "defense",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["point_defense_1"],
+      "cost": {
+        "engineering": 5000
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "pd_t2"
+        }
+      ]
+    },
+    {
+      "id": "point_defense_3",
+      "name": "Предиктивный перехват",
+      "branch": "defense",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["point_defense_2", "sensors_2"],
+      "cost": {
+        "engineering": 32800,
+        "physics": 8400
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "pd_t3"
+        }
+      ]
+    },
+    {
+      "id": "ecm",
+      "name": "Радиоэлектронная борьба",
+      "branch": "defense",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["sensors_2", "superconduction"],
+      "cost": {
+        "physics": 27700,
+        "engineering": 9200
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "ecm_suite_t1"
+        },
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "enemyMissileAccuracy",
+          "value": 0.85
+        }
+      ]
+    },
+    {
+      "id": "ecm_2",
+      "name": "Активное подавление",
+      "branch": "defense",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["ecm", "nanofabrication"],
+      "cost": { "physics": 120000, "engineering": 70000 },
+      "effects": [{ "type": "unlockModule", "id": "ecm_suite_t2" }]
+    },
+
+    {
+      "id": "nanofabrication",
+      "name": "Нанофабрикация",
+      "branch": "industry",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["composite_materials", "optics_manufacturing"],
+      "cost": { "engineering": 24000, "physics": 12000 },
+      "effects": [{ "type": "unlockBuilding", "id": "nano_foundry" }]
+    },
+
+    {
+      "id": "consumer_luxuries",
+      "name": "Производство роскоши",
+      "branch": "biology",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["pharmaceuticals", "optics_manufacturing"],
+      "cost": { "bio": 3000, "engineering": 1800 },
+      "effects": [{ "type": "unlockBuilding", "id": "luxury_works" }]
+    },
+
+    {
+      "id": "hull_gunship",
+      "name": "Канонерки",
+      "branch": "hulls",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["hull_frigate"],
+      "cost": { "engineering": 4800 },
+      "effects": [{ "type": "unlockHull", "id": "gunship" }]
+    },
+
+    {
+      "id": "nano_armor",
+      "name": "Нанокомпозитная броня",
+      "branch": "defense",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["armor_2", "nanofabrication"],
+      "cost": { "engineering": 22000, "physics": 10000 },
+      "effects": [{ "type": "unlockModule", "id": "nano_armor_t1" }]
+    },
+
+    {
+      "id": "nano_armor_2",
+      "name": "Адаптивная наноброня",
+      "branch": "defense",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["nano_armor", "armor_3"],
+      "cost": { "engineering": 120000, "physics": 55000 },
+      "effects": [{ "type": "unlockModule", "id": "nano_armor_t2" }]
+    },
+
+    {
+      "id": "arcologies",
+      "name": "Аркологии",
+      "branch": "colonization",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["nanofabrication", "orbital_habitats"],
+      "cost": { "engineering": 120000, "bio": 80000 },
+      "effects": [{ "type": "unlockBuilding", "id": "arcology" }]
+    },
+    {
+      "id": "armor_repeat",
+      "name": "Металлургия защиты",
+      "branch": "defense",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["armor_3"],
+      "repeatable": true,
+      "baseCost": {
+        "engineering": 42000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "family:armor",
+          "stat": "armorRating",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "id": "shields_repeat",
+      "name": "Гармоника щитов",
+      "branch": "defense",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["shields_3"],
+      "repeatable": true,
+      "baseCost": {
+        "physics": 58000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "family:shield",
+          "stat": "shieldHp",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "id": "hull_frigate",
+      "name": "Фрегатостроение",
+      "branch": "hulls",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": {
+        "engineering": 1000
+      },
+      "effects": [
+        {
+          "type": "unlockHull",
+          "id": "frigate"
+        }
+      ]
+    },
+    {
+      "id": "hull_heavy_freighter",
+      "name": "Тяжёлые грузовые корпуса",
+      "branch": "hulls",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["hull_frigate", "logistics_2"],
+      "cost": {
+        "engineering": 4800
+      },
+      "effects": [
+        {
+          "type": "unlockHull",
+          "id": "heavy_freighter"
+        }
+      ]
+    },
+    {
+      "id": "hull_cruiser",
+      "name": "Крейсеростроение",
+      "branch": "hulls",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["hull_frigate", "materials_alloys"],
+      "cost": {
+        "engineering": 7000
+      },
+      "effects": [
+        {
+          "type": "unlockHull",
+          "id": "cruiser"
+        }
+      ]
+    },
+    {
+      "id": "hull_battleship",
+      "name": "Линкоростроение",
+      "branch": "hulls",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["hull_cruiser", "composite_materials", "power_2"],
+      "cost": {
+        "engineering": 56700
+      },
+      "effects": [
+        {
+          "type": "unlockHull",
+          "id": "battleship"
+        }
+      ]
+    },
+    {
+      "id": "hull_dreadnought",
+      "name": "Дредноуты",
+      "branch": "hulls",
+      "tier": 5,
+      "phase": 2,
+      "requires": ["hull_battleship", "power_4", "propulsion_4"],
+      "cost": {
+        "engineering": 840000,
+        "physics": 280000
+      },
+      "effects": [
+        {
+          "type": "unlockHull",
+          "id": "dreadnought"
+        }
+      ]
+    },
+    {
+      "id": "modular_construction",
+      "name": "Модульная сборка",
+      "branch": "hulls",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["hull_cruiser", "composite_materials"],
+      "cost": {
+        "engineering": 28600
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "recipe:make_hull_frames",
+          "stat": "outputMultiplier",
+          "value": 1.2
+        }
+      ]
+    },
+    {
+      "id": "shipyard_automation",
+      "name": "Автоматизация верфей",
+      "branch": "hulls",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["hull_cruiser", "automation_1"],
+      "cost": {
+        "engineering": 31100
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "shipBuildTime",
+          "value": 0.8
+        }
+      ]
+    },
+    {
+      "id": "hydroponics",
+      "name": "Гидропоника",
+      "branch": "biology",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": { "bio": 960 },
+      "effects": [
+        { "type": "unlockBuilding", "id": "hydroponics_bay" },
+        {
+          "type": "modifier",
+          "target": "recipe:farm_biomass",
+          "stat": "outputMultiplier",
+          "value": 1.3
+        }
+      ]
+    },
+    {
+      "id": "pharmaceuticals",
+      "name": "Фармакология",
+      "branch": "biology",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": {
+        "bio": 1200
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "recipe:make_medicine",
+          "stat": "outputMultiplier",
+          "value": 1.3
+        }
+      ]
+    },
+    {
+      "id": "life_support_2",
+      "name": "Замкнутые системы жизнеобеспечения",
+      "branch": "biology",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["pharmaceuticals"],
+      "cost": {
+        "bio": 4600,
+        "engineering": 1400
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "quarters_t2"
+        }
+      ]
+    },
+    {
+      "id": "gene_therapy",
+      "name": "Генная терапия",
+      "branch": "biology",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["pharmaceuticals", "hydroponics"],
+      "cost": {
+        "bio": 31100
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "populationGrowth",
+          "value": 1.25
+        }
+      ]
+    },
+    {
+      "id": "longevity",
+      "name": "Продление жизни",
+      "branch": "biology",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["gene_therapy"],
+      "cost": {
+        "bio": 168000
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "populationCap",
+          "value": 1.15
+        }
+      ]
+    },
+    {
+      "id": "bio_repeat",
+      "name": "Агротехника",
+      "branch": "biology",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["gene_therapy"],
+      "repeatable": true,
+      "baseCost": {
+        "bio": 46000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "foodOutput",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "id": "colonization",
+      "name": "Колониальные технологии",
+      "branch": "colonization",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["life_support_2"],
+      "cost": {
+        "bio": 3500,
+        "engineering": 1900
+      },
+      "effects": [
+        {
+          "type": "unlockHull",
+          "id": "colony_ship"
+        },
+        {
+          "type": "unlockModule",
+          "id": "colony_pod"
+        }
+      ]
+    },
+    {
+      "id": "hostile_environment",
+      "name": "Адаптация к враждебным средам",
+      "branch": "colonization",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["colonization", "gene_therapy"],
+      "cost": {
+        "bio": 34400,
+        "engineering": 9200
+      },
+      "effects": [
+        {
+          "type": "ability",
+          "id": "colonize_hostile"
+        }
+      ]
+    },
+    {
+      "id": "orbital_habitats",
+      "name": "Орбитальные поселения",
+      "branch": "colonization",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["colonization", "orbital_construction"],
+      "cost": {
+        "engineering": 34400,
+        "bio": 13400
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "stationSlots",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "id": "terraforming_1",
+      "name": "Терраформирование",
+      "branch": "colonization",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["hostile_environment"],
+      "cost": {
+        "bio": 184000,
+        "engineering": 64000
+      },
+      "effects": [
+        {
+          "type": "ability",
+          "id": "terraform"
+        }
+      ]
+    },
+    {
+      "id": "terraforming_2",
+      "name": "Планетарная инженерия",
+      "branch": "colonization",
+      "tier": 5,
+      "phase": 2,
+      "requires": ["terraforming_1", "longevity"],
+      "cost": {
+        "bio": 868000,
+        "engineering": 322000
+      },
+      "effects": [
+        {
+          "type": "ability",
+          "id": "terraform_extreme"
+        }
+      ]
+    },
+    {
+      "id": "colonization_repeat",
+      "name": "Колониальная логистика",
+      "branch": "colonization",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["terraforming_1"],
+      "repeatable": true,
+      "baseCost": {
+        "bio": 60000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "module:colony_pod",
+          "stat": "cost",
+          "value": 0.98
+        }
+      ]
+    },
+    {
+      "id": "warehousing",
+      "name": "Складское хозяйство",
+      "branch": "logistics",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": {
+        "engineering": 720
+      },
+      "effects": [
+        {
+          "type": "unlockBuilding",
+          "id": "warehouse"
+        }
+      ]
+    },
+    {
+      "id": "spaceport_tech",
+      "name": "Космопорты",
+      "branch": "logistics",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": {
+        "engineering": 880
+      },
+      "effects": [
+        {
+          "type": "unlockBuilding",
+          "id": "spaceport"
+        }
+      ]
+    },
+    {
+      "id": "logistics_2",
+      "name": "Контейнерные перевозки",
+      "branch": "logistics",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["materials_alloys"],
+      "cost": {
+        "engineering": 4000
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "cargo_t2"
+        },
+        {
+          "type": "unlockModule",
+          "id": "fuel_tank_t2"
+        }
+      ]
+    },
+    {
+      "id": "logistics_3",
+      "name": "Автоматизированные трюмы",
+      "branch": "logistics",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["logistics_2", "automation_1"],
+      "cost": {
+        "engineering": 30200
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "cargo_t3"
+        }
+      ]
+    },
+    {
+      "id": "sensors_2",
+      "name": "Дальнее сканирование",
+      "branch": "logistics",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["microelectronics"],
+      "cost": {
+        "physics": 3700,
+        "engineering": 1600
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "sensor_t2"
+        }
+      ]
+    },
+    {
+      "id": "sensors_3",
+      "name": "Гравиметрическая разведка",
+      "branch": "logistics",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["sensors_2", "optics_manufacturing"],
+      "cost": {
+        "physics": 29400,
+        "engineering": 8800
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "sensor_t3"
+        }
+      ]
+    },
+    {
+      "id": "orbital_construction",
+      "name": "Орбитальное строительство",
+      "branch": "logistics",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["materials_alloys"],
+      "cost": {
+        "engineering": 5400
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "construction_bay"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "station_yard"
+        }
+      ]
+    },
+    {
+      "id": "logistics_repeat",
+      "name": "Оптимизация перевозок",
+      "branch": "logistics",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["logistics_3"],
+      "repeatable": true,
+      "baseCost": {
+        "engineering": 42000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "family:cargo",
+          "stat": "cargo",
+          "value": 1.02
+        }
+      ]
+    },
+    {
+      "id": "automation_1",
+      "name": "Промышленная автоматизация",
+      "branch": "cybernetics",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["microelectronics"],
+      "cost": {
+        "engineering": 4600,
+        "physics": 1800
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "workersPerBuilding",
+          "value": 0.9
+        }
+      ]
+    },
+    {
+      "id": "automation_2",
+      "name": "Самоуправляемые комплексы",
+      "branch": "cybernetics",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["automation_1", "sensors_2"],
+      "cost": {
+        "engineering": 32800,
+        "physics": 10900
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "workersPerBuilding",
+          "value": 0.88
+        }
+      ]
+    },
+    {
+      "id": "ai_logistics",
+      "name": "Логистический ИИ",
+      "branch": "cybernetics",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["automation_1", "logistics_2"],
+      "cost": {
+        "engineering": 30200,
+        "physics": 9200
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "transportEfficiency",
+          "value": 1.2
+        }
+      ]
+    },
+    {
+      "id": "predictive_maintenance",
+      "name": "Предиктивное обслуживание",
+      "branch": "cybernetics",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["automation_1"],
+      "cost": {
+        "engineering": 27700
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "fleetUpkeep",
+          "value": 0.8
+        }
+      ]
+    },
+    {
+      "id": "cybernetics_repeat",
+      "name": "Совершенствование алгоритмов",
+      "branch": "cybernetics",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["automation_2"],
+      "repeatable": true,
+      "baseCost": {
+        "engineering": 50000
+      },
+      "costGrowth": 1.22,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "workersPerBuilding",
+          "value": 0.99
+        }
+      ]
+    },
+    {
+      "id": "bureaucracy",
+      "name": "Государственный аппарат",
+      "branch": "administration",
+      "tier": 1,
+      "phase": 1,
+      "requires": ["start"],
+      "cost": {
+        "bio": 1000,
+        "engineering": 560
+      },
+      "effects": [
+        {
+          "type": "unlockBuilding",
+          "id": "admin_center"
+        },
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "adminCapacity",
+          "value": 4
+        }
+      ]
+    },
+    {
+      "id": "planetary_assault",
+      "name": "Планетарные десантные операции",
+      "branch": "administration",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["materials_alloys"],
+      "cost": {
+        "engineering": 5000
+      },
+      "effects": [
+        {
+          "type": "unlockHull",
+          "id": "troopship"
+        },
+        {
+          "type": "unlockModule",
+          "id": "troop_bay_t1"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "garrison"
+        },
+        {
+          "type": "unlockBuilding",
+          "id": "orbital_defense"
+        }
+      ]
+    },
+    {
+      "id": "planetary_assault_2",
+      "name": "Штурмовые бригады",
+      "branch": "administration",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["planetary_assault", "armor_2"],
+      "cost": {
+        "engineering": 30200
+      },
+      "effects": [
+        {
+          "type": "unlockModule",
+          "id": "troop_bay_t2"
+        }
+      ]
+    },
+    {
+      "id": "hyperwave_comms",
+      "name": "Гиперволновая связь",
+      "branch": "administration",
+      "tier": 2,
+      "phase": 1,
+      "requires": ["bureaucracy", "microelectronics"],
+      "cost": {
+        "physics": 5000,
+        "engineering": 2600
+      },
+      "effects": [
+        {
+          "type": "unlockBuilding",
+          "id": "comm_hub"
+        },
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "distancePenalty",
+          "value": 0.75
+        }
+      ]
+    },
+    {
+      "id": "cultural_assimilation",
+      "name": "Культурная ассимиляция",
+      "branch": "administration",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["bureaucracy", "gene_therapy"],
+      "cost": {
+        "bio": 35300
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "foreignnessDecay",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "id": "regional_governance",
+      "name": "Региональное управление",
+      "branch": "administration",
+      "tier": 3,
+      "phase": 1,
+      "requires": ["hyperwave_comms"],
+      "cost": {
+        "engineering": 38600,
+        "bio": 17600
+      },
+      "effects": [
+        {
+          "type": "unlockBuilding",
+          "id": "regional_capital"
+        },
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "adminCapacity",
+          "value": 12
+        }
+      ]
+    },
+    {
+      "id": "autonomous_protocols",
+      "name": "Протоколы автономии",
+      "branch": "administration",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["regional_governance", "automation_2"],
+      "cost": {
+        "engineering": 192000,
+        "bio": 72000
+      },
+      "effects": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "adminCapacity",
+          "value": 40
+        }
+      ]
+    },
+    {
+      "id": "admin_repeat",
+      "name": "Совершенствование управления",
+      "branch": "administration",
+      "tier": 4,
+      "phase": 1,
+      "requires": ["autonomous_protocols"],
+      "repeatable": true,
+      "baseCost": {
+        "engineering": 64000,
+        "bio": 32000
+      },
+      "costGrowth": 1.2,
+      "effectPerLevel": [
+        {
+          "type": "modifier",
+          "target": "global",
+          "stat": "adminCapacity",
+          "value": 3
+        }
+      ]
+    }
+  ]
+}

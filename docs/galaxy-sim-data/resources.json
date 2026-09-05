@@ -1,0 +1,65 @@
+{
+  "$schema": "./schema/resources.schema.json",
+  "version": "1.0",
+  "notes": [
+    "unitVolume — объём одной единицы в трюме. Ключевой параметр логистики:",
+    "объём падает с уровнем передела, поэтому возить сырьё через полгалактики невыгодно,",
+    "а перерабатывать выгоднее у месторождения. Промышленная география возникает сама.",
+    "energy не транспортируется: производится и потребляется строго локально."
+  ],
+  "resources": [
+    {
+      "id": "energy",
+      "name": "Энергия",
+      "tier": 0,
+      "category": "utility",
+      "phase": 1,
+      "transportable": false,
+      "unitVolume": 0,
+      "storageDefault": 200,
+      "comment": "Локальная сеть с ёмкостью буфера. Излишки сверх ёмкости теряются."
+    },
+
+    { "id": "ore",           "name": "Руда",                 "tier": 1, "category": "raw", "phase": 1, "transportable": true, "unitVolume": 1.00, "storageDefault": 2000, "rarity": "common",   "deposit": "rocky_body" },
+    { "id": "ice",           "name": "Лёд",                  "tier": 1, "category": "raw", "phase": 1, "transportable": true, "unitVolume": 1.00, "storageDefault": 2000, "rarity": "common",   "deposit": "icy_body" },
+    { "id": "gas",           "name": "Газ",                  "tier": 1, "category": "raw", "phase": 1, "transportable": true, "unitVolume": 1.20, "storageDefault": 2000, "rarity": "common",   "deposit": "gas_giant" },
+    { "id": "silicates",     "name": "Силикаты",             "tier": 1, "category": "raw", "phase": 1, "transportable": true, "unitVolume": 1.00, "storageDefault": 2000, "rarity": "common",   "deposit": "rocky_body" },
+    { "id": "biomass",       "name": "Биомасса",             "tier": 1, "category": "raw", "phase": 1, "transportable": true, "unitVolume": 0.90, "storageDefault": 2000, "rarity": "common",   "deposit": "habitable" },
+    { "id": "rare_earth",    "name": "Редкозёмы",            "tier": 1, "category": "raw", "phase": 1, "transportable": true, "unitVolume": 0.70, "storageDefault": 1000, "rarity": "rare",     "deposit": "rare_earth_vein" },
+    { "id": "crystals",      "name": "Кристаллы",            "tier": 1, "category": "raw", "phase": 1, "transportable": true, "unitVolume": 0.60, "storageDefault": 1000, "rarity": "rare",     "deposit": "crystal_vein" },
+    { "id": "radioactives",  "name": "Радиоактивы",          "tier": 1, "category": "raw", "phase": 1, "transportable": true, "unitVolume": 0.80, "storageDefault": 1000, "rarity": "rare",     "deposit": "radioactive_vein" },
+    { "id": "exotic_matter", "name": "Экзотическая материя", "tier": 1, "category": "raw", "phase": 2, "transportable": true, "unitVolume": 0.30, "storageDefault": 200,  "rarity": "veryrare", "deposit": "anomaly" },
+
+    { "id": "metal",    "name": "Металл",         "tier": 2, "category": "refined", "phase": 1, "transportable": true, "unitVolume": 0.60, "storageDefault": 1500 },
+    { "id": "water",    "name": "Вода",           "tier": 2, "category": "refined", "phase": 1, "transportable": true, "unitVolume": 0.80, "storageDefault": 1500 },
+    { "id": "fuel",     "name": "Топливо",        "tier": 2, "category": "refined", "phase": 1, "transportable": true, "unitVolume": 0.70, "storageDefault": 1500 },
+    { "id": "food",     "name": "Продовольствие", "tier": 2, "category": "refined", "phase": 1, "transportable": true, "unitVolume": 0.70, "storageDefault": 1500 },
+    { "id": "polymers", "name": "Полимеры",       "tier": 2, "category": "refined", "phase": 1, "transportable": true, "unitVolume": 0.50, "storageDefault": 1200 },
+    { "id": "ceramics", "name": "Керамика",       "tier": 2, "category": "refined", "phase": 1, "transportable": true, "unitVolume": 0.50, "storageDefault": 1200 },
+    { "id": "isotopes", "name": "Изотопы",        "tier": 2, "category": "refined", "phase": 1, "transportable": true, "unitVolume": 0.40, "storageDefault": 600 },
+
+    { "id": "alloys",          "name": "Сплавы",          "tier": 3, "category": "component", "phase": 1, "transportable": true, "unitVolume": 0.40, "storageDefault": 1000 },
+    { "id": "electronics",     "name": "Электроника",     "tier": 3, "category": "component", "phase": 1, "transportable": true, "unitVolume": 0.30, "storageDefault": 1000 },
+    { "id": "composites",      "name": "Композиты",       "tier": 3, "category": "component", "phase": 1, "transportable": true, "unitVolume": 0.35, "storageDefault": 1000 },
+    { "id": "superconductors", "name": "Сверхпроводники", "tier": 3, "category": "component", "phase": 1, "transportable": true, "unitVolume": 0.15, "storageDefault": 500 },
+    { "id": "nanomaterials",   "name": "Наноматериалы",   "tier": 3, "category": "component", "phase": 1, "transportable": true, "unitVolume": 0.18, "storageDefault": 500, "comment": "Расширение v1.1. Второй сток редкозёмов и кристаллов на промышленной стороне: до него оба редких ресурса уходили почти целиком в сверхпроводники и оптику, то есть в военную и научную ветки" },
+    { "id": "optics",          "name": "Оптика",          "tier": 3, "category": "component", "phase": 1, "transportable": true, "unitVolume": 0.25, "storageDefault": 600 },
+    { "id": "medicine",        "name": "Медикаменты",     "tier": 3, "category": "component", "phase": 1, "transportable": true, "unitVolume": 0.20, "storageDefault": 800 },
+
+    { "id": "reactors",     "name": "Реакторные блоки",         "tier": 4, "category": "system", "phase": 1, "transportable": true, "unitVolume": 0.50, "storageDefault": 400 },
+    { "id": "thrusters",    "name": "Двигательные блоки",       "tier": 4, "category": "system", "phase": 1, "transportable": true, "unitVolume": 0.50, "storageDefault": 400 },
+    { "id": "weapons",      "name": "Орудийные системы",        "tier": 4, "category": "system", "phase": 1, "transportable": true, "unitVolume": 0.45, "storageDefault": 400 },
+    { "id": "shields",      "name": "Щитовые эмиттеры",         "tier": 4, "category": "system", "phase": 1, "transportable": true, "unitVolume": 0.35, "storageDefault": 400 },
+    { "id": "armor",        "name": "Броневые плиты",           "tier": 4, "category": "system", "phase": 1, "transportable": true, "unitVolume": 0.80, "storageDefault": 600 },
+    { "id": "life_support", "name": "Системы жизнеобеспечения", "tier": 4, "category": "system", "phase": 1, "transportable": true, "unitVolume": 0.40, "storageDefault": 400 },
+
+    { "id": "hull_frames",    "name": "Корпусные секции",      "tier": 5, "category": "final",    "phase": 1, "transportable": true, "unitVolume": 2.00, "storageDefault": 200, "comment": "Намеренно очень объёмны: возить далеко невыгодно, поэтому верфь тянет промышленность к себе" },
+    { "id": "station_parts",  "name": "Станционные модули",    "tier": 5, "category": "final",    "phase": 1, "transportable": true, "unitVolume": 1.50, "storageDefault": 200 },
+    { "id": "consumer_goods", "name": "Потребительские товары","tier": 5, "category": "consumer", "phase": 1, "transportable": true, "unitVolume": 0.40, "storageDefault": 1000 },
+    { "id": "luxury_goods",   "name": "Предметы роскоши",      "tier": 5, "category": "consumer", "phase": 1, "transportable": true, "unitVolume": 0.30, "storageDefault": 800, "comment": "Расширение v1.1. Третий уровень потребления для развитых колоний. Тянет оптику в гражданскую экономику, из-за чего кристаллы начинают конкурировать между роскошью и орудиями" },
+
+    { "id": "data_physics",     "name": "Данные: физика",    "tier": 4, "category": "data", "phase": 1, "transportable": true, "unitVolume": 0.05, "storageDefault": 500 },
+    { "id": "data_engineering", "name": "Данные: инженерия", "tier": 4, "category": "data", "phase": 1, "transportable": true, "unitVolume": 0.05, "storageDefault": 500 },
+    { "id": "data_bio",         "name": "Данные: биология",  "tier": 4, "category": "data", "phase": 1, "transportable": true, "unitVolume": 0.05, "storageDefault": 500 }
+  ]
+}

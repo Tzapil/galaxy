@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://galaxy-sim.local/schema/recipes.schema.json",
+  "title": "RecipesFile",
+  "type": "object",
+  "required": ["version", "batchRecipes", "continuous", "sinks"],
+  "additionalProperties": true,
+  "$defs": {
+    "quantityBag": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "changelog": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "batchRecipes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "tier", "building", "inputs", "outputs", "durationDays", "workers"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "tier": { "type": "integer", "minimum": 1 },
+          "building": { "type": "string", "minLength": 1 },
+          "inputs": { "$ref": "#/$defs/quantityBag" },
+          "outputs": { "$ref": "#/$defs/quantityBag" },
+          "durationDays": { "type": "number", "exclusiveMinimum": 0 },
+          "workers": { "type": "number", "minimum": 0 },
+          "comment": { "type": "string" }
+        }
+      }
+    },
+    "continuous": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "minLength": 1 },
+          "building": { "type": "string" },
+          "outputsPerDay": { "$ref": "#/$defs/quantityBag" },
+          "inputsPerDay": { "$ref": "#/$defs/quantityBag" },
+          "perThousandPopPerDay": { "$ref": "#/$defs/quantityBag" },
+          "comfortOnly": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "sinks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "consumes"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "minLength": 1 },
+          "consumes": { "type": "array", "items": { "type": "string" } },
+          "inputs": { "$ref": "#/$defs/quantityBag" }
+        }
+      }
+    },
+    "strategicChokepoints": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": true }
+    }
+  }
+}

@@ -1,0 +1,1173 @@
+{
+  "options": {
+    "seeds": 50,
+    "years": 100,
+    "out": "reports\\\\bench-stage1.json"
+  },
+  "distributions": {
+    "minPopulation": {
+      "min": 210.0390152071627,
+      "p10": 210.0390152071627,
+      "median": 210.0390152071627,
+      "p90": 210.0390152071627,
+      "max": 210.0390152071627
+    },
+    "averageFoodWaterSpread": {
+      "min": 0.012166843805154814,
+      "p10": 0.012166843805154814,
+      "median": 0.012166843805154814,
+      "p90": 0.012166843805154814,
+      "max": 0.012166843805154814
+    },
+    "deliveredShipments": {
+      "min": 522,
+      "p10": 522,
+      "median": 522,
+      "p90": 522,
+      "max": 522
+    },
+    "elapsedMs": {
+      "min": 556.2655,
+      "p10": 749.4626,
+      "median": 962.2593,
+      "p90": 1333.5208,
+      "max": 1639.0399
+    }
+  },
+  "metrics": [
+    {
+      "name": "alive_factions_by_time",
+      "status": "ok — в срезе две фракции"
+    },
+    {
+      "name": "power_concentration_index",
+      "status": "н/д — появится на этапе 7"
+    },
+    {
+      "name": "median_faction_age",
+      "status": "н/д — появится на этапе 7"
+    },
+    {
+      "name": "building_idle_without_inputs",
+      "status": "н/д — появится на этапе 2"
+    },
+    {
+      "name": "resources_at_zero_longer_than_n_years",
+      "status": "н/д — появится на этапе 2"
+    },
+    {
+      "name": "average_transport_utilization",
+      "status": "ok — прокси: deliveredShipments"
+    },
+    {
+      "name": "war_count_and_duration",
+      "status": "н/д — появится на этапе 6"
+    },
+    {
+      "name": "galactic_price_spread",
+      "status": "ok — averageFoodWaterSpread"
+    }
+  ],
+  "runs": [
+    {
+      "seed": 20260904,
+      "finalHash": "a89bd04c8e6adb6f025ccf5aa864db88",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1038.8927
+    },
+    {
+      "seed": 20260905,
+      "finalHash": "853e7c6290f6a472333fc9968d9098cb",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1129.3999
+    },
+    {
+      "seed": 20260906,
+      "finalHash": "0bc5bfbf793acd396c03b70b6079d21f",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1117.5091
+    },
+    {
+      "seed": 20260907,
+      "finalHash": "9d5699b74eac857d8f5c178e2d983b54",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1574.2381
+    },
+    {
+      "seed": 20260908,
+      "finalHash": "78dab397bd2e31f98429428f7cc0ace8",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1023.9442
+    },
+    {
+      "seed": 20260909,
+      "finalHash": "9ee8204be6bdcb0fcd8501a4a3974643",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1333.5208
+    },
+    {
+      "seed": 20260910,
+      "finalHash": "92b75a762a1f8a95dd8d010bf119e3bc",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1317.6546
+    },
+    {
+      "seed": 20260911,
+      "finalHash": "6deef81072c6663f6d92cf3237647e7f",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1433.4036
+    },
+    {
+      "seed": 20260912,
+      "finalHash": "a4f8aa9c1f31f7509c35c144f95f111b",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1523.4752
+    },
+    {
+      "seed": 20260913,
+      "finalHash": "b4052c26526bd3b6499b0d12987c69d7",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1082.8675
+    },
+    {
+      "seed": 20260914,
+      "finalHash": "70d3eeaa9b3ce460fead3ebbc8b3710f",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1327.6353
+    },
+    {
+      "seed": 20260915,
+      "finalHash": "b116126d4b6601fa93cf3875ca2a82a4",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1639.0399
+    },
+    {
+      "seed": 20260916,
+      "finalHash": "6c35205c23482828bdb47fbf5bb29032",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1173.9736
+    },
+    {
+      "seed": 20260917,
+      "finalHash": "16e3966c77181d7b84074bcd3f780f50",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1331.8031
+    },
+    {
+      "seed": 20260918,
+      "finalHash": "65a61aab501e5a0d77edd175223823ff",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 960.8748
+    },
+    {
+      "seed": 20260919,
+      "finalHash": "df3beb6d006489b459abc50c4fd603b9",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1433.274
+    },
+    {
+      "seed": 20260920,
+      "finalHash": "6763ac5e2259d697c603b801e4a1f34c",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 871.6772
+    },
+    {
+      "seed": 20260921,
+      "finalHash": "c8234de5ae2bb48cc21c56644c5dd259",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 925.8596
+    },
+    {
+      "seed": 20260922,
+      "finalHash": "b1fe0108694c8177eb0a284d33f84e40",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 962.2593
+    },
+    {
+      "seed": 20260923,
+      "finalHash": "bd114d53da20f2cdae0858334327196b",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1209.0097
+    },
+    {
+      "seed": 20260924,
+      "finalHash": "1bb012e7aa10d3960028595be886e3f3",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1045.1484
+    },
+    {
+      "seed": 20260925,
+      "finalHash": "12e194c98e3e509cee40930f192de624",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 940.1699
+    },
+    {
+      "seed": 20260926,
+      "finalHash": "982db00d311bcac5ec482d86da6710cb",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 991.3883
+    },
+    {
+      "seed": 20260927,
+      "finalHash": "c517f9b2a5ef1535721815e3bd9bb4df",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1152.9398
+    },
+    {
+      "seed": 20260928,
+      "finalHash": "15b308f65edd588a375c7f8741613086",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 917.8207
+    },
+    {
+      "seed": 20260929,
+      "finalHash": "0ae5b893b283305f76525a1765f7eff3",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 902.2654
+    },
+    {
+      "seed": 20260930,
+      "finalHash": "5a6179e8956aab0d8624e6eeb9f510cf",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 996.3659
+    },
+    {
+      "seed": 20260931,
+      "finalHash": "8e4ff59ef1d76904e509d72939feae35",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1093.907
+    },
+    {
+      "seed": 20260932,
+      "finalHash": "456ca99650f7cfe6e2600c8e71c960ee",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 947.9728
+    },
+    {
+      "seed": 20260933,
+      "finalHash": "163dd4c8daf4350687450a47a42f7ff3",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 875.0108
+    },
+    {
+      "seed": 20260934,
+      "finalHash": "420b1e591b1d0f048cc9b3a03b0a94ff",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1009.0071
+    },
+    {
+      "seed": 20260935,
+      "finalHash": "356fea0cab239475fbddde3e63e36975",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 955.6792
+    },
+    {
+      "seed": 20260936,
+      "finalHash": "408cbe8c79121ccb44cb6a2f108f45b3",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 1025.0097
+    },
+    {
+      "seed": 20260937,
+      "finalHash": "2c63b623316ff92c702939286082e0ed",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 939.9529
+    },
+    {
+      "seed": 20260938,
+      "finalHash": "c37ab50feabcd5957a7c2f599016f07e",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 845.4056
+    },
+    {
+      "seed": 20260939,
+      "finalHash": "4bd6cd0ee1993afde9d5f1f084a482f0",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 973.4122
+    },
+    {
+      "seed": 20260940,
+      "finalHash": "02645e1ef9bf90540841c69a3166f0cc",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 899.7153
+    },
+    {
+      "seed": 20260941,
+      "finalHash": "d84f33c50986f6e08d0aebfeda7c407d",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 892.1627
+    },
+    {
+      "seed": 20260942,
+      "finalHash": "739699986c9dc2785e220fbd20316c27",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 869.2519
+    },
+    {
+      "seed": 20260943,
+      "finalHash": "dd1f4e3ab45cd485251e553f572386f7",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 996.399
+    },
+    {
+      "seed": 20260944,
+      "finalHash": "b8d4de287d1c486822cb51dc201d6344",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 918.735
+    },
+    {
+      "seed": 20260945,
+      "finalHash": "32a6031999274a8f2877cebb72cd318b",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 913.6875
+    },
+    {
+      "seed": 20260946,
+      "finalHash": "b91284b392926d7b0ab3135fdd14cbb2",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 851.5104
+    },
+    {
+      "seed": 20260947,
+      "finalHash": "150a4308f8abd0bf2e31614faeff0468",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 828.1904
+    },
+    {
+      "seed": 20260948,
+      "finalHash": "dcbbd42c3142bc1fb9e3e5c65a9295cf",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 759.5402
+    },
+    {
+      "seed": 20260949,
+      "finalHash": "f2797dae7ce76178cdcf74c69e8dc4d4",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 744.7128
+    },
+    {
+      "seed": 20260950,
+      "finalHash": "4ee084ef8e21e3d03430c94ea28f1762",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 749.4626
+    },
+    {
+      "seed": 20260951,
+      "finalHash": "da639bcf15e5a76e54cb21127ea2255c",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 661.8743
+    },
+    {
+      "seed": 20260952,
+      "finalHash": "57ca5f72bfef35d19efc52178f5dbb66",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 556.2655
+    },
+    {
+      "seed": 20260953,
+      "finalHash": "775da110dd926fbda1d97029685e999e",
+      "ticks": 36500,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 8,
+        "buildings": 56
+      },
+      "metrics": {
+        "totalPopulation": 945.244074697566,
+        "minPopulation": 210.0390152071627,
+        "averageFoodWaterSpread": 0.012166843805154814,
+        "completedBatches": 306136,
+        "deliveredShipments": 522,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 0,
+        "idleHaulers": 8
+      },
+      "elapsedMs": 580.5373
+    }
+  ]
+}

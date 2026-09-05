@@ -1,0 +1,8 @@
+node_modules
+*.log
+**/dist
+**/dist-types
+**/coverage
+docs/**
+packages/tools/reports/**
+packages/sim-data/src/generated/**

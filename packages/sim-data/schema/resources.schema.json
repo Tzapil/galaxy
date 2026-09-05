@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://galaxy-sim.local/schema/resources.schema.json",
+  "title": "ResourcesFile",
+  "type": "object",
+  "required": ["version", "resources"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tier",
+          "category",
+          "phase",
+          "transportable",
+          "unitVolume",
+          "storageDefault"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "tier": { "type": "integer", "minimum": 0 },
+          "category": {
+            "type": "string",
+            "enum": [
+              "utility",
+              "raw",
+              "refined",
+              "component",
+              "system",
+              "final",
+              "consumer",
+              "data"
+            ]
+          },
+          "phase": { "type": "integer", "minimum": 1 },
+          "transportable": { "type": "boolean" },
+          "unitVolume": { "type": "number", "minimum": 0 },
+          "storageDefault": { "type": "number", "minimum": 0 },
+          "rarity": { "type": "string", "enum": ["common", "rare", "veryrare"] },
+          "deposit": { "type": "string" },
+          "comment": { "type": "string" }
+        }
+      }
+    }
+  }
+}

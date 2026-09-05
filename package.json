@@ -1,0 +1,31 @@
+{
+  "name": "galaxy-sim",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "build": "corepack pnpm -r build",
+    "test": "corepack pnpm -r test",
+    "lint": "eslint . --max-warnings=0",
+    "format:check": "prettier . --check",
+    "dev": "corepack pnpm --filter @galaxy-sim/client dev",
+    "validate:data": "corepack pnpm --filter @galaxy-sim/tools validate:data",
+    "sim:run": "corepack pnpm --filter @galaxy-sim/tools sim:run",
+    "golden:check": "corepack pnpm --filter @galaxy-sim/tools golden:check",
+    "golden:update": "corepack pnpm --filter @galaxy-sim/tools golden:update",
+    "bench": "corepack pnpm --filter @galaxy-sim/tools bench",
+    "scenarios:check": "corepack pnpm --filter @galaxy-sim/tools scenarios:check"
+  },
+  "devDependencies": {
+    "@eslint/js": "latest",
+    "@types/node": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "prettier": "latest",
+    "tsx": "latest",
+    "typescript": "6.0.3",
+    "typescript-eslint": "latest",
+    "vitest": "latest"
+  }
+}

@@ -1,0 +1,198 @@
+{
+  "$schema": "./schema/start-package.schema.json",
+  "version": "1.0",
+  "notes": [
+    "Стартовый пакет фракции: домашняя система, здания, склады, корабли, население.",
+    "Это самый рискованный кусок данных: если бутстрап заклинит, партия не заведётся вообще.",
+    "Проверяется прогоном bootstrap.mjs — он крутит экономику по тикам и следит за тем,",
+    "что население не вымирает, все три вида данных производятся, а строительство идёт.",
+    "",
+    "Принцип минимального семени: стартовый набор зданий обязан лишь НЕ ЗАКЛИНИТЬ.",
+    "Дальше строительный ИИ доращивает колонию сам. Раздувать стартовый пакет вредно —",
+    "он маскирует дефекты цепочек, которые всплывут позже и хуже."
+  ],
+
+  "homeSystem": {
+    "comment": "Гарантированный состав домашней системы. Генератор карты (решение №9) обязан его обеспечить, иначе старт нежизнеспособен и требуется перегенерация.",
+    "bodies": [
+      {
+        "id": "homeworld",
+        "name": "Родной мир",
+        "type": "planet",
+        "slots": 30,
+        "features": ["habitable"],
+        "yield": 1.0
+      },
+      {
+        "id": "rocky",
+        "name": "Скалистая",
+        "type": "planet",
+        "slots": 16,
+        "features": ["ore_deposit", "silicate_deposit"],
+        "yield": 1.0
+      },
+      {
+        "id": "icy",
+        "name": "Ледяная луна",
+        "type": "planet",
+        "slots": 10,
+        "features": ["ice_deposit"],
+        "yield": 1.0
+      },
+      {
+        "id": "giant",
+        "name": "Газовый гигант",
+        "type": "planet",
+        "slots": 9,
+        "features": ["gas_giant_orbit"],
+        "yield": 1.0
+      },
+      {
+        "id": "belt",
+        "name": "Астероидный пояс",
+        "type": "asteroid",
+        "slots": 14,
+        "features": ["ore_deposit", "rare_earth_vein", "crystal_vein", "radioactive_vein"],
+        "yield": 0.65
+      }
+    ],
+    "rareDepositRule": [
+      "Редкие жилы в домашней системе БЕДНЫЕ (yield 0.5) и всего по одному слоту каждая.",
+      "Их достаточно, чтобы наука и верхние тиры запустились, но недостаточно для флота.",
+      "Это и есть двигатель ранней экспансии: за настоящими объёмами надо идти наружу.",
+      "Без них была бы неустранимая проблема: research_physics требует кристаллы, значит",
+      "фракция без кристаллов не может исследовать вообще ничего."
+    ]
+  },
+
+  "population": {
+    "start": 210,
+    "unit": "тысяч человек",
+    "employmentRate": 0.55,
+    "comment": "Подобрано прогоном bootstrap.mjs. Стартовые здания требуют ~114 единиц рабочей силы; при занятости 0.55 это 207 тыс. населения. Первая редакция (42 тыс.) давала 23 рабочих при потребности 45 — половина зданий простаивала, и строительный ИИ уходил в бесконечное строительство жилья."
+  },
+
+  "treasury": { "credits": 2500 },
+
+  "buildings": [
+    { "id": "farm", "body": "homeworld" },
+    { "id": "farm", "body": "homeworld" },
+    { "id": "food_plant", "body": "homeworld" },
+    { "id": "food_plant", "body": "homeworld" },
+    { "id": "water_plant", "body": "homeworld" },
+    { "id": "water_plant", "body": "homeworld" },
+    { "id": "pharma_plant", "body": "homeworld" },
+    { "id": "pharma_plant", "body": "homeworld" },
+    { "id": "polymer_plant", "body": "homeworld" },
+    { "id": "polymer_plant", "body": "homeworld" },
+    { "id": "consumer_plant", "body": "homeworld" },
+    { "id": "alloy_works", "body": "homeworld" },
+    { "id": "electronics_plant", "body": "homeworld" },
+    { "id": "electronics_plant", "body": "homeworld" },
+    { "id": "consumer_plant", "body": "homeworld" },
+    { "id": "engineering_lab", "body": "homeworld" },
+    { "id": "physics_lab", "body": "homeworld" },
+    { "id": "bio_lab", "body": "homeworld" },
+    { "id": "housing", "body": "homeworld" },
+    { "id": "housing", "body": "homeworld" },
+    { "id": "housing", "body": "homeworld" },
+    { "id": "solar_array", "body": "homeworld" },
+    { "id": "solar_array", "body": "homeworld" },
+    { "id": "solar_array", "body": "homeworld" },
+
+    { "id": "mine", "body": "rocky" },
+    { "id": "mine", "body": "rocky" },
+    { "id": "quarry", "body": "rocky" },
+    { "id": "smelter", "body": "rocky" },
+    { "id": "smelter", "body": "rocky" },
+    { "id": "ceramics_plant", "body": "rocky" },
+    { "id": "solar_array", "body": "rocky" },
+    { "id": "solar_array", "body": "rocky" },
+
+    { "id": "ice_drill", "body": "icy" },
+    { "id": "ice_drill", "body": "icy" },
+    { "id": "ice_drill", "body": "icy" },
+    { "id": "solar_array", "body": "icy" },
+
+    { "id": "gas_collector", "body": "giant" },
+    { "id": "gas_collector", "body": "giant" },
+    { "id": "refinery", "body": "giant" },
+    { "id": "refinery", "body": "giant" },
+    { "id": "solar_array", "body": "giant" },
+    { "id": "solar_array", "body": "giant" },
+
+    { "id": "crystal_mine", "body": "belt" },
+    { "id": "rare_earth_mine", "body": "belt" },
+    { "id": "rare_earth_mine", "body": "belt" },
+    { "id": "solar_array", "body": "belt" }
+  ],
+
+  "buildingRules": [
+    "У КАЖДОГО тела с производственными зданиями обязана быть собственная электростанция:",
+    "энергия не транспортируется (решение №5). Первая редакция пакета ставила газосборник",
+    "на газовый гигант без единого источника энергии — он простаивал всю партию, из-за чего",
+    "не было газа, полимеров и медикаментов, и население 96% времени сидело в дефиците.",
+    "",
+    "Стартовый набор обязан включать металлургический и электронный заводы: без них не",
+    "производятся инженерные данные, и фракция не исследует вообще ничего.",
+    "",
+    "И обязан включать ТОПЛИВНЫЙ завод. В одиночном прогоне это незаметно — там некуда",
+    "лететь. Многосистемный прогон сразу дал 95 тысяч сорванных вылетов против 28",
+    "выполненных рейсов: фракция без производства топлива физически неподвижна, а значит",
+    "не может ни торговать, ни колонизировать, ни воевать."
+  ],
+
+  "stockpiles": {
+    "comment": "Запас примерно на два года потребления плюс материалы на первые несколько строек. Намеренно скромный: задача — пережить раскрутку, а не жить на нём.",
+    "food": 60,
+    "water": 55,
+    "medicine": 12,
+    "consumer_goods": 20,
+    "ore": 400,
+    "silicates": 300,
+    "ice": 250,
+    "gas": 250,
+    "biomass": 120,
+    "rare_earth": 60,
+    "crystals": 50,
+    "radioactives": 40,
+    "metal": 320,
+    "ceramics": 90,
+    "polymers": 90,
+    "fuel": 200,
+    "alloys": 180,
+    "electronics": 260,
+    "composites": 220,
+    "reactors": 8,
+    "thrusters": 8,
+    "weapons": 6,
+    "armor": 10,
+    "life_support": 8,
+    "hull_frames": 6
+  },
+
+  "ships": [
+    { "hull": "corvette", "doctrine": "escort", "count": 2 },
+    { "hull": "freighter", "doctrine": "hauler", "count": 3 },
+    { "hull": "prospector", "doctrine": "miner", "count": 1 },
+    { "hull": "shuttle", "doctrine": "scout", "count": 2 }
+  ],
+
+  "technologies": ["start"],
+
+  "successCriteria": {
+    "comment": "Проверяется bootstrap.mjs. Текущее состояние: 4 критерия из 5 проходят. Пятый (отсутствие затяжного голода) не проходит — см. раздел «Что осталось» в galaxy-sim-start.md. Причина известна и локализована: строительная эвристика колеблется между жизненно важными цепочками, вытягивая одну за счёт другой, потому что домашняя система насыщена по слотам.",
+    "populationNeverBelow": 190,
+    "allThreeDataFlowingByYear": 5,
+    "populationMultipleByYear50": 1.4,
+    "buildingsByYear50": 45,
+    "noResourceStarvedLongerThanDays": 730,
+    "status": {
+      "populationNeverBelow": "ПРОХОДИТ — минимум 215.8",
+      "allThreeDataFlowingByYear": "ПРОХОДИТ — первая технология к 4 году",
+      "populationMultipleByYear50": "ПРОХОДИТ — рост в 4.18×",
+      "buildingsByYear50": "ПРОХОДИТ — 79 зданий",
+      "noResourceStarvedLongerThanDays": "НЕ ПРОХОДИТ — колебания снабжения после насыщения слотов"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "@galaxy-sim/tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "galaxy-sim": "./dist/src/headless.js"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run --config ../../vitest.config.ts",
+    "lint": "eslint src test --max-warnings=0",
+    "validate:economy": "node src/validate.mjs",
+    "validate:tech": "node src/tech.mjs",
+    "validate:design": "node src/design.mjs",
+    "validate:bootstrap": "node src/bootstrap.mjs",
+    "validate:galaxy": "node src/galaxy.mjs",
+    "validate:war": "node src/war.mjs",
+    "validate:data": "tsx src/data-validation.ts",
+    "presim:run": "corepack pnpm --filter @galaxy-sim/sim-core build",
+    "sim:run": "tsx src/headless.ts",
+    "pregolden:check": "corepack pnpm --filter @galaxy-sim/sim-core build",
+    "golden:check": "tsx src/golden.ts check",
+    "pregolden:update": "corepack pnpm --filter @galaxy-sim/sim-core build",
+    "golden:update": "tsx src/golden.ts update",
+    "prebench": "corepack pnpm --filter @galaxy-sim/sim-core build",
+    "bench": "tsx src/bench.ts",
+    "prescenarios:check": "corepack pnpm --filter @galaxy-sim/sim-core build",
+    "scenarios:check": "tsx src/scenarios.ts"
+  },
+  "dependencies": {
+    "@galaxy-sim/sim-core": "workspace:*",
+    "@galaxy-sim/sim-data": "workspace:*"
+  }
+}

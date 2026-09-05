@@ -1,0 +1,141 @@
+{
+  "$schema": "./schema/recipes.schema.json",
+  "version": "1.1",
+  "changelog": [
+    "1.1 — правки после первого прогона валидатора:",
+    "     • выход редких шахт поднят: себестоимость редкого сырья приведена к ~4× обычного",
+    "       вместо 7–11×. Редкость должна возникать из географии и теневых цен, а не из",
+    "       себестоимости добычи, иначе она учитывается дважды.",
+    "     • изотопы удешевлены (выход 2→4, срок 4→3 дня): при прежних числах ядерная станция",
+    "       давала энергию в 9× дороже солнечной и не была бы построена никогда.",
+    "     • сверхпроводники: выход 2→3, срок 6→5 дней. Остаются главным горлышком, но перестают",
+    "       быть недостижимыми.",
+    "     • энергозатраты всех рецептов подняты в ~2.5×, выработка станций — соответственно.",
+    "       До этого энергия составляла 7% стоимости рецепта, то есть экономически её не было,",
+    "       и вся цепочка газ → топливо → термояд не имела смысла."
+  ],
+  "notes": [
+    "durationDays == durationTicks, поскольку базовый тик равен одному игровому дню.",
+    "workers — численность занятых, требуется всё время работы партии.",
+    "batchRecipes — дискретные партии (решение №5): входы резервируются целиком,",
+    "выход выдаётся событием через durationDays. Нет входов — здание стоит.",
+    "continuous — непрерывные процессы, считаются каждый тик с плавной деградацией.",
+    "sinks — терминальное потребление, куда экономика утекает окончательно."
+  ],
+
+  "batchRecipes": [
+    { "id": "mine_ore",            "tier": 1, "building": "mine",              "inputs": { "energy": 5 },                                               "outputs": { "ore": 20 },          "durationDays": 2, "workers": 4 },
+    { "id": "drill_ice",           "tier": 1, "building": "ice_drill",         "inputs": { "energy": 5 },                                               "outputs": { "ice": 34 },          "durationDays": 2, "workers": 3 },
+    { "id": "collect_gas",         "tier": 1, "building": "gas_collector",     "inputs": { "energy": 8 },                                               "outputs": { "gas": 16 },          "durationDays": 2, "workers": 4 },
+    { "id": "quarry_silicates",    "tier": 1, "building": "quarry",            "inputs": { "energy": 5 },                                               "outputs": { "silicates": 18 },    "durationDays": 2, "workers": 3 },
+    { "id": "farm_biomass",        "tier": 1, "building": "farm",              "inputs": { "water": 4, "energy": 3 },                                   "outputs": { "biomass": 30 },      "durationDays": 3, "workers": 5 },
+    { "id": "hydroponics_biomass", "tier": 1, "building": "hydroponics_bay",   "inputs": { "water": 7, "energy": 10 },                                  "outputs": { "biomass": 20 },      "durationDays": 3, "workers": 4,
+      "comment": "Альтернативный рецепт биомассы: ставится где угодно, но требует вдвое больше воды и втрое больше энергии на единицу. Нужен потому, что агрокомплекс требует пригодной планеты, а пригодная планета в системе обычно одна и быстро забивается." },
+    { "id": "mine_rare_earth",     "tier": 1, "building": "rare_earth_mine",   "inputs": { "energy": 12 },                                              "outputs": { "rare_earth": 10 },   "durationDays": 3, "workers": 5 },
+    { "id": "mine_crystals",       "tier": 1, "building": "crystal_mine",      "inputs": { "energy": 12 },                                              "outputs": { "crystals": 9 },      "durationDays": 3, "workers": 5 },
+    { "id": "mine_radioactives",   "tier": 1, "building": "radioactive_mine",  "inputs": { "energy": 15 },                                              "outputs": { "radioactives": 9 },  "durationDays": 3, "workers": 5 },
+
+    { "id": "smelt_metal",         "tier": 2, "building": "smelter",           "inputs": { "ore": 12, "energy": 12 },                                   "outputs": { "metal": 6 },         "durationDays": 2, "workers": 4 },
+    { "id": "purify_water",        "tier": 2, "building": "water_plant",       "inputs": { "ice": 22, "energy": 8 },                                    "outputs": { "water": 20 },        "durationDays": 1, "workers": 2 },
+    { "id": "refine_fuel",         "tier": 2, "building": "refinery",          "inputs": { "gas": 12, "energy": 15 },                                   "outputs": { "fuel": 16 },          "durationDays": 2, "workers": 4 },
+    { "id": "synth_food",          "tier": 2, "building": "food_plant",        "inputs": { "biomass": 18, "water": 8, "energy": 5 },                    "outputs": { "food": 24 },         "durationDays": 2, "workers": 4 },
+    { "id": "make_polymers",       "tier": 2, "building": "polymer_plant",     "inputs": { "gas": 10, "energy": 12 },                                   "outputs": { "polymers": 6 },      "durationDays": 2, "workers": 3 },
+    { "id": "fire_ceramics",       "tier": 2, "building": "ceramics_plant",    "inputs": { "silicates": 12, "energy": 18 },                             "outputs": { "ceramics": 7 },      "durationDays": 2, "workers": 3 },
+    { "id": "enrich_isotopes",     "tier": 2, "building": "enrichment_plant",  "inputs": { "radioactives": 5, "energy": 30 },                           "outputs": { "isotopes": 4 },      "durationDays": 3, "workers": 4 },
+
+    { "id": "forge_alloys",        "tier": 3, "building": "alloy_works",       "inputs": { "metal": 8, "rare_earth": 2, "energy": 18 },                  "outputs": { "alloys": 5 },        "durationDays": 3, "workers": 5 },
+    { "id": "make_electronics",    "tier": 3, "building": "electronics_plant", "inputs": { "silicates": 5, "metal": 3, "rare_earth": 2, "energy": 15 },  "outputs": { "electronics": 4 },   "durationDays": 3, "workers": 5 },
+    { "id": "make_composites",     "tier": 3, "building": "composite_plant",   "inputs": { "polymers": 6, "ceramics": 5, "energy": 10 },                 "outputs": { "composites": 6 },    "durationDays": 3, "workers": 4 },
+    { "id": "make_superconductors","tier": 3, "building": "sc_plant",          "inputs": { "crystals": 5, "rare_earth": 3, "isotopes": 2, "energy": 35 },"outputs": { "superconductors": 3 },"durationDays": 5, "workers": 6 },
+    { "id": "make_optics",         "tier": 3, "building": "optics_plant",      "inputs": { "crystals": 4, "ceramics": 4, "energy": 12 },                 "outputs": { "optics": 3 },        "durationDays": 3, "workers": 4 },
+    { "id": "make_nanomaterials",  "tier": 3, "building": "nano_foundry",      "inputs": { "composites": 4, "rare_earth": 2, "crystals": 2, "energy": 22 }, "outputs": { "nanomaterials": 3 }, "durationDays": 4, "workers": 5 },
+    { "id": "make_medicine",       "tier": 3, "building": "pharma_plant",      "inputs": { "biomass": 6, "water": 4, "polymers": 2, "energy": 10 },      "outputs": { "medicine": 9 },      "durationDays": 3, "workers": 4 },
+
+    { "id": "make_reactors",       "tier": 4, "building": "reactor_works",     "inputs": { "alloys": 6, "superconductors": 3, "isotopes": 2, "energy": 25 },  "outputs": { "reactors": 2 },     "durationDays": 6, "workers": 7 },
+    { "id": "make_thrusters",      "tier": 4, "building": "thruster_works",    "inputs": { "alloys": 6, "composites": 5, "electronics": 3, "energy": 20 },    "outputs": { "thrusters": 2 },    "durationDays": 5, "workers": 6 },
+    { "id": "make_weapons",        "tier": 4, "building": "weapon_works",      "inputs": { "alloys": 7, "electronics": 4, "optics": 2, "energy": 20 },        "outputs": { "weapons": 2 },      "durationDays": 5, "workers": 6 },
+    { "id": "make_shields",        "tier": 4, "building": "shield_works",      "inputs": { "superconductors": 4, "optics": 3, "electronics": 3, "energy": 25 },"outputs": { "shields": 2 },     "durationDays": 6, "workers": 7 },
+    { "id": "make_armor",          "tier": 4, "building": "armor_works",       "inputs": { "alloys": 9, "composites": 6, "energy": 12 },                      "outputs": { "armor": 4 },        "durationDays": 4, "workers": 5 },
+    { "id": "make_life_support",   "tier": 4, "building": "lifesupport_works", "inputs": { "polymers": 5, "electronics": 2, "water": 5, "energy": 10 },       "outputs": { "life_support": 3 }, "durationDays": 3, "workers": 4 },
+
+    { "id": "make_hull_frames",    "tier": 5, "building": "hull_yard",         "inputs": { "alloys": 14, "composites": 10, "metal": 12, "energy": 30 },      "outputs": { "hull_frames": 2 },   "durationDays": 8, "workers": 10 },
+    { "id": "make_station_parts",  "tier": 5, "building": "station_yard",      "inputs": { "alloys": 10, "composites": 7, "electronics": 4, "energy": 22 },  "outputs": { "station_parts": 2 }, "durationDays": 6, "workers": 7 },
+    { "id": "make_consumer_goods", "tier": 5, "building": "consumer_plant",    "inputs": { "polymers": 6, "electronics": 3, "ceramics": 5, "energy": 12 },   "outputs": { "consumer_goods": 14 },"durationDays": 3, "workers": 5 },
+    { "id": "make_luxury_goods",   "tier": 5, "building": "luxury_works",      "inputs": { "optics": 2, "polymers": 5, "medicine": 2, "energy": 14 },       "outputs": { "luxury_goods": 5 },  "durationDays": 4, "workers": 6 },
+
+    { "id": "research_physics",     "tier": 4, "building": "physics_lab",     "inputs": { "crystals": 3, "energy": 30 },                      "outputs": { "data_physics": 3 },     "durationDays": 5, "workers": 8 },
+    { "id": "research_engineering", "tier": 4, "building": "engineering_lab", "inputs": { "alloys": 3, "electronics": 3, "energy": 20 },      "outputs": { "data_engineering": 3 }, "durationDays": 5, "workers": 8 },
+    { "id": "research_bio",         "tier": 4, "building": "bio_lab",         "inputs": { "biomass": 8, "medicine": 2, "energy": 15 },        "outputs": { "data_bio": 3 },         "durationDays": 5, "workers": 8 }
+  ],
+
+  "continuous": [
+    {
+      "id": "solar_array", "kind": "power", "building": "solar_array", "slots": 1,
+      "inputsPerDay": {}, "outputPerDay": { "energy": 26 }, "workers": 1,
+      "modifiers": ["starLuminosity 0.4–1.5", "orbitalDistance"],
+      "comment": "Дешевле всех за единицу, но хуже всех за слот. Выход зависит от типа звезды и орбиты — это делает тип звезды реальным фактором качества системы."
+    },
+    {
+      "id": "fission_plant", "kind": "power", "building": "fission_plant", "slots": 1,
+      "inputsPerDay": { "isotopes": 1.2 }, "outputPerDay": { "energy": 72 }, "workers": 4
+    },
+    {
+      "id": "fusion_plant", "kind": "power", "building": "fusion_plant", "slots": 1,
+      "inputsPerDay": { "fuel": 3.5 }, "outputPerDay": { "energy": 125 }, "workers": 5,
+      "comment": "Топливо здесь конкурирует с топливом для флота. На войне промышленность тускнеет — намеренный эффект."
+    },
+
+    {
+      "id": "population_needs", "kind": "consumption",
+      "unitsNote": [
+        "Население и поле workers в рецептах измеряются в ОДНИХ И ТЕХ ЖЕ единицах —",
+        "тысячах человек. Ставки ниже откалиброваны так, чтобы полностью застроенная",
+        "планета на 14 слотов кормила себя, отдав под пищевую цепочку ~2 слота.",
+        "Исходные ставки (food 1.00) были несогласованы с числом рабочих: такой планете",
+        "потребовалось бы 11.5 пищекомбинатов только на прокорм собственной рабочей силы,",
+        "то есть больше, чем у неё всего слотов. Обнаружено прогоном bootstrap.mjs."
+      ],
+      "perThousandPopPerDay": {
+        "food": 0.060,
+        "water": 0.050,
+        "medicine": 0.008,
+        "consumer_goods": 0.015,
+        "luxury_goods": 0.006
+      },
+      "comfortOnly": ["consumer_goods", "luxury_goods"],
+      "comfortNote": [
+        "Расширение v1.1: предметы роскоши — третий уровень потребления. Это КОМФОРТНАЯ",
+        "потребность: её нехватка бьёт по довольству и напряжению региона (решение №15),",
+        "но не убивает население, в отличие от еды и воды. Поэтому её добавление не",
+        "ломает бутстрап: молодая колония просто живёт без роскоши."
+      ],
+      "degradation": {
+        "comment": "Доля удовлетворения потребности → эффект. Голод не бинарен.",
+        "thresholds": [
+          { "satisfaction": 1.00, "growth":  1.00, "unrest": 0.00 },
+          { "satisfaction": 0.80, "growth":  0.40, "unrest": 0.15 },
+          { "satisfaction": 0.50, "growth":  0.00, "unrest": 0.45 },
+          { "satisfaction": 0.30, "growth": -0.35, "unrest": 0.80 },
+          { "satisfaction": 0.00, "growth": -1.00, "unrest": 1.00 }
+        ]
+      },
+      "consumerGoodsScaling": "Потребность в consumer_goods умножается на уровень развития колонии. Голая окраина почти не требует, метрополия требует много."
+    }
+  ],
+
+  "sinks": [
+    { "id": "ship_construction",   "consumes": ["hull_frames", "reactors", "thrusters", "weapons", "shields", "armor", "life_support", "nanomaterials"], "comment": "Главный сток. Модуль корабля тира N = базовое количество системного ресурса × множитель тира + редкие добавки. Наноматериалы попадают сюда через наноброню (расширение v1.1)." },
+    { "id": "station_construction","consumes": ["station_parts", "reactors", "life_support"] },
+    { "id": "building_construction","consumes": ["metal", "alloys", "composites", "electronics", "nanomaterials"], "comment": "Наноматериалы входят в стоимость аркологии (расширение v1.1)." },
+    { "id": "population",          "consumes": ["food", "water", "medicine", "consumer_goods", "luxury_goods"], "comment": "Второй обязательный сток. Без него экономика вырождается в чисто военную. Роскошь — комфортная потребность развитых колоний (расширение v1.1)." },
+    { "id": "ship_movement",       "consumes": ["fuel"], "comment": "Списывается в момент вылета из склада точки отправления (решение №14)." },
+    { "id": "research",            "consumes": ["data_physics", "data_engineering", "data_bio"] }
+  ],
+
+  "strategicChokepoints": [
+    { "resource": "rare_earth",      "gates": ["alloys", "electronics", "superconductors"], "comment": "Универсальное промышленное горлышко: входит в конструкционку, электронику и сверхпроводники одновременно, поэтому нужно всем и всегда." },
+    { "resource": "crystals",        "gates": ["superconductors", "optics", "data_physics"], "comment": "Гейтит качество оружия, щитов и всю физическую науку." },
+    { "resource": "radioactives",    "gates": ["isotopes", "reactors", "fission_plant"], "comment": "Гейтит энергетику и реакторы." },
+    { "resource": "superconductors", "gates": ["reactors", "shields"], "comment": "Главное горлышко верхних тиров: требует три редких входа сразу. Контроль над ним равен контролю над качественным флотом." }
+  ]
+}

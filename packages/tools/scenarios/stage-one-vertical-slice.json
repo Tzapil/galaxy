@@ -1,0 +1,7 @@
+{
+  "stage": 1,
+  "seed": 20260904,
+  "ticks": 36500,
+  "description": "Stage 1 vertical slice lives for 100 years with transport, prices, production, and population active.",
+  "expectedPathologyStatus": "ok"
+}

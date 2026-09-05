@@ -1,0 +1,10 @@
+{
+  "materialCycles": 0,
+  "energyCyclesMin": 1,
+  "rareRawRatio": {
+    "min": 2,
+    "max": 5
+  },
+  "energyCostShareMin": 0.03,
+  "dataBalanceMin": 0.15
+}

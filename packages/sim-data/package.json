@@ -1,0 +1,31 @@
+{
+  "name": "@galaxy-sim/sim-data",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./node": {
+      "types": "./dist/src/node-load.d.ts",
+      "import": "./dist/src/node-load.js"
+    }
+  },
+  "types": "./dist/src/index.d.ts",
+  "scripts": {
+    "generate:types": "node scripts/generate-types.mjs",
+    "prebuild": "node scripts/generate-types.mjs",
+    "build": "tsc -b",
+    "pretest": "node scripts/generate-types.mjs",
+    "test": "vitest run --config ../../vitest.config.ts",
+    "lint": "eslint src scripts test --max-warnings=0"
+  },
+  "dependencies": {
+    "ajv": "latest"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "latest"
+  }
+}

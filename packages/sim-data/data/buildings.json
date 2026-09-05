@@ -1,0 +1,481 @@
+{
+  "$schema": "./schema/buildings.schema.json",
+  "version": "1.0",
+  "notes": [
+    "slots — сколько слотов планеты или станции занимает здание (решение №6).",
+    "placement.requires — необходимая особенность тела: без месторождения шахту не поставить.",
+    "buildCost — разовые затраты на постройку, buildDays — срок возведения.",
+    "workers наследуются из рецепта; здание без рецепта задаёт workers напрямую."
+  ],
+
+  "buildings": [
+    {
+      "id": "mine",
+      "name": "Шахта",
+      "recipe": "mine_ore",
+      "slots": 1,
+      "placement": { "on": ["planet", "asteroid"], "requires": "ore_deposit" },
+      "buildCost": { "metal": 40, "composites": 10 },
+      "buildDays": 15
+    },
+    {
+      "id": "ice_drill",
+      "name": "Ледобуровая",
+      "recipe": "drill_ice",
+      "slots": 1,
+      "placement": { "on": ["planet", "asteroid", "comet"], "requires": "ice_deposit" },
+      "buildCost": { "metal": 35, "composites": 10 },
+      "buildDays": 14
+    },
+    {
+      "id": "gas_collector",
+      "name": "Газосборник",
+      "recipe": "collect_gas",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"], "requires": "gas_giant_orbit" },
+      "buildCost": { "metal": 50, "composites": 20 },
+      "buildDays": 20
+    },
+    {
+      "id": "quarry",
+      "name": "Карьер силикатов",
+      "recipe": "quarry_silicates",
+      "slots": 1,
+      "placement": { "on": ["planet", "asteroid"], "requires": "silicate_deposit" },
+      "buildCost": { "metal": 35, "composites": 10 },
+      "buildDays": 14
+    },
+    {
+      "id": "farm",
+      "name": "Агрокомплекс",
+      "recipe": "farm_biomass",
+      "slots": 1,
+      "placement": { "on": ["planet"], "requires": "habitable" },
+      "buildCost": { "metal": 30, "polymers": 20 },
+      "buildDays": 12
+    },
+    {
+      "id": "hydroponics_bay",
+      "name": "Гидропонный комплекс",
+      "recipe": "hydroponics_biomass",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 50, "polymers": 45 },
+      "buildDays": 18
+    },
+    {
+      "id": "rare_earth_mine",
+      "name": "Рудник редкозёмов",
+      "recipe": "mine_rare_earth",
+      "slots": 1,
+      "placement": { "on": ["planet", "asteroid"], "requires": "rare_earth_vein" },
+      "buildCost": { "metal": 60, "composites": 20 },
+      "buildDays": 22
+    },
+    {
+      "id": "crystal_mine",
+      "name": "Кристаллодобыча",
+      "recipe": "mine_crystals",
+      "slots": 1,
+      "placement": { "on": ["planet", "asteroid"], "requires": "crystal_vein" },
+      "buildCost": { "metal": 60, "composites": 20 },
+      "buildDays": 22
+    },
+    {
+      "id": "radioactive_mine",
+      "name": "Рудник радиоактивов",
+      "recipe": "mine_radioactives",
+      "slots": 1,
+      "placement": { "on": ["planet", "asteroid"], "requires": "radioactive_vein" },
+      "buildCost": { "metal": 70, "composites": 25 },
+      "buildDays": 25
+    },
+
+    {
+      "id": "smelter",
+      "name": "Плавильня",
+      "recipe": "smelt_metal",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 60, "alloys": 20 },
+      "buildDays": 20
+    },
+    {
+      "id": "water_plant",
+      "name": "Водоочистная станция",
+      "recipe": "purify_water",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 40, "polymers": 20 },
+      "buildDays": 15
+    },
+    {
+      "id": "refinery",
+      "name": "Топливный завод",
+      "recipe": "refine_fuel",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 70, "alloys": 25 },
+      "buildDays": 22
+    },
+    {
+      "id": "food_plant",
+      "name": "Пищекомбинат",
+      "recipe": "synth_food",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 45, "polymers": 25 },
+      "buildDays": 16
+    },
+    {
+      "id": "polymer_plant",
+      "name": "Полимерный завод",
+      "recipe": "make_polymers",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 60, "alloys": 20 },
+      "buildDays": 20
+    },
+    {
+      "id": "ceramics_plant",
+      "name": "Керамический завод",
+      "recipe": "fire_ceramics",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 60, "alloys": 20 },
+      "buildDays": 20
+    },
+    {
+      "id": "enrichment_plant",
+      "name": "Обогатительный комбинат",
+      "recipe": "enrich_isotopes",
+      "slots": 2,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 90, "alloys": 50, "electronics": 20 },
+      "buildDays": 35
+    },
+
+    {
+      "id": "alloy_works",
+      "name": "Металлургический комбинат",
+      "recipe": "forge_alloys",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 70, "alloys": 40, "electronics": 15 },
+      "buildDays": 30
+    },
+    {
+      "id": "electronics_plant",
+      "name": "Электронный завод",
+      "recipe": "make_electronics",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 60, "alloys": 40, "electronics": 20 },
+      "buildDays": 30
+    },
+    {
+      "id": "composite_plant",
+      "name": "Композитный завод",
+      "recipe": "make_composites",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 60, "alloys": 35, "electronics": 15 },
+      "buildDays": 28
+    },
+    {
+      "id": "sc_plant",
+      "name": "Завод сверхпроводников",
+      "recipe": "make_superconductors",
+      "slots": 2,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 80, "alloys": 70, "electronics": 45 },
+      "buildDays": 45
+    },
+    {
+      "id": "nano_foundry",
+      "name": "Нанофабрика",
+      "recipe": "make_nanomaterials",
+      "slots": 2,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 70, "alloys": 50, "electronics": 40 },
+      "buildDays": 40
+    },
+    {
+      "id": "luxury_works",
+      "name": "Мануфактура роскоши",
+      "recipe": "make_luxury_goods",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 60, "alloys": 30, "electronics": 30 },
+      "buildDays": 30
+    },
+    {
+      "id": "optics_plant",
+      "name": "Оптический завод",
+      "recipe": "make_optics",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 55, "alloys": 35, "electronics": 25 },
+      "buildDays": 28
+    },
+    {
+      "id": "pharma_plant",
+      "name": "Фармацевтический комбинат",
+      "recipe": "make_medicine",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 50, "alloys": 25, "electronics": 20 },
+      "buildDays": 25
+    },
+
+    {
+      "id": "reactor_works",
+      "name": "Реакторный завод",
+      "recipe": "make_reactors",
+      "slots": 2,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 70, "composites": 45, "electronics": 35 },
+      "buildDays": 45
+    },
+    {
+      "id": "thruster_works",
+      "name": "Двигательный завод",
+      "recipe": "make_thrusters",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 60, "composites": 40, "electronics": 30 },
+      "buildDays": 40
+    },
+    {
+      "id": "weapon_works",
+      "name": "Оружейный завод",
+      "recipe": "make_weapons",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 60, "composites": 40, "electronics": 30 },
+      "buildDays": 40
+    },
+    {
+      "id": "shield_works",
+      "name": "Завод щитовых систем",
+      "recipe": "make_shields",
+      "slots": 2,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 70, "composites": 40, "electronics": 45 },
+      "buildDays": 45
+    },
+    {
+      "id": "armor_works",
+      "name": "Броневой завод",
+      "recipe": "make_armor",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 55, "composites": 40, "electronics": 15 },
+      "buildDays": 35
+    },
+    {
+      "id": "lifesupport_works",
+      "name": "Завод жизнеобеспечения",
+      "recipe": "make_life_support",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 45, "composites": 30, "electronics": 25 },
+      "buildDays": 30
+    },
+
+    {
+      "id": "hull_yard",
+      "name": "Корпусная верфь",
+      "recipe": "make_hull_frames",
+      "slots": 3,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 120, "composites": 80, "electronics": 40 },
+      "buildDays": 60
+    },
+    {
+      "id": "station_yard",
+      "name": "Станционная верфь",
+      "recipe": "make_station_parts",
+      "slots": 2,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 90, "composites": 60, "electronics": 35 },
+      "buildDays": 50
+    },
+    {
+      "id": "consumer_plant",
+      "name": "Завод потребтоваров",
+      "recipe": "make_consumer_goods",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 55, "alloys": 30, "electronics": 25 },
+      "buildDays": 28
+    },
+
+    {
+      "id": "physics_lab",
+      "name": "Физическая лаборатория",
+      "recipe": "research_physics",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 50, "alloys": 35, "electronics": 45 },
+      "buildDays": 35
+    },
+    {
+      "id": "engineering_lab",
+      "name": "Инженерная лаборатория",
+      "recipe": "research_engineering",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 50, "alloys": 35, "electronics": 45 },
+      "buildDays": 35
+    },
+    {
+      "id": "bio_lab",
+      "name": "Биологическая лаборатория",
+      "recipe": "research_bio",
+      "slots": 1,
+      "placement": { "on": ["planet"] },
+      "buildCost": { "metal": 50, "alloys": 30, "electronics": 40 },
+      "buildDays": 35
+    },
+
+    {
+      "id": "solar_array",
+      "name": "Солнечная батарея",
+      "recipe": "solar_array",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 30, "electronics": 10 },
+      "buildDays": 12
+    },
+    {
+      "id": "fission_plant",
+      "name": "Ядерная станция",
+      "recipe": "fission_plant",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 55, "electronics": 25 },
+      "buildDays": 30
+    },
+    {
+      "id": "fusion_plant",
+      "name": "Термоядерная станция",
+      "recipe": "fusion_plant",
+      "slots": 1,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 85, "superconductors": 15, "electronics": 40 },
+      "buildDays": 50
+    },
+
+    {
+      "id": "housing",
+      "name": "Жилой комплекс",
+      "recipe": null,
+      "slots": 1,
+      "workers": 0,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 45, "polymers": 25 },
+      "buildDays": 18,
+      "effect": "поднимает потолок населения"
+    },
+    {
+      "id": "arcology",
+      "name": "Аркология",
+      "recipe": null,
+      "slots": 3,
+      "workers": 4,
+      "placement": { "on": ["planet"] },
+      "buildCost": { "metal": 120, "nanomaterials": 40, "composites": 60 },
+      "buildDays": 70,
+      "effect": "поднимает потолок населения втрое сильнее жилого комплекса на слот; требует наноматериалов"
+    },
+    {
+      "id": "warehouse",
+      "name": "Склад",
+      "recipe": null,
+      "slots": 1,
+      "workers": 2,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 40, "composites": 15 },
+      "buildDays": 15,
+      "effect": "увеличивает ёмкость хранения всех ресурсов"
+    },
+    {
+      "id": "spaceport",
+      "name": "Космопорт",
+      "recipe": null,
+      "slots": 1,
+      "workers": 5,
+      "placement": { "on": ["planet"] },
+      "buildCost": { "metal": 70, "alloys": 30, "electronics": 20 },
+      "buildDays": 30,
+      "effect": "ускоряет погрузку, поднимает пропускную способность точки"
+    },
+    {
+      "id": "admin_center",
+      "name": "Административный центр",
+      "recipe": null,
+      "slots": 1,
+      "workers": 6,
+      "placement": { "on": ["planet"] },
+      "buildCost": { "metal": 60, "alloys": 30, "electronics": 30 },
+      "buildDays": 30,
+      "effect": "растит административную ёмкость (решение №15)"
+    },
+    {
+      "id": "comm_hub",
+      "name": "Узел связи",
+      "recipe": null,
+      "slots": 1,
+      "workers": 4,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "metal": 50, "electronics": 45 },
+      "buildDays": 28,
+      "effect": "снижает штраф за расстояние до столицы"
+    },
+    {
+      "id": "garrison",
+      "name": "Гарнизон",
+      "recipe": null,
+      "slots": 1,
+      "workers": 8,
+      "placement": { "on": ["planet"] },
+      "buildCost": { "metal": 60, "alloys": 40, "armor": 20 },
+      "buildDays": 25,
+      "effect": "подавляет напряжение, копит скрытую ненависть"
+    },
+    {
+      "id": "regional_capital",
+      "name": "Региональная столица",
+      "recipe": null,
+      "slots": 3,
+      "workers": 15,
+      "placement": { "on": ["planet"] },
+      "buildCost": { "alloys": 150, "composites": 100, "electronics": 80 },
+      "buildDays": 90,
+      "effect": "становится новой точкой отсчёта расстояния для своего региона"
+    },
+    {
+      "id": "orbital_defense",
+      "name": "Орбитальная оборона",
+      "recipe": null,
+      "slots": 1,
+      "workers": 6,
+      "placement": { "on": ["planet"] },
+      "buildCost": { "alloys": 70, "weapons": 20, "shields": 10 },
+      "buildDays": 35,
+      "effect": "требует подавления перед высадкой десанта (решение №12)"
+    },
+    {
+      "id": "shipyard",
+      "name": "Верфь",
+      "recipe": null,
+      "slots": 3,
+      "workers": 20,
+      "placement": { "on": ["planet", "station"] },
+      "buildCost": { "alloys": 140, "composites": 90, "electronics": 60 },
+      "buildDays": 75,
+      "effect": "собирает корабли из корпусных секций и системных блоков по чертежу"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "seed": 20260904,
+  "ticks": 100000,
+  "description": "Stage 0 deterministic smoke run; domain pathologies are declared unavailable until their subsystems exist.",
+  "expectedPathologyStatus": "not_available"
+}

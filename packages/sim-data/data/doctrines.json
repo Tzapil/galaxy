@@ -1,0 +1,130 @@
+{
+  "$schema": "./schema/doctrines.schema.json",
+  "version": "1.0",
+  "notes": [
+    "Доктрина — это функция оценки плюс жёсткие требования (решение №10).",
+    "ИИ не проектирует корабль с нуля: он берёт доктрину и прогоняет жадный рюкзак",
+    "по маржинальной ценности. Веса — то место, где живёт характер фракции.",
+    "preferredBand связывает проектирование с боевой моделью (решение №12): оружие,",
+    "не работающее в желаемой полосе, оценивается с коэффициентом offBandPenalty.",
+    "withdrawAt / pursueAbove используются боевой моделью напрямую."
+  ],
+
+  "scoring": {
+    "offBandPenalty": 0.35,
+    "shieldEhpFactor": 1.3,
+    "armorSoftening": 90,
+    "expectedBattleRounds": 6,
+    "defaultEnemyProfile": { "shieldFraction": 0.4, "armorRating": 45 },
+    "comment": "Броня — рейтинг с убывающей отдачей: доля поглощения = rating/(rating+60). Плоское снижение уходило в расходимость и обнуляло лёгкое оружие. Регенерация щита учитывается как shieldRegen × ожидаемая длительность боя: без этого щиты строго проигрывали броне и не выбирались никогда, потому что их главное преимущество — восстановление между раундами — было невидимо для оценки. Профиль противника берётся из разведданных: без него кинетика доминирует лазер, так как оценка не видит вражеских щитов."
+  },
+
+  "doctrines": [
+    {
+      "id": "line_battle",
+      "name": "Линейный бой",
+      "role": "warship",
+      "hulls": ["frigate", "cruiser", "battleship", "dreadnought"],
+      "preferredBand": "medium",
+      "weights": { "dps": 1.0, "ehp": 1.2, "speed": 0.2, "intercept": 0.3 },
+      "require": { "minSpeed": 3.0 },
+      "withdrawAt": 0.4,
+      "pursueAbove": 1.6
+    },
+    {
+      "id": "raider",
+      "name": "Рейдер",
+      "role": "warship",
+      "hulls": ["corvette", "frigate"],
+      "preferredBand": "long",
+      "weights": { "dps": 1.0, "ehp": 0.35, "speed": 2.2, "intercept": 0.1 },
+      "require": { "minSpeed": 11.0 },
+      "withdrawAt": 0.25,
+      "pursueAbove": 1.2
+    },
+    {
+      "id": "brawler",
+      "name": "Штурмовик",
+      "role": "warship",
+      "hulls": ["gunship", "frigate", "cruiser"],
+      "preferredBand": "short",
+      "weights": { "dps": 1.35, "ehp": 1.0, "speed": 0.9, "intercept": 0.2 },
+      "require": { "minSpeed": 9.0 },
+      "withdrawAt": 0.55,
+      "pursueAbove": 1.3
+    },
+    {
+      "id": "escort",
+      "name": "Эскорт",
+      "role": "warship",
+      "hulls": ["corvette", "frigate"],
+      "preferredBand": "medium",
+      "weights": { "dps": 0.6, "ehp": 0.9, "speed": 1.0, "intercept": 2.5 },
+      "require": { "minSpeed": 7.0 },
+      "withdrawAt": 0.5,
+      "pursueAbove": 2.0
+    },
+    {
+      "id": "hauler",
+      "name": "Грузоперевозчик",
+      "role": "civilian",
+      "hulls": ["freighter", "heavy_freighter"],
+      "preferredBand": "medium",
+      "weights": { "dps": 0, "ehp": 0.12, "speed": 0.7, "cargo": 1.0 },
+      "require": { "minSpeed": 4.0, "minCargo": 400 },
+      "withdrawAt": 0.05,
+      "pursueAbove": 99
+    },
+    {
+      "id": "miner",
+      "name": "Добытчик",
+      "role": "civilian",
+      "hulls": ["prospector"],
+      "preferredBand": "medium",
+      "weights": { "dps": 0, "ehp": 0.1, "speed": 0.4, "cargo": 0.5, "mining": 1.0 },
+      "require": { "minSpeed": 3.0, "minMining": 40, "minCargo": 200 },
+      "withdrawAt": 0.05,
+      "pursueAbove": 99
+    },
+    {
+      "id": "colonizer",
+      "name": "Колонизатор",
+      "role": "civilian",
+      "hulls": ["colony_ship"],
+      "preferredBand": "medium",
+      "weights": { "dps": 0, "ehp": 0.2, "speed": 0.5, "colonists": 1.0, "cargo": 0.2 },
+      "require": { "minSpeed": 3.0, "minColonists": 1 },
+      "withdrawAt": 0.05,
+      "pursueAbove": 99
+    },
+    {
+      "id": "scout",
+      "name": "Разведчик",
+      "role": "civilian",
+      "hulls": ["shuttle", "corvette"],
+      "preferredBand": "long",
+      "weights": { "dps": 0.05, "ehp": 0.1, "speed": 1.8, "scan": 1.0 },
+      "require": { "minSpeed": 13.0, "minScan": 3 },
+      "withdrawAt": 0.1,
+      "pursueAbove": 99
+    },
+    {
+      "id": "trooper",
+      "name": "Десантный",
+      "role": "support",
+      "hulls": ["troopship"],
+      "preferredBand": "medium",
+      "weights": { "dps": 0.1, "ehp": 0.6, "speed": 0.4, "troops": 1.0 },
+      "require": { "minSpeed": 3.0, "minTroops": 400 },
+      "withdrawAt": 0.3,
+      "pursueAbove": 99
+    }
+  ],
+
+  "factionPersonalities": {
+    "comment": "Множители к весам доктрин. Единственное место, где живёт характер фракции (решение №8). В v1 все единичные.",
+    "militarist": { "dps": 1.25, "ehp": 1.1, "cargo": 0.85 },
+    "trader": { "dps": 0.8, "cargo": 1.3, "speed": 1.15 },
+    "isolationist": { "ehp": 1.35, "speed": 0.85, "intercept": 1.3 }
+  }
+}

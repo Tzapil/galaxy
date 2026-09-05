@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://galaxy-sim.local/schema/start-package.schema.json",
+  "title": "StartPackageFile",
+  "type": "object",
+  "required": [
+    "version",
+    "homeSystem",
+    "population",
+    "treasury",
+    "buildings",
+    "stockpiles",
+    "ships",
+    "technologies",
+    "successCriteria"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "homeSystem": {
+      "type": "object",
+      "required": ["bodies"],
+      "additionalProperties": true,
+      "properties": {
+        "bodies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "type", "slots", "features"],
+            "additionalProperties": true,
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "name": { "type": "string", "minLength": 1 },
+              "type": { "type": "string", "minLength": 1 },
+              "slots": { "type": "integer", "minimum": 0 },
+              "features": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "population": {
+      "type": "object",
+      "required": ["start", "employmentRate"],
+      "additionalProperties": true,
+      "properties": {
+        "start": { "type": "number", "exclusiveMinimum": 0 },
+        "employmentRate": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "treasury": {
+      "type": "object",
+      "required": ["credits"],
+      "additionalProperties": true,
+      "properties": {
+        "credits": { "type": "number" }
+      }
+    },
+    "buildings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "body"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "body": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "stockpiles": {
+      "type": "object",
+      "properties": {
+        "comment": { "type": "string" }
+      },
+      "additionalProperties": { "type": "number" }
+    },
+    "ships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["hull", "doctrine", "count"],
+        "additionalProperties": true,
+        "properties": {
+          "hull": { "type": "string", "minLength": 1 },
+          "doctrine": { "type": "string", "minLength": 1 },
+          "count": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "technologies": { "type": "array", "items": { "type": "string" } },
+    "successCriteria": { "type": "object", "additionalProperties": true }
+  }
+}

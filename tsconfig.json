@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/sim-core" },
+    { "path": "./packages/sim-data" },
+    { "path": "./packages/sim-worker" },
+    { "path": "./packages/tools" },
+    { "path": "./packages/client" }
+  ]
+}

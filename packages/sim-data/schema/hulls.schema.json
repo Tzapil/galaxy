@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://galaxy-sim.local/schema/hulls.schema.json",
+  "title": "HullsFile",
+  "type": "object",
+  "required": ["version", "slotTypes", "hulls"],
+  "additionalProperties": true,
+  "$defs": {
+    "quantityBag": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    },
+    "slots": {
+      "type": "object",
+      "required": ["weapon", "defense", "propulsion", "utility"],
+      "additionalProperties": false,
+      "properties": {
+        "weapon": { "type": "integer", "minimum": 0 },
+        "defense": { "type": "integer", "minimum": 0 },
+        "propulsion": { "type": "integer", "minimum": 0 },
+        "utility": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "slotTypes": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["weapon", "defense", "propulsion", "utility"] }
+    },
+    "hulls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tier",
+          "class",
+          "phase",
+          "slots",
+          "baseMass",
+          "structure",
+          "crewCapacity",
+          "baseFuel",
+          "buildRecipe",
+          "buildDays",
+          "tech"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "tier": { "type": "integer", "minimum": 1 },
+          "class": { "type": "string", "enum": ["civilian", "warship", "support"] },
+          "phase": { "type": "integer", "minimum": 1 },
+          "slots": { "$ref": "#/$defs/slots" },
+          "baseMass": { "type": "number", "exclusiveMinimum": 0 },
+          "structure": { "type": "number", "exclusiveMinimum": 0 },
+          "crewCapacity": { "type": "number", "minimum": 0 },
+          "baseFuel": { "type": "number", "minimum": 0 },
+          "buildRecipe": { "$ref": "#/$defs/quantityBag" },
+          "buildDays": { "type": "number", "exclusiveMinimum": 0 },
+          "tech": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

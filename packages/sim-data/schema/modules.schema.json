@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://galaxy-sim.local/schema/modules.schema.json",
+  "title": "ModulesFile",
+  "type": "object",
+  "required": ["version", "modules"],
+  "additionalProperties": true,
+  "$defs": {
+    "quantityBag": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "tierCurve": { "type": "object", "additionalProperties": true },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "family",
+          "slot",
+          "tier",
+          "phase",
+          "powerDraw",
+          "mass",
+          "crew",
+          "cost",
+          "tech"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "family": { "type": "string", "minLength": 1 },
+          "slot": { "type": "string", "enum": ["weapon", "defense", "propulsion", "utility"] },
+          "tier": { "type": "integer", "minimum": 1 },
+          "phase": { "type": "integer", "minimum": 1 },
+          "powerDraw": { "type": "number" },
+          "mass": { "type": "number", "minimum": 0 },
+          "crew": { "type": "number", "minimum": 0 },
+          "cost": { "$ref": "#/$defs/quantityBag" },
+          "tech": { "type": "string", "minLength": 1 },
+          "bands": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["long", "medium", "short"] }
+          },
+          "damage": { "type": "number", "minimum": 0 },
+          "vsShield": { "type": "number", "minimum": 0 },
+          "vsArmor": { "type": "number", "minimum": 0 },
+          "interceptable": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

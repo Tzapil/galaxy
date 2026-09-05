@@ -1,0 +1,49 @@
+{
+  "stage": 1,
+  "seed": 7,
+  "ticks": 100000,
+  "checkpointEvery": 10000,
+  "finalHash": "ee29c3a6278ab56f965a637a29e2f688",
+  "intermediateHashes": [
+    {
+      "tick": 10000,
+      "hash": "1c3cc1f211e55e2aa7a844cf04140223"
+    },
+    {
+      "tick": 20000,
+      "hash": "cfdca515dfd04574dae0c52c221ecf05"
+    },
+    {
+      "tick": 30000,
+      "hash": "5cce0a82ff9192bc876fcb17208eb8ab"
+    },
+    {
+      "tick": 40000,
+      "hash": "f98bf4deac8a15917307b74d2a502118"
+    },
+    {
+      "tick": 50000,
+      "hash": "3579aa2d65c048bd439a7938a0a5e71e"
+    },
+    {
+      "tick": 60000,
+      "hash": "2c74f20bcec488673239d8177cfaf404"
+    },
+    {
+      "tick": 70000,
+      "hash": "5b5c2777656d1aa51ec5da661a93f2ba"
+    },
+    {
+      "tick": 80000,
+      "hash": "1fe9300ebc5623e835888c6115ba40b7"
+    },
+    {
+      "tick": 90000,
+      "hash": "9134f775fb8e4e7e7b62d4ef015b7465"
+    },
+    {
+      "tick": 100000,
+      "hash": "ee29c3a6278ab56f965a637a29e2f688"
+    }
+  ]
+}

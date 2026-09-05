@@ -1,0 +1,26 @@
+{
+  "name": "@galaxy-sim/client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest run --config ../../vitest.config.ts",
+    "lint": "eslint src test --max-warnings=0",
+    "dev": "vite --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@galaxy-sim/sim-core": "workspace:*",
+    "@galaxy-sim/sim-worker": "workspace:*",
+    "pixi.js": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "uplot": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest"
+  }
+}

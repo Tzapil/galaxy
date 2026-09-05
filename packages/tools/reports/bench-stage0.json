@@ -1,0 +1,352 @@
+{
+  "options": {
+    "seeds": 50,
+    "years": 1000,
+    "out": "reports/bench-stage0.json"
+  },
+  "distributions": {
+    "stageZeroProbeCount": {
+      "min": 32,
+      "p10": 32,
+      "median": 32,
+      "p90": 32,
+      "max": 32
+    }
+  },
+  "metrics": [
+    {
+      "name": "alive_factions_by_time",
+      "status": "н/д — появится на этапе 1"
+    },
+    {
+      "name": "power_concentration_index",
+      "status": "н/д — появится на этапе 7"
+    },
+    {
+      "name": "median_faction_age",
+      "status": "н/д — появится на этапе 7"
+    },
+    {
+      "name": "building_idle_without_inputs",
+      "status": "н/д — появится на этапе 2"
+    },
+    {
+      "name": "resources_at_zero_longer_than_n_years",
+      "status": "н/д — появится на этапе 2"
+    },
+    {
+      "name": "average_transport_utilization",
+      "status": "н/д — появится на этапе 1"
+    },
+    {
+      "name": "war_count_and_duration",
+      "status": "н/д — появится на этапе 6"
+    },
+    {
+      "name": "galactic_price_spread",
+      "status": "н/д — появится на этапе 1"
+    }
+  ],
+  "runs": [
+    {
+      "seed": 20260904,
+      "finalHash": "ff0ee695388bd8a61e9c93f92dff9fc9",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260905,
+      "finalHash": "470798f503b8104a1d10f62bffb6bf43",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260906,
+      "finalHash": "3b6a4a5b3aeb6253e51d5e9295ea98de",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260907,
+      "finalHash": "38ec86707d13c76c8dc2ab6cc7406a79",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260908,
+      "finalHash": "99c34c7619f3234f185ad479521442bc",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260909,
+      "finalHash": "6c51d4ecd2657f3c8538d1c369ee5157",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260910,
+      "finalHash": "ab68bb48ed737f18d921403e3b8ba3f1",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260911,
+      "finalHash": "f44a36ca247b2f0400695ba0e823fd77",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260912,
+      "finalHash": "45effee3ebdfd2d06d49f33f699e5425",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260913,
+      "finalHash": "2ad342f764c5841968bf1b7e09e93398",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260914,
+      "finalHash": "2ff401d59974f534681c83f6cfa8718f",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260915,
+      "finalHash": "56fec30dc8a1a1c5e8a8b6f0c11214b8",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260916,
+      "finalHash": "7d30a2cd65fc67d3611e5236d96e8320",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260917,
+      "finalHash": "7cd9b5d8413782af108e28df62068554",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260918,
+      "finalHash": "91c594cef732d6c3fdf893f2c606bcc2",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260919,
+      "finalHash": "2b9e52e6f9dafaa11d2e2e3340efa4be",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260920,
+      "finalHash": "6098de7e22894036855a825ac2527387",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260921,
+      "finalHash": "195b276931e502ddc3184551f42a1ac6",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260922,
+      "finalHash": "b4e98f0dd27d015838de1b37a542f11f",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260923,
+      "finalHash": "393b8c1fe071048b33c6b78edfb364fc",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260924,
+      "finalHash": "2535cce9132866074a4fbc1a76515f8a",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260925,
+      "finalHash": "3e5fd08b0b9b6a4be6546a59936d0234",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260926,
+      "finalHash": "8aea750bbc01e616f1e9c47c2fa7ed3f",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260927,
+      "finalHash": "c29b235de755d0fad3e71c95badf9fb3",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260928,
+      "finalHash": "96c869e7432964cd8d824abaac6ebd14",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260929,
+      "finalHash": "a23e10cd41e243013f4a5c954c2e8514",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260930,
+      "finalHash": "309ad6f04d44b12cb0d0d9a6416986a7",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260931,
+      "finalHash": "e7a2888ecc78f97bc7085be19d8d04fe",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260932,
+      "finalHash": "4cea464bf45003737aa0f7ee059e1e48",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260933,
+      "finalHash": "d871f1b5eb038937e7046e377a27fba6",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260934,
+      "finalHash": "9c3f4df39faffbbccb44cbcc5e03c2bd",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260935,
+      "finalHash": "ff24334ce72e310d4d8c5a567e359328",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260936,
+      "finalHash": "0c72aaf65547e66a79e44aa8a7098571",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260937,
+      "finalHash": "643f41ce863f6ab745e6468c5385392c",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260938,
+      "finalHash": "9c7beb914d29955028a5454bda354ac9",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260939,
+      "finalHash": "e69796f27badb78826cea2b660af1233",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260940,
+      "finalHash": "e757de070b326e0d41d07a0cb70d2de6",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260941,
+      "finalHash": "2a708658ecffc059215b9b0ca5bfd6a0",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260942,
+      "finalHash": "7a644476403c3471679b77bce39e1292",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260943,
+      "finalHash": "fd99349d7544132f31e6d2aef42d26a0",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260944,
+      "finalHash": "65f5c0cb6dea77fdff2103fb4662bc2c",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260945,
+      "finalHash": "b5e48eaa5643e1b32b58094fe8e70728",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260946,
+      "finalHash": "25fd97b28a89c2b4191ce4ff254e69b1",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260947,
+      "finalHash": "e528256244ea0eddc175718b069c428a",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260948,
+      "finalHash": "83c34e24605285ae79ee31e45e576e3b",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260949,
+      "finalHash": "911f23ffe54872f9b64b49c207e50358",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260950,
+      "finalHash": "3523c4c4e18f5dd2cc04139c66304b7d",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260951,
+      "finalHash": "9f64a3edd46874b5670c4acf3a34ae84",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260952,
+      "finalHash": "e4dceced053d9d4480d8d41f78efc193",
+      "ticks": 365000,
+      "buildings": 32
+    },
+    {
+      "seed": 20260953,
+      "finalHash": "8eb0e15166d877cc3a9e091e9c13d197",
+      "ticks": 365000,
+      "buildings": 32
+    }
+  ]
+}

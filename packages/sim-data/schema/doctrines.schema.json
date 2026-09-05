@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://galaxy-sim.local/schema/doctrines.schema.json",
+  "title": "DoctrinesFile",
+  "type": "object",
+  "required": ["version", "scoring", "doctrines", "factionPersonalities"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "scoring": { "type": "object", "additionalProperties": true },
+    "doctrines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "role",
+          "hulls",
+          "preferredBand",
+          "weights",
+          "require",
+          "withdrawAt",
+          "pursueAbove"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "role": { "type": "string", "enum": ["warship", "civilian", "support"] },
+          "hulls": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "preferredBand": { "type": "string", "enum": ["long", "medium", "short"] },
+          "weights": {
+            "type": "object",
+            "additionalProperties": { "type": "number" }
+          },
+          "require": {
+            "type": "object",
+            "additionalProperties": { "type": "number" }
+          },
+          "withdrawAt": { "type": "number", "minimum": 0 },
+          "pursueAbove": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "factionPersonalities": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["object", "string"],
+        "additionalProperties": { "type": "number" }
+      }
+    }
+  }
+}

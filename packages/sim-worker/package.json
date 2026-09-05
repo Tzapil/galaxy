@@ -1,0 +1,25 @@
+{
+  "name": "@galaxy-sim/sim-worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./worker": {
+      "types": "./dist/src/worker.d.ts",
+      "import": "./dist/src/worker.js"
+    }
+  },
+  "types": "./dist/src/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run --config ../../vitest.config.ts",
+    "lint": "eslint src test --max-warnings=0"
+  },
+  "dependencies": {
+    "@galaxy-sim/sim-core": "workspace:*"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://galaxy-sim.local/schema/buildings.schema.json",
+  "title": "BuildingsFile",
+  "type": "object",
+  "required": ["version", "buildings"],
+  "additionalProperties": true,
+  "$defs": {
+    "quantityBag": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "buildings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "recipe", "slots", "placement", "buildCost", "buildDays"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "recipe": { "type": ["string", "null"] },
+          "slots": { "type": "integer", "minimum": 1 },
+          "placement": {
+            "type": "object",
+            "required": ["on"],
+            "additionalProperties": true,
+            "properties": {
+              "on": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+              "requires": {
+                "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
+              }
+            }
+          },
+          "buildCost": { "$ref": "#/$defs/quantityBag" },
+          "buildDays": { "type": "number", "exclusiveMinimum": 0 },
+          "tech": { "type": "string" },
+          "comment": { "type": "string" }
+        }
+      }
+    }
+  }
+}

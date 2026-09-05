@@ -1,0 +1,406 @@
+import { bootProduction } from "../econ/batch.js";
+import { BuildingState } from "../econ/buildings.js";
+import { validatePlacement } from "../econ/placement.js";
+import type { EventQueue } from "../events/queue.js";
+import { ShipRole } from "../ships/ships.js";
+import {
+  bodyTypePlacementMask,
+  resourceIndexOf,
+  type ResourceAmount,
+  type StageOneData,
+  type StageOneStartPackage
+} from "../stage-one/data.js";
+import { BodyType } from "../world/bodies.js";
+import type { StageOneWorld } from "../world/state.js";
+
+export interface AppliedStartPackage {
+  readonly faction: number;
+  readonly bodies: readonly number[];
+}
+
+export interface StartPackageValidation {
+  readonly ok: boolean;
+  readonly bodyCount: number;
+  readonly buildingCount: number;
+  readonly requiredWorkerRatio: number;
+  readonly hasLocalPowerEverywhere: boolean;
+  readonly hasScienceDataFlow: boolean;
+  readonly placementsValid: boolean;
+  readonly missing: readonly string[];
+}
+
+const requiredBootstrapBuildings = [
+  "physics_lab",
+  "engineering_lab",
+  "bio_lab",
+  "alloy_works",
+  "electronics_plant",
+  "refinery"
+] as const;
+
+export function applyStartPackage(
+  data: StageOneData,
+  world: StageOneWorld,
+  system: number,
+  label: string,
+  queue?: EventQueue
+): AppliedStartPackage {
+  const pack = requireStartPackage(data);
+  const bodies: number[] = [];
+  for (let i = 0; i < pack.bodies.length; i += 1) {
+    const body = pack.bodies[i];
+    if (body === undefined) throw new RangeError("Start body is inconsistent.");
+    const created = world.addBody(
+      system,
+      body.type,
+      body.yieldValue,
+      body.habitability,
+      body.slots,
+      -1,
+      0,
+      body.featureMask
+    );
+    addDepositsForFeatures(data, world, created, body.featureMask, body.yieldValue);
+    bodies.push(created);
+  }
+
+  const faction = world.addFaction(label, system, bodies[0] ?? 0, pack.treasuryCredits, 1, 1);
+  distributeStartPopulation(data, world, pack, faction, bodies);
+  seedStartStockpiles(data, world, pack, bodies);
+  addStartBuildings(data, world, pack, bodies);
+  addStartShips(data, world, pack, faction, system);
+  world.factions.researchedCount[faction] = pack.technologies.length;
+
+  if (queue !== undefined) bootProduction(data, world, queue, 0);
+  return { faction, bodies };
+}
+
+export function validateStartPackage(data: StageOneData): StartPackageValidation {
+  const pack = requireStartPackage(data);
+  const missing: string[] = [];
+  const presentBuildings = new Uint8Array(data.buildings.length);
+  const bodyHasPower = new Uint8Array(pack.bodies.length);
+  const bodyNeedsPower = new Uint8Array(pack.bodies.length);
+  let workerNeed = 0;
+  let placementsValid = true;
+
+  for (let i = 0; i < pack.buildings.length; i += 1) {
+    const item = pack.buildings[i];
+    if (item === undefined) throw new RangeError("Start building is inconsistent.");
+    const def = data.buildings[item.building];
+    const body = pack.bodies[item.body];
+    if (def === undefined || body === undefined) {
+      placementsValid = false;
+      continue;
+    }
+    presentBuildings[item.building] = 1;
+    workerNeed += def.workers;
+    if ((def.placementMask & bodyTypePlacementMask(body.type)) === 0) placementsValid = false;
+    if ((body.featureMask & def.requiredFeatureMask) !== def.requiredFeatureMask) {
+      placementsValid = false;
+    }
+    if (def.powerSource) bodyHasPower[item.body] = 1;
+    if (requiresEnergy(data, def.batchRecipe, def.continuousProcess)) bodyNeedsPower[item.body] = 1;
+  }
+
+  for (const id of requiredBootstrapBuildings) {
+    const index = data.buildingIndex.get(id);
+    if (index === undefined || presentBuildings[index] !== 1) missing.push(id);
+  }
+
+  let hasLocalPowerEverywhere = true;
+  for (let i = 0; i < pack.bodies.length; i += 1) {
+    if (bodyNeedsPower[i] === 1 && bodyHasPower[i] !== 1) hasLocalPowerEverywhere = false;
+  }
+
+  const requiredWorkerRatio =
+    workerNeed > 0 ? (pack.population * pack.employmentRate) / workerNeed : 1;
+  const hasScienceDataFlow =
+    hasStartProducer(data, pack, "data_physics") &&
+    hasStartProducer(data, pack, "data_engineering") &&
+    hasStartProducer(data, pack, "data_bio");
+
+  return {
+    ok:
+      missing.length === 0 &&
+      placementsValid &&
+      hasLocalPowerEverywhere &&
+      hasScienceDataFlow &&
+      requiredWorkerRatio >= 0.8,
+    bodyCount: pack.bodies.length,
+    buildingCount: pack.buildings.length,
+    requiredWorkerRatio,
+    hasLocalPowerEverywhere,
+    hasScienceDataFlow,
+    placementsValid,
+    missing
+  };
+}
+
+export function startPackageSummary(data: StageOneData): string {
+  const validation = validateStartPackage(data);
+  return [
+    `bodies=${validation.bodyCount}`,
+    `buildings=${validation.buildingCount}`,
+    `workerRatio=${validation.requiredWorkerRatio.toFixed(2)}`,
+    `power=${validation.hasLocalPowerEverywhere ? "ok" : "fail"}`,
+    `science=${validation.hasScienceDataFlow ? "ok" : "fail"}`,
+    `placement=${validation.placementsValid ? "ok" : "fail"}`
+  ].join(", ");
+}
+
+function requireStartPackage(data: StageOneData): StageOneStartPackage {
+  if (data.startPackage === undefined) throw new Error("Stage 2 data has no start package.");
+  return data.startPackage;
+}
+
+function distributeStartPopulation(
+  data: StageOneData,
+  world: StageOneWorld,
+  pack: StageOneStartPackage,
+  faction: number,
+  bodies: readonly number[]
+): void {
+  const need = new Float64Array(bodies.length);
+  let totalNeed = 0;
+  for (let i = 0; i < pack.buildings.length; i += 1) {
+    const item = pack.buildings[i];
+    if (item === undefined) throw new RangeError("Start building is inconsistent.");
+    const workers = data.buildings[item.building]?.workers ?? 0;
+    need[item.body] = (need[item.body] ?? 0) + workers;
+    totalNeed += workers;
+  }
+
+  const baseline = totalNeed / Math.max(0.01, pack.employmentRate);
+  const scale = baseline > 0 ? pack.population / baseline : 1;
+  let assigned = 0;
+  for (let i = 0; i < bodies.length; i += 1) {
+    const body = bodies[i] ?? -1;
+    if (body < 0) continue;
+    const population =
+      i === 0
+        ? 0
+        : Math.max(1, ((need[i] ?? 0) / Math.max(0.01, pack.employmentRate)) * scale);
+    assigned += population;
+    world.addColony(faction, body, population);
+  }
+  const capital = bodies[0] ?? 0;
+  world.bodies.population[capital] = Math.max(1, pack.population - assigned);
+}
+
+function seedStartStockpiles(
+  data: StageOneData,
+  world: StageOneWorld,
+  pack: StageOneStartPackage,
+  bodies: readonly number[]
+): void {
+  for (let i = 0; i < bodies.length; i += 1) {
+    const body = bodies[i] ?? -1;
+    if (body < 0) continue;
+    const stockpile = world.bodies.stockpile[body] ?? 0;
+    for (let j = 0; j < pack.stockpiles.length; j += 1) {
+      const item = pack.stockpiles[j];
+      if (item === undefined) throw new RangeError("Start stockpile is inconsistent.");
+      const amount = startStockpileAmount(data, world, body, item, i === 0);
+      if (amount > 0) world.stockpiles.set(stockpile, item.resource, amount);
+    }
+  }
+}
+
+function startStockpileAmount(
+  data: StageOneData,
+  world: StageOneWorld,
+  body: number,
+  item: ResourceAmount,
+  capital: boolean
+): number {
+  if (capital) return item.amount;
+  if (resourceIsDepositOnBody(data, world, body, item.resource)) return item.amount * 0.35;
+  if (data.populationNeeds.perThousandPopPerDay[item.resource] > 0) return item.amount * 0.25;
+  if (data.resources[item.resource]?.id === "fuel") return item.amount * 0.2;
+  if (resourceUsedByLocalBuilding(data, world, body, item.resource)) return item.amount * 0.15;
+  return 0;
+}
+
+function addStartBuildings(
+  data: StageOneData,
+  world: StageOneWorld,
+  pack: StageOneStartPackage,
+  bodies: readonly number[]
+): void {
+  const order = pack.buildings
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const powerA = data.buildings[a.item.building]?.powerSource === true ? 0 : 1;
+      const powerB = data.buildings[b.item.building]?.powerSource === true ? 0 : 1;
+      if (powerA !== powerB) return powerA - powerB;
+      return a.index - b.index;
+    });
+
+  for (let i = 0; i < order.length; i += 1) {
+    const item = order[i]?.item;
+    if (item === undefined) throw new RangeError("Start building is inconsistent.");
+    const body = bodies[item.body] ?? -1;
+    if (body < 0) throw new RangeError("Start body index is invalid.");
+    const placement = validatePlacement(data, world, body, item.building);
+    if (!placement.ok) {
+      const id = data.buildings[item.building]?.id ?? String(item.building);
+      throw new Error(`Start package cannot place ${id}: ${placement.reason ?? "unknown"}.`);
+    }
+    world.buildings.addBuilt(data, world.bodies, body, item.building, world.stockpiles);
+  }
+}
+
+function addStartShips(
+  data: StageOneData,
+  world: StageOneWorld,
+  pack: StageOneStartPackage,
+  faction: number,
+  system: number
+): void {
+  for (let i = 0; i < pack.ships.length; i += 1) {
+    const item = pack.ships[i];
+    if (item === undefined) throw new RangeError("Start ship is inconsistent.");
+    const hull = data.hulls[item.hull];
+    if (hull === undefined) throw new RangeError("Start hull is inconsistent.");
+    for (let count = 0; count < item.count; count += 1) {
+      const role = roleForHull(hull.id, hull.shipClass);
+      world.addShip(
+        faction,
+        system,
+        role,
+        cargoCapacityForHull(hull.id),
+        hull.baseFuel,
+        fuelPerJumpForHull(hull.baseFuel, role)
+      );
+    }
+  }
+}
+
+function addDepositsForFeatures(
+  data: StageOneData,
+  world: StageOneWorld,
+  body: number,
+  featureMask: number,
+  yieldValue: number
+): void {
+  addDepositIfFeature(data, world, body, featureMask, "ore_deposit", "ore", yieldValue);
+  addDepositIfFeature(data, world, body, featureMask, "silicate_deposit", "silicates", yieldValue);
+  addDepositIfFeature(data, world, body, featureMask, "ice_deposit", "ice", yieldValue);
+  addDepositIfFeature(data, world, body, featureMask, "gas_giant_orbit", "gas", yieldValue);
+  addDepositIfFeature(data, world, body, featureMask, "rare_earth_vein", "rare_earth", yieldValue);
+  addDepositIfFeature(data, world, body, featureMask, "crystal_vein", "crystals", yieldValue);
+  addDepositIfFeature(data, world, body, featureMask, "radioactive_vein", "radioactives", yieldValue);
+  addDepositIfFeature(data, world, body, featureMask, "habitable", "biomass", yieldValue);
+}
+
+function addDepositIfFeature(
+  data: StageOneData,
+  world: StageOneWorld,
+  body: number,
+  featureMask: number,
+  feature: string,
+  resource: string,
+  yieldValue: number
+): void {
+  const bit = data.featureIndex.get(feature);
+  const resourceIndex = data.resourceIndex.get(resource);
+  if (bit === undefined || resourceIndex === undefined) return;
+  if ((featureMask & (1 << bit)) !== 0) world.bodies.addDeposit(body, resourceIndex, yieldValue);
+}
+
+function requiresEnergy(data: StageOneData, batchRecipe: number, continuousProcess: number): boolean {
+  if (continuousProcess >= 0) {
+    const process = data.continuous[continuousProcess];
+    return process?.outputsPerTick.some((output) => output.resource === data.energyResource) !== true;
+  }
+  if (batchRecipe < 0) return false;
+  const recipe = data.batchRecipes[batchRecipe];
+  if (recipe === undefined) return false;
+  for (let i = 0; i < recipe.inputs.length; i += 1) {
+    if (recipe.inputs[i]?.resource === data.energyResource) return true;
+  }
+  return false;
+}
+
+function hasStartProducer(
+  data: StageOneData,
+  pack: StageOneStartPackage,
+  resourceId: string
+): boolean {
+  const resource = resourceIndexOf(data.resourceIndex, resourceId);
+  for (let i = 0; i < pack.buildings.length; i += 1) {
+    const buildingType = pack.buildings[i]?.building ?? -1;
+    const recipeIndex = data.buildings[buildingType]?.batchRecipe ?? -1;
+    const recipe = data.batchRecipes[recipeIndex];
+    if (recipe?.outputs.some((output) => output.resource === resource) === true) return true;
+  }
+  return false;
+}
+
+function resourceIsDepositOnBody(
+  data: StageOneData,
+  world: StageOneWorld,
+  body: number,
+  resource: number
+): boolean {
+  return world.bodies.hasDeposit(body, resource);
+}
+
+function resourceUsedByLocalBuilding(
+  data: StageOneData,
+  world: StageOneWorld,
+  body: number,
+  resource: number
+): boolean {
+  let building = world.bodies.firstBuilding[body] ?? -1;
+  while (building >= 0) {
+    const type = world.buildings.type[building] ?? -1;
+    const def = data.buildings[type];
+    if (def !== undefined && buildingUsesResource(data, def.batchRecipe, def.continuousProcess, resource)) {
+      return true;
+    }
+    building = world.buildings.nextInBody[building] ?? -1;
+  }
+  return false;
+}
+
+function buildingUsesResource(
+  data: StageOneData,
+  batchRecipe: number,
+  continuousProcess: number,
+  resource: number
+): boolean {
+  if (batchRecipe >= 0) {
+    const recipe = data.batchRecipes[batchRecipe];
+    if (recipe?.inputs.some((input) => input.resource === resource) === true) return true;
+  }
+  if (continuousProcess >= 0) {
+    const process = data.continuous[continuousProcess];
+    if (process?.inputsPerTick.some((input) => input.resource === resource) === true) return true;
+  }
+  return false;
+}
+
+function roleForHull(id: string, shipClass: "civilian" | "warship" | "support"): ShipRole {
+  if (shipClass === "warship") return ShipRole.Warship;
+  if (id.includes("prospector")) return ShipRole.Miner;
+  if (id.includes("shuttle")) return ShipRole.Scout;
+  if (id.includes("colony")) return ShipRole.Colonizer;
+  return ShipRole.Hauler;
+}
+
+function cargoCapacityForHull(id: string): number {
+  if (id.includes("heavy_freighter")) return 3600;
+  if (id.includes("freighter")) return 2200;
+  if (id.includes("colony")) return 1200;
+  if (id.includes("prospector")) return 800;
+  if (id.includes("shuttle")) return 300;
+  return 180;
+}
+
+function fuelPerJumpForHull(baseFuel: number, role: ShipRole): number {
+  if (role === ShipRole.Warship) return Math.max(6, baseFuel / 12);
+  if (role === ShipRole.Hauler) return Math.max(5, baseFuel / 22);
+  return Math.max(4, baseFuel / 26);
+}
