@@ -72,6 +72,7 @@ export function handleBatchComplete(
   building: number,
   tick: number
 ): void {
+  if (world.buildings.state[building] === BuildingState.Demolished) return;
   const recipeIndex = world.buildings.batchRecipe[building] ?? -1;
   if (recipeIndex < 0) return;
   const recipe = data.batchRecipes[recipeIndex];

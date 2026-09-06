@@ -445,8 +445,16 @@
     { "id": "station_construction", "consumes": ["station_parts", "reactors", "life_support"] },
     {
       "id": "building_construction",
-      "consumes": ["metal", "alloys", "composites", "electronics", "nanomaterials"],
-      "comment": "Наноматериалы входят в стоимость аркологии (расширение v1.1)."
+      "consumes": [
+        "metal",
+        "alloys",
+        "composites",
+        "electronics",
+        "polymers",
+        "superconductors",
+        "nanomaterials"
+      ],
+      "comment": "Наноматериалы, полимеры и сверхпроводники входят в стоимость зданий (расширение v1.1)."
     },
     {
       "id": "population",

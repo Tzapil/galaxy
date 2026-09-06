@@ -187,7 +187,10 @@ interface RawBuilding {
   readonly workers?: number;
   readonly housing?: number;
   readonly storageBonus?: number;
-  readonly placement?: { readonly on: readonly string[]; readonly requires?: string | readonly string[] };
+  readonly placement?: {
+    readonly on: readonly string[];
+    readonly requires?: string | readonly string[];
+  };
   readonly buildCost?: Record<string, number>;
   readonly buildDays?: number;
 }
@@ -236,7 +239,10 @@ interface RawGameBuilding {
   readonly recipe: string | null;
   readonly slots: number;
   readonly workers?: number;
-  readonly placement: { readonly on: readonly string[]; readonly requires?: string | readonly string[] };
+  readonly placement: {
+    readonly on: readonly string[];
+    readonly requires?: string | readonly string[];
+  };
   readonly buildCost: Record<string, number>;
   readonly buildDays: number;
 }
@@ -272,7 +278,11 @@ interface RawGameTech {
   readonly phase: number;
   readonly repeatable?: boolean;
   readonly requires?: readonly string[];
-  readonly cost?: { readonly physics?: number; readonly engineering?: number; readonly bio?: number };
+  readonly cost?: {
+    readonly physics?: number;
+    readonly engineering?: number;
+    readonly bio?: number;
+  };
 }
 
 const PLACEMENT_PLANET = 1 << 0;
@@ -467,7 +477,10 @@ export function createDefaultStageOneData(): StageOneData {
     workers: process.workers
   }));
   const continuousIndex = indexById(continuous);
-  const powerProcessIndices = powerProcessIndicesFor(continuous, resourceIndexOf(resourceIndex, "energy"));
+  const powerProcessIndices = powerProcessIndicesFor(
+    continuous,
+    resourceIndexOf(resourceIndex, "energy")
+  );
   const featureIndex = buildFeatureIndex(rawBuildings, []);
   const featureNames = featureNamesFromIndex(featureIndex);
   const sinks: StageOneSink[] = [];
@@ -495,7 +508,9 @@ export function createDefaultStageOneData(): StageOneData {
       requiredFeatureMask: requiredFeatureMaskFrom(featureIndex, building.placement?.requires),
       buildCost: convertBagFromRecord(building.buildCost ?? {}, resourceIndex),
       buildDays: building.buildDays ?? 1,
-      powerSource: continuousProcess >= 0 && producesResource(continuous[continuousProcess], resourceIndexOf(resourceIndex, "energy"))
+      powerSource:
+        continuousProcess >= 0 &&
+        producesResource(continuous[continuousProcess], resourceIndexOf(resourceIndex, "energy"))
     };
   });
   const buildingIndex = indexById(buildings);
@@ -570,7 +585,8 @@ export function createStageTwoDataFromGameData(input: StageGameDataInput): Stage
     tier: resource.tier,
     category: resource.category,
     phase: resource.phase,
-    storageDefault: resource.id === "energy" ? Math.max(260, resource.storageDefault) : resource.storageDefault,
+    storageDefault:
+      resource.id === "energy" ? Math.max(260, resource.storageDefault) : resource.storageDefault,
     transportable: resource.transportable,
     unitVolume: resource.unitVolume,
     depositFeature: resource.deposit ?? ""
@@ -618,7 +634,10 @@ export function createStageTwoDataFromGameData(input: StageGameDataInput): Stage
     id: sink.id,
     consumes: sink.consumes.map((id) => resourceIndexOf(resourceIndex, id)).sort((a, b) => a - b)
   }));
-  const featureIndex = buildFeatureIndex(input.buildings.buildings, input.startPackage.homeSystem.bodies);
+  const featureIndex = buildFeatureIndex(
+    input.buildings.buildings,
+    input.startPackage.homeSystem.bodies
+  );
   const featureNames = featureNamesFromIndex(featureIndex);
 
   const buildings = input.buildings.buildings.map((building) => {
@@ -644,7 +663,8 @@ export function createStageTwoDataFromGameData(input: StageGameDataInput): Stage
       requiredFeatureMask: requiredFeatureMaskFrom(featureIndex, building.placement.requires),
       buildCost: convertBagFromRecord(building.buildCost, resourceIndex),
       buildDays: building.buildDays,
-      powerSource: continuousProcess >= 0 && producesResource(continuous[continuousProcess], energyResource)
+      powerSource:
+        continuousProcess >= 0 && producesResource(continuous[continuousProcess], energyResource)
     };
   });
   const buildingIndex = indexById(buildings);
@@ -700,7 +720,13 @@ export function createStageTwoDataFromGameData(input: StageGameDataInput): Stage
     populationNeeds,
     graph,
     energyResource,
-    startPackage: startPackageFrom(input.startPackage, buildingIndex, resourceIndex, featureIndex, hullIndex),
+    startPackage: startPackageFrom(
+      input.startPackage,
+      buildingIndex,
+      resourceIndex,
+      featureIndex,
+      hullIndex
+    ),
     hulls,
     hullIndex,
     techs,
@@ -718,34 +744,6 @@ export function buildingIndexOf(index: ReadonlyMap<string, number>, id: string):
   const value = index.get(id);
   if (value === undefined) throw new RangeError(`Unknown building id "${id}".`);
   return value;
-}
-
-function deriveBaseValues(
-  resourceCount: number,
-  recipes: readonly StageOneBatchRecipe[],
-  resourceIndex: ReadonlyMap<string, number>
-): Float64Array {
-  const values = new Float64Array(resourceCount);
-  for (let i = 0; i < values.length; i += 1) values[i] = 1;
-  values[resourceIndexOf(resourceIndex, "energy")] = 0.03;
-
-  for (let pass = 0; pass < 64; pass += 1) {
-    for (let recipeIndex = 0; recipeIndex < recipes.length; recipeIndex += 1) {
-      const recipe = must(recipes[recipeIndex], "recipe");
-      let cost = recipe.workers * recipe.durationTicks * 0.5;
-      for (let i = 0; i < recipe.inputs.length; i += 1) {
-        const input = must(recipe.inputs[i], "recipe input");
-        cost += (values[input.resource] ?? 0) * input.amount;
-      }
-      for (let i = 0; i < recipe.outputs.length; i += 1) {
-        const output = must(recipe.outputs[i], "recipe output");
-        const next = cost / Math.max(1, output.amount);
-        values[output.resource] = next;
-      }
-    }
-  }
-
-  return values;
 }
 
 function convertBag(
@@ -947,7 +945,8 @@ function startPackageFrom(
 
   const buildings = input.buildings.map((building) => {
     const body = bodyIndex.get(building.body);
-    if (body === undefined) throw new RangeError(`Start package body "${building.body}" is unknown.`);
+    if (body === undefined)
+      throw new RangeError(`Start package body "${building.body}" is unknown.`);
     return {
       building: buildingIndexOf(buildingIndex, building.id),
       body

@@ -3,11 +3,15 @@ export var ShipRole;
 (function (ShipRole) {
     ShipRole[ShipRole["Hauler"] = 1] = "Hauler";
     ShipRole[ShipRole["Colonizer"] = 2] = "Colonizer";
+    ShipRole[ShipRole["Warship"] = 3] = "Warship";
+    ShipRole[ShipRole["Miner"] = 4] = "Miner";
+    ShipRole[ShipRole["Scout"] = 5] = "Scout";
 })(ShipRole || (ShipRole = {}));
 export var ShipState;
 (function (ShipState) {
     ShipState[ShipState["Idle"] = 0] = "Idle";
     ShipState[ShipState["InTransit"] = 1] = "InTransit";
+    ShipState[ShipState["Disbanded"] = 2] = "Disbanded";
 })(ShipState || (ShipState = {}));
 export class Ships {
     arena;
@@ -77,12 +81,15 @@ export class Ships {
         return this.arena.length;
     }
     addHauler(faction, currentSystem, stockpile, cargoCapacity, fuelCapacity, fuelPerJump) {
+        return this.addShip(faction, currentSystem, stockpile, ShipRole.Hauler, cargoCapacity, fuelCapacity, fuelPerJump);
+    }
+    addShip(faction, currentSystem, stockpile, role, cargoCapacity, fuelCapacity, fuelPerJump) {
         const previousCapacity = this.arena.capacity;
         const row = this.arena.addRow();
         if (this.arena.capacity !== previousCapacity)
             this.refreshColumns();
         this.faction[row] = faction;
-        this.role[row] = ShipRole.Hauler;
+        this.role[row] = role;
         this.state[row] = ShipState.Idle;
         this.currentSystem[row] = currentSystem;
         this.fromSystem[row] = currentSystem;

@@ -114,7 +114,8 @@ export function dailyDemandOnBody(
   const demand = new Float64Array(data.resources.length);
   for (let resource = 0; resource < data.resources.length; resource += 1) {
     demand[resource] =
-      (world.bodies.population[body] ?? 0) * (data.populationNeeds.perThousandPopPerDay[resource] ?? 0);
+      (world.bodies.population[body] ?? 0) *
+      (data.populationNeeds.perThousandPopPerDay[resource] ?? 0);
   }
   let building = world.bodies.firstBuilding[body] ?? -1;
   while (building >= 0) {

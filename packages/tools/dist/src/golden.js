@@ -1,28 +1,33 @@
 import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { StageOneSimulation, StageZeroSimulation } from "@galaxy-sim/sim-core";
+import { StageOneSimulation, StageTwoSimulation, StageZeroSimulation } from "@galaxy-sim/sim-core";
+import { loadStageTwoData } from "./stage-two-loader.js";
 const here = dirname(fileURLToPath(import.meta.url));
 const goldenDir = resolve(here, "../golden");
 const changelogPath = resolve(here, "../../../CHANGELOG.md");
 const scenarios = [
     { stage: 1, seed: 20260904, ticks: 100_000, checkpointEvery: 10_000 },
     { stage: 1, seed: 7, ticks: 100_000, checkpointEvery: 10_000 },
-    { stage: 1, seed: 424242, ticks: 100_000, checkpointEvery: 10_000 }
+    { stage: 1, seed: 424242, ticks: 100_000, checkpointEvery: 10_000 },
+    { stage: 2, seed: 20260904, ticks: 100_000, checkpointEvery: 10_000 }
 ];
 export async function checkGolden() {
+    const stageTwoData = scenarios.some((scenario) => scenario.stage === 2)
+        ? await loadStageTwoData()
+        : undefined;
     let ok = true;
     for (const scenario of scenarios) {
-        const actual = runScenario(scenario);
+        const actual = runScenario(scenario, stageTwoData);
         const expected = await readBaseline(scenario);
         if (expected === undefined) {
-            console.error(`Missing golden baseline for seed ${scenario.seed}. Run golden:update with --reason.`);
+            console.error(`Missing golden baseline for stage ${scenario.stage} seed ${scenario.seed}. Run golden:update with --reason.`);
             ok = false;
             continue;
         }
         const mismatch = firstMismatch(expected, actual);
         if (mismatch !== undefined) {
-            console.error(`Golden mismatch for seed ${scenario.seed}: ${mismatch}`);
+            console.error(`Golden mismatch for stage ${scenario.stage} seed ${scenario.seed}: ${mismatch}`);
             ok = false;
         }
         else {
@@ -35,17 +40,22 @@ export async function updateGolden(reason) {
     if (reason.trim().length === 0)
         throw new Error('golden:update requires --reason "text".');
     await mkdir(goldenDir, { recursive: true });
+    const stageTwoData = scenarios.some((scenario) => scenario.stage === 2)
+        ? await loadStageTwoData()
+        : undefined;
     for (const scenario of scenarios) {
-        const report = runScenario(scenario);
+        const report = runScenario(scenario, stageTwoData);
         await writeFile(baselinePath(scenario), `${JSON.stringify({ ...scenario, ...report }, null, 2)}\n`, "utf8");
         console.log(`updated stage ${scenario.stage} seed ${scenario.seed}: ${report.finalHash}`);
     }
     await appendFile(changelogPath, `\n## Golden baseline update\n\n- Reason: ${reason.trim()}\n`, "utf8");
 }
-function runScenario(scenario) {
+function runScenario(scenario, stageTwoData) {
     const sim = scenario.stage === 0
         ? StageZeroSimulation.create(scenario.seed)
-        : StageOneSimulation.create(scenario.seed);
+        : scenario.stage === 1
+            ? StageOneSimulation.create(scenario.seed)
+            : StageTwoSimulation.create(scenario.seed, requireStageTwoData(stageTwoData));
     const report = sim.run(scenario.ticks, scenario.checkpointEvery);
     return {
         finalHash: report.finalHash,
@@ -77,6 +87,11 @@ function firstMismatch(expected, actual) {
         return `final expected ${expected.finalHash}, got ${actual.finalHash}`;
     }
     return undefined;
+}
+function requireStageTwoData(data) {
+    if (data === undefined)
+        throw new Error("Stage 2 data was not loaded.");
+    return data;
 }
 function reasonArg(argv) {
     for (let i = 0; i < argv.length; i += 1) {

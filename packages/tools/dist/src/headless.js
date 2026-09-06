@@ -2,12 +2,16 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { hrtime } from "node:process";
 import { pathToFileURL } from "node:url";
-import { Instrumentation, StageOneSimulation, StageZeroSimulation, ticksFromYears } from "@galaxy-sim/sim-core";
+import { Instrumentation, StageOneSimulation, StageTwoSimulation, StageZeroSimulation, ticksFromYears } from "@galaxy-sim/sim-core";
+import { loadStageTwoData } from "./stage-two-loader.js";
 const subsystemNames = ["continuous", "events", "snapshot", "total"];
 export async function runHeadless(options) {
+    const stageTwoData = options.stage === 2 ? await loadStageTwoData() : undefined;
     const sim = options.stage === 0
         ? StageZeroSimulation.create(options.seed)
-        : StageOneSimulation.create(options.seed);
+        : options.stage === 1
+            ? StageOneSimulation.create(options.seed)
+            : StageTwoSimulation.create(options.seed, requireStageTwoData(stageTwoData));
     const started = hrtime.bigint();
     const instrumentation = new Instrumentation({
         enabled: true,
@@ -39,6 +43,9 @@ function printRunReport(options, report, elapsedMs, subsystemMs) {
     console.log(`counters: systems=${report.counters.systems}, factions=${report.counters.factions}, ships=${report.counters.ships}, buildings=${report.counters.buildings}`);
     if ("metrics" in report) {
         console.log(`metrics: totalPop=${report.metrics.totalPopulation.toFixed(2)}, minPop=${report.metrics.minPopulation.toFixed(2)}, delivered=${report.metrics.deliveredShipments}, spread=${report.metrics.averageFoodWaterSpread.toFixed(4)}`);
+        if ("idleNoPower" in report.metrics) {
+            console.log(`stage2: idleNoPower=${report.metrics.idleNoPower}, idleMissingInput=${report.metrics.idleMissingInput}, constructed=${report.metrics.constructedBuildings}, researched=${report.metrics.researchedTechnologies}, disbanded=${report.metrics.disbandedShips}, activeConstruction=${report.metrics.activeConstructions}, slotFill=${report.metrics.slotFillRatio.toFixed(3)}, maxZero=${report.metrics.maxResourceZeroStreakDays}, treasuryMin=${report.metrics.treasuryMin.toFixed(2)}`);
+        }
     }
     console.log("intermediateHashes:");
     for (const checkpoint of report.intermediateHashes) {
@@ -48,8 +55,8 @@ function printRunReport(options, report, elapsedMs, subsystemMs) {
 }
 function parseArgs(argv) {
     const stage = numberArg(argv, "stage", 1);
-    if (stage !== 0 && stage !== 1)
-        throw new Error("--stage must be 0 or 1.");
+    if (stage !== 0 && stage !== 1 && stage !== 2)
+        throw new Error("--stage must be 0, 1 or 2.");
     return {
         stage,
         seed: numberArg(argv, "seed", 20260904),
@@ -57,6 +64,11 @@ function parseArgs(argv) {
         snapshotEvery: numberArg(argv, "snapshot-every", 10_000),
         reportPath: stringArg(argv, "report")
     };
+}
+function requireStageTwoData(data) {
+    if (data === undefined)
+        throw new Error("Stage two data was not loaded.");
+    return data;
 }
 function numberArg(argv, name, fallback) {
     const raw = stringArg(argv, name);

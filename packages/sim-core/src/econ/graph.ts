@@ -135,13 +135,27 @@ export function computeBaseValues(input: EconGraphInput): Float64Array {
       for (let recipeIndex = 0; recipeIndex < input.batchRecipes.length; recipeIndex += 1) {
         const recipe = must(input.batchRecipes[recipeIndex], "batch recipe");
         if (!bagHasResource(recipe.outputs, resource)) continue;
-        const cost = recipeUnitCost(recipe.inputs, recipe.outputs, resource, recipe.workers, recipe.durationTicks, values);
+        const cost = recipeUnitCost(
+          recipe.inputs,
+          recipe.outputs,
+          resource,
+          recipe.workers,
+          recipe.durationTicks,
+          values
+        );
         if (cost < best - 1e-9) best = cost;
       }
       for (let processIndex = 0; processIndex < input.continuous.length; processIndex += 1) {
         const process = must(input.continuous[processIndex], "continuous process");
         if (!bagHasResource(process.outputsPerTick, resource)) continue;
-        const cost = recipeUnitCost(process.inputsPerTick, process.outputsPerTick, resource, process.workers, 1, values);
+        const cost = recipeUnitCost(
+          process.inputsPerTick,
+          process.outputsPerTick,
+          resource,
+          process.workers,
+          1,
+          values
+        );
         if (cost < best - 1e-9) best = cost;
       }
       if (best < (values[resource] ?? Number.POSITIVE_INFINITY) - 1e-9) {
@@ -214,7 +228,14 @@ function explodeRecursive(
   const outputAmount = Math.max(0.000001, bagAmount(outputs, resource));
   for (let i = 0; i < inputs.length; i += 1) {
     const item = must(inputs[i], "recipe input");
-    explodeRecursive(input, values, item.resource, (item.amount / outputAmount) * amount, out, guard);
+    explodeRecursive(
+      input,
+      values,
+      item.resource,
+      (item.amount / outputAmount) * amount,
+      out,
+      guard
+    );
   }
   guard[resource] = 0;
 }
@@ -230,7 +251,14 @@ function bestProducerFor(
   for (let recipeIndex = 0; recipeIndex < input.batchRecipes.length; recipeIndex += 1) {
     const recipe = must(input.batchRecipes[recipeIndex], "batch recipe");
     if (!bagHasResource(recipe.outputs, resource)) continue;
-    const cost = recipeUnitCost(recipe.inputs, recipe.outputs, resource, recipe.workers, recipe.durationTicks, values);
+    const cost = recipeUnitCost(
+      recipe.inputs,
+      recipe.outputs,
+      resource,
+      recipe.workers,
+      recipe.durationTicks,
+      values
+    );
     if (cost < bestCost) {
       bestCost = cost;
       bestKind = EconProducerKind.Batch;
@@ -240,7 +268,14 @@ function bestProducerFor(
   for (let processIndex = 0; processIndex < input.continuous.length; processIndex += 1) {
     const process = must(input.continuous[processIndex], "continuous process");
     if (!bagHasResource(process.outputsPerTick, resource)) continue;
-    const cost = recipeUnitCost(process.inputsPerTick, process.outputsPerTick, resource, process.workers, 1, values);
+    const cost = recipeUnitCost(
+      process.inputsPerTick,
+      process.outputsPerTick,
+      resource,
+      process.workers,
+      1,
+      values
+    );
     if (cost < bestCost) {
       bestCost = cost;
       bestKind = EconProducerKind.Continuous;
@@ -277,10 +312,7 @@ function chainDepthFor(
     for (let i = 0; i < recipe.inputs.length; i += 1) {
       const dependency = must(recipe.inputs[i], "recipe input").resource;
       if (dependency === input.energyResource) continue;
-      maxDepth = Math.max(
-        maxDepth,
-        chainDepthFor(input, dependency, depth, visiting, visited) + 1
-      );
+      maxDepth = Math.max(maxDepth, chainDepthFor(input, dependency, depth, visiting, visited) + 1);
     }
   }
   visiting[resource] = 0;
@@ -294,7 +326,8 @@ function countCycles(input: EconGraphInput, wantsEnergyCycle: boolean): number {
   const stack = new Int32Array(input.resources.length + 1);
   let cycles = 0;
   for (let resource = 0; resource < input.resources.length; resource += 1) {
-    if (color[resource] === 0) cycles += dfsCycles(input, resource, color, stack, 0, wantsEnergyCycle);
+    if (color[resource] === 0)
+      cycles += dfsCycles(input, resource, color, stack, 0, wantsEnergyCycle);
   }
   return cycles;
 }
@@ -337,7 +370,8 @@ function dfsCycleBag(
     const dependency = must(inputs[i], "recipe input").resource;
     const colorValue = color[dependency] ?? 0;
     if (colorValue === 1) {
-      const hasEnergy = stackContains(stack, depth, input.energyResource) || dependency === input.energyResource;
+      const hasEnergy =
+        stackContains(stack, depth, input.energyResource) || dependency === input.energyResource;
       if (hasEnergy === wantsEnergyCycle) cycles += 1;
     } else if (colorValue === 0) {
       cycles += dfsCycles(input, dependency, color, stack, depth + 1, wantsEnergyCycle);

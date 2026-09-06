@@ -164,7 +164,7 @@ export class Bodies {
         return false;
     }
     hasFeatureMask(body, mask) {
-        return mask === 0 || (((this.featureMask[body] ?? 0) & mask) === mask);
+        return mask === 0 || ((this.featureMask[body] ?? 0) & mask) === mask;
     }
     ensureAuxCapacity(required) {
         if (required <= this.buildingTail.length)

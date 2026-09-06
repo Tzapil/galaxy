@@ -61,9 +61,9 @@ export class Buildings {
     get length() {
         return this.arena.length;
     }
-    addBuilt(data, bodies, body, buildingType) {
+    addBuilt(data, bodies, body, buildingType, stockpiles) {
         const row = this.addShell(data, bodies, body, buildingType, BuildingState.UnderConstruction);
-        this.activateBuilt(data, bodies, row);
+        this.activateBuilt(data, bodies, row, stockpiles);
         return row;
     }
     addUnderConstruction(data, bodies, body, buildingType, tick) {
@@ -73,11 +73,12 @@ export class Buildings {
         this.stateResource[row] = -1;
         return row;
     }
-    activateBuilt(data, bodies, building) {
+    activateBuilt(data, bodies, building, stockpiles) {
         const buildingType = this.type[building] ?? 0;
         const def = data.buildings[buildingType];
         if (def === undefined)
             throw new RangeError("Unknown building type.");
+        const body = this.body[building] ?? 0;
         this.state[building] =
             def.batchRecipe >= 0 || def.continuousProcess >= 0
                 ? BuildingState.IdleMissingInput
@@ -85,10 +86,12 @@ export class Buildings {
         this.stateResource[building] = -1;
         this.startedTick[building] = -1;
         this.finishTick[building] = -1;
-        bodies.housing[this.body[building] ?? 0] =
-            (bodies.housing[this.body[building] ?? 0] ?? 0) + def.housing;
+        bodies.housing[body] = (bodies.housing[body] ?? 0) + def.housing;
+        if (stockpiles !== undefined && def.storageBonus > 0) {
+            stockpiles.addCapacity(bodies.stockpile[body] ?? 0, def.storageBonus);
+        }
     }
-    markDemolished(data, bodies, building) {
+    markDemolished(data, bodies, building, stockpiles) {
         if (this.state[building] === BuildingState.Demolished)
             return;
         const buildingType = this.type[building] ?? 0;
@@ -99,6 +102,9 @@ export class Buildings {
         bodies.usedSlots[body] = Math.max(0, (bodies.usedSlots[body] ?? 0) - def.slots);
         bodies.housing[body] = Math.max(0, (bodies.housing[body] ?? 0) - def.housing);
         bodies.buildingCount[body] = Math.max(0, (bodies.buildingCount[body] ?? 0) - 1);
+        if (stockpiles !== undefined && def.storageBonus > 0) {
+            stockpiles.addCapacity(bodies.stockpile[body] ?? 0, -def.storageBonus);
+        }
         this.state[building] = BuildingState.Demolished;
         this.stateResource[building] = -1;
         this.startedTick[building] = -1;

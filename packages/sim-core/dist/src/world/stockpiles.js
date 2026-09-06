@@ -84,7 +84,9 @@ export class Stockpiles {
     addCapacity(row, amount) {
         for (let resource = 0; resource < this.data.resources.length; resource += 1) {
             const column = mustColumn(this.capacityColumns[resource]);
-            column[row] = (column[row] ?? 0) + amount;
+            column[row] = Math.max(0, (column[row] ?? 0) + amount);
+            const values = mustColumn(this.amountColumns[resource]);
+            values[row] = clamp(values[row] ?? 0, 0, column[row] ?? 0);
         }
     }
     setCapacity(row, resource, capacity) {

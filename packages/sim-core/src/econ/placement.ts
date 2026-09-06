@@ -3,10 +3,7 @@ import { bodyTypePlacementMask, type StageOneData } from "../stage-one/data.js";
 import type { StageOneWorld } from "../world/state.js";
 
 export type PlacementFailureReason =
-  | "noFreeSlots"
-  | "wrongBodyType"
-  | "missingDeposit"
-  | "noPowerSource";
+  "noFreeSlots" | "wrongBodyType" | "missingDeposit" | "noPowerSource";
 
 export interface PlacementResult {
   readonly ok: boolean;
@@ -29,7 +26,10 @@ export function validatePlacement(
   if (!world.bodies.hasFeatureMask(body, def.requiredFeatureMask)) {
     return { ok: false, reason: "missingDeposit" };
   }
-  if (requiresLocalPower(data, def.batchRecipe, def.continuousProcess) && !hasPowerSource(data, world, body, buildingType)) {
+  if (
+    requiresLocalPower(data, def.batchRecipe, def.continuousProcess) &&
+    !hasPowerSource(data, world, body, buildingType)
+  ) {
     return { ok: false, reason: "noPowerSource" };
   }
   return { ok: true };
@@ -41,15 +41,13 @@ export function hasPowerSource(
   body: number,
   buildingTypeInPlan = -1
 ): boolean {
-  if (buildingTypeInPlan >= 0 && data.buildings[buildingTypeInPlan]?.powerSource === true) return true;
+  if (buildingTypeInPlan >= 0 && data.buildings[buildingTypeInPlan]?.powerSource === true)
+    return true;
   let building = world.bodies.firstBuilding[body] ?? -1;
   while (building >= 0) {
     const state = world.buildings.state[building] ?? BuildingState.Demolished;
     const type = world.buildings.type[building] ?? -1;
-    if (
-      state !== BuildingState.Demolished &&
-      data.buildings[type]?.powerSource === true
-    ) {
+    if (state !== BuildingState.Demolished && data.buildings[type]?.powerSource === true) {
       return true;
     }
     building = world.buildings.nextInBody[building] ?? -1;
@@ -62,7 +60,12 @@ function requiresLocalPower(
   batchRecipe: number,
   continuousProcess: number
 ): boolean {
-  if (continuousProcess >= 0) return data.continuous[continuousProcess]?.outputsPerTick.some((out) => out.resource === data.energyResource) !== true;
+  if (continuousProcess >= 0)
+    return (
+      data.continuous[continuousProcess]?.outputsPerTick.some(
+        (out) => out.resource === data.energyResource
+      ) !== true
+    );
   if (batchRecipe < 0) return false;
   const recipe = data.batchRecipes[batchRecipe];
   if (recipe === undefined) return false;

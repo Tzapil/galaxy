@@ -1,5 +1,5 @@
 import { StageOneLogKind } from "../events/log.js";
-import type { StageOneSimulation } from "../simulation/stage-one.js";
+import type { StageOneWorld } from "../world/state.js";
 
 export const STAGE_ONE_VIEW_MAGIC = 0x47533156;
 export const STAGE_ONE_VIEW_VERSION = 1;
@@ -75,7 +75,15 @@ export interface RenderEvent {
   readonly amount: number;
 }
 
-export function buildStageOneRenderSnapshot(sim: StageOneSimulation, slices: number): ArrayBuffer {
+interface RenderSnapshotSource {
+  readonly tick: number;
+  readonly world: StageOneWorld;
+}
+
+export function buildStageOneRenderSnapshot(
+  sim: RenderSnapshotSource,
+  slices: number
+): ArrayBuffer {
   const world = sim.world;
   const systemCount = has(slices, RenderSliceBit.Map) ? world.systems.length : 0;
   const gateCount = has(slices, RenderSliceBit.Map) ? world.gates.length / 2 : 0;
@@ -239,7 +247,7 @@ export function decodeStageOneRenderSnapshot(buffer: ArrayBuffer): StageOneRende
   return { tick, slices, systems, gates, colonies, ships, buildings, events };
 }
 
-function writeSystems(view: DataView, offset: number, sim: StageOneSimulation): number {
+function writeSystems(view: DataView, offset: number, sim: RenderSnapshotSource): number {
   const systems = sim.world.systems;
   let next = offset;
   for (let i = 0; i < systems.length; i += 1) {
@@ -252,7 +260,7 @@ function writeSystems(view: DataView, offset: number, sim: StageOneSimulation): 
   return next;
 }
 
-function writeGates(view: DataView, offset: number, sim: StageOneSimulation): number {
+function writeGates(view: DataView, offset: number, sim: RenderSnapshotSource): number {
   const gates = sim.world.gates;
   let next = offset;
   for (let i = 0; i < gates.length; i += 2) {
@@ -264,7 +272,7 @@ function writeGates(view: DataView, offset: number, sim: StageOneSimulation): nu
   return next;
 }
 
-function writeColonies(view: DataView, offset: number, sim: StageOneSimulation): number {
+function writeColonies(view: DataView, offset: number, sim: RenderSnapshotSource): number {
   const world = sim.world;
   let next = offset;
   for (let body = 0; body < world.bodies.length; body += 1) {
@@ -286,7 +294,7 @@ function writeColonies(view: DataView, offset: number, sim: StageOneSimulation):
   return next;
 }
 
-function writeShips(view: DataView, offset: number, sim: StageOneSimulation): number {
+function writeShips(view: DataView, offset: number, sim: RenderSnapshotSource): number {
   const ships = sim.world.ships;
   let next = offset;
   for (let ship = 0; ship < ships.length; ship += 1) {
@@ -303,7 +311,7 @@ function writeShips(view: DataView, offset: number, sim: StageOneSimulation): nu
   return next;
 }
 
-function writeBuildings(view: DataView, offset: number, sim: StageOneSimulation): number {
+function writeBuildings(view: DataView, offset: number, sim: RenderSnapshotSource): number {
   const buildings = sim.world.buildings;
   let next = offset;
   for (let building = 0; building < buildings.length; building += 1) {
@@ -320,7 +328,7 @@ function writeBuildings(view: DataView, offset: number, sim: StageOneSimulation)
 function writeEvents(
   view: DataView,
   offset: number,
-  sim: StageOneSimulation,
+  sim: RenderSnapshotSource,
   eventCount: number
 ): number {
   const log = sim.world.eventLog;
@@ -339,7 +347,7 @@ function writeEvents(
   return next;
 }
 
-function countColonies(sim: StageOneSimulation): number {
+function countColonies(sim: RenderSnapshotSource): number {
   let count = 0;
   for (let body = 0; body < sim.world.bodies.length; body += 1) {
     if ((sim.world.bodies.owner[body] ?? -1) >= 0 && (sim.world.bodies.population[body] ?? 0) > 0)

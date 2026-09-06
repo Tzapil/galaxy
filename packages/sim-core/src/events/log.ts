@@ -14,7 +14,8 @@ export const enum StageOneLogKind {
   ConstructionWaitingMaterials = 10,
   ConstructionComplete = 11,
   BuildingDemolished = 12,
-  ContractSubsidyPaid = 13
+  ContractSubsidyPaid = 13,
+  ResearchCompleted = 14
 }
 
 const DEFAULT_STAGE_ONE_EVENT_LOG_LIMIT = 512;

@@ -31,7 +31,13 @@ export function startBuildingConstruction(
       waitingResource: -1
     };
   }
-  const building = world.buildings.addUnderConstruction(data, world.bodies, body, buildingType, tick);
+  const building = world.buildings.addUnderConstruction(
+    data,
+    world.bodies,
+    body,
+    buildingType,
+    tick
+  );
   const waitingResource = tryPayConstructionCost(data, world, building);
   if (waitingResource >= 0) {
     world.buildings.stateResource[building] = waitingResource;
@@ -103,7 +109,11 @@ export function completeConstruction(
   tryStartIdleBuildingsOnBody(data, world, queue, body, tick);
 }
 
-function tryPayConstructionCost(data: StageOneData, world: StageOneWorld, building: number): number {
+function tryPayConstructionCost(
+  data: StageOneData,
+  world: StageOneWorld,
+  building: number
+): number {
   const def = data.buildings[world.buildings.type[building] ?? 0];
   if (def === undefined) throw new RangeError("Unknown building type.");
   const body = world.buildings.body[building] ?? 0;

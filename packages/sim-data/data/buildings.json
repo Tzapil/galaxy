@@ -344,7 +344,7 @@
       "name": "Солнечная батарея",
       "recipe": "solar_array",
       "slots": 1,
-      "placement": { "on": ["planet", "station"] },
+      "placement": { "on": ["planet", "station", "asteroid"] },
       "buildCost": { "metal": 30, "electronics": 10 },
       "buildDays": 12
     },

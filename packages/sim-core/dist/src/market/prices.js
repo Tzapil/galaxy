@@ -1,4 +1,5 @@
 import { SoAArena } from "../soa/arena.js";
+import { BuildingState } from "../econ/buildings.js";
 export class MarketPrices {
     arena;
     data;
@@ -87,6 +88,28 @@ export function estimateDailyDemand(data, bodies, buildings, body, resource) {
     let demand = (bodies.population[body] ?? 0) * (data.populationNeeds.perThousandPopPerDay[resource] ?? 0);
     let building = bodies.firstBuilding[body] ?? -1;
     while (building >= 0) {
+        const state = buildings.state[building] ?? BuildingState.Demolished;
+        if (state === BuildingState.UnderConstruction) {
+            if ((buildings.finishTick[building] ?? -1) < 0) {
+                const type = buildings.type[building] ?? -1;
+                const def = data.buildings[type];
+                if (def !== undefined) {
+                    for (let i = 0; i < def.buildCost.length; i += 1) {
+                        const input = def.buildCost[i];
+                        if (input === undefined)
+                            throw new RangeError("Build cost is inconsistent.");
+                        if (input.resource === resource)
+                            demand += input.amount / 30;
+                    }
+                }
+            }
+            building = buildings.nextInBody[building] ?? -1;
+            continue;
+        }
+        if (state === BuildingState.UnderConstruction || state === BuildingState.Demolished) {
+            building = buildings.nextInBody[building] ?? -1;
+            continue;
+        }
         const recipeIndex = buildings.batchRecipe[building] ?? -1;
         if (recipeIndex >= 0) {
             const recipe = data.batchRecipes[recipeIndex];
@@ -99,6 +122,19 @@ export function estimateDailyDemand(data, bodies, buildings, body, resource) {
                 if (input.resource === resource) {
                     demand += input.amount / Math.max(1, recipe.durationTicks);
                 }
+            }
+        }
+        const processIndex = buildings.continuousProcess[building] ?? -1;
+        if (processIndex >= 0) {
+            const process = data.continuous[processIndex];
+            if (process === undefined)
+                throw new RangeError("Building process index is invalid.");
+            for (let i = 0; i < process.inputsPerTick.length; i += 1) {
+                const input = process.inputsPerTick[i];
+                if (input === undefined)
+                    throw new RangeError("Continuous input is inconsistent.");
+                if (input.resource === resource)
+                    demand += input.amount;
             }
         }
         building = buildings.nextInBody[building] ?? -1;

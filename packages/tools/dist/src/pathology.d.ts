@@ -9,7 +9,7 @@ export interface PathologyInput {
     readonly seed: number;
     readonly tick: number;
     readonly stage: number;
-    readonly metrics?: StageOnePathologyMetrics;
+    readonly metrics?: StageOnePathologyMetrics | StageTwoPathologyMetrics;
 }
 export interface StageOnePathologyMetrics {
     readonly minPopulation: number;
@@ -17,6 +17,14 @@ export interface StageOnePathologyMetrics {
     readonly averageFoodWaterSpread: number;
     readonly deliveredShipments: number;
     readonly missedDeparturesFuel: number;
+}
+export interface StageTwoPathologyMetrics extends StageOnePathologyMetrics {
+    readonly idleNoPower: number;
+    readonly idleMissingInput: number;
+    readonly constructedBuildings: number;
+    readonly researchedTechnologies: number;
+    readonly maxResourceZeroStreakDays: number;
+    readonly treasuryMin: number;
 }
 export declare function detectPathologies(input: PathologyInput): readonly PathologyFinding[];
 //# sourceMappingURL=pathology.d.ts.map

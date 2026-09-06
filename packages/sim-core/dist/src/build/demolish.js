@@ -52,7 +52,7 @@ export function demolishBuilding(data, world, building, tick) {
             throw new RangeError("Build cost is inconsistent.");
         world.stockpiles.addClamped(stockpile, item.resource, item.amount * DEMOLITION_REFUND_RATE);
     }
-    world.buildings.markDemolished(data, world.bodies, building);
+    world.buildings.markDemolished(data, world.bodies, building, world.stockpiles);
     world.eventLog.append(tick, StageOneLogKind.BuildingDemolished, world.bodies.system[body] ?? -1, body, building, -1, DEMOLITION_REFUND_RATE);
     return true;
 }
@@ -83,7 +83,8 @@ export function dailyDemandOnBody(data, world, body) {
     const demand = new Float64Array(data.resources.length);
     for (let resource = 0; resource < data.resources.length; resource += 1) {
         demand[resource] =
-            (world.bodies.population[body] ?? 0) * (data.populationNeeds.perThousandPopPerDay[resource] ?? 0);
+            (world.bodies.population[body] ?? 0) *
+                (data.populationNeeds.perThousandPopPerDay[resource] ?? 0);
     }
     let building = world.bodies.firstBuilding[body] ?? -1;
     while (building >= 0) {

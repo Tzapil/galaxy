@@ -3,6 +3,14 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
 
+import {
+  allBuildCostResourcesAreSinks,
+  resourceIndexOf,
+  validateStartPackage
+} from "@galaxy-sim/sim-core";
+
+import { loadStageTwoData } from "./stage-two-loader.js";
+
 interface ToolRun {
   readonly name: string;
   readonly command: readonly string[];
@@ -68,6 +76,7 @@ export async function runDataValidation(): Promise<boolean> {
   const validateOutput = outputs.get("validate") ?? "";
   const techOutput = outputs.get("tech") ?? "";
   ok = checkBaseline(validateOutput, techOutput, baseline) && ok;
+  ok = (await checkStageTwoRuntimeData(baseline)) && ok;
   ok = (await compareChainGraph()) && ok;
   return ok;
 }
@@ -148,6 +157,64 @@ function checkBaseline(validateOutput: string, techOutput: string, baseline: Bas
     ok = false;
   }
 
+  return ok;
+}
+
+async function checkStageTwoRuntimeData(baseline: Baseline): Promise<boolean> {
+  const data = await loadStageTwoData();
+  let ok = true;
+  if (data.resources.length < 35 || data.batchRecipes.length < 33 || data.continuous.length < 3) {
+    console.error(
+      `stage-two-data: incomplete graph resources=${data.resources.length}, batch=${data.batchRecipes.length}, continuous=${data.continuous.length}`
+    );
+    ok = false;
+  }
+  if (data.graph.materialCycleCount !== baseline.materialCycles) {
+    console.error(
+      `stage-two-data: material cycles expected ${baseline.materialCycles}, got ${data.graph.materialCycleCount}`
+    );
+    ok = false;
+  }
+  if (data.graph.energyCycleCount < baseline.energyCyclesMin) {
+    console.error(
+      `stage-two-data: expected at least ${baseline.energyCyclesMin} energy cycles, got ${data.graph.energyCycleCount}`
+    );
+    ok = false;
+  }
+  if ((data.transportable[resourceIndexOf(data.resourceIndex, "energy")] ?? 1) !== 0) {
+    console.error("stage-two-data: energy must be non-transportable.");
+    ok = false;
+  }
+  if (!allBuildCostResourcesAreSinks(data)) {
+    console.error("stage-two-data: every build-cost resource must be covered by a sink.");
+    ok = false;
+  }
+
+  const bootstrap = validateStartPackage(data);
+  if (!bootstrap.ok) {
+    console.error(`stage-two-data: start package invalid: ${bootstrap.missing.join(", ")}`);
+    ok = false;
+  }
+  ok = checkPhaseOneTurnover(data) && ok;
+
+  if (ok) console.log("stage-two-data: ok");
+  return ok;
+}
+
+function checkPhaseOneTurnover(data: Awaited<ReturnType<typeof loadStageTwoData>>): boolean {
+  let ok = true;
+  for (let resource = 0; resource < data.resources.length; resource += 1) {
+    const item = data.resources[resource];
+    if (item === undefined || item.phase !== 1) continue;
+    if ((data.graph.producedByCount[resource] ?? 0) <= 0) {
+      console.error(`stage-two-data: phase 1 resource ${item.id} is produced nowhere.`);
+      ok = false;
+    }
+    if ((data.graph.consumedByCount[resource] ?? 0) <= 0) {
+      console.error(`stage-two-data: phase 1 resource ${item.id} is consumed nowhere.`);
+      ok = false;
+    }
+  }
   return ok;
 }
 

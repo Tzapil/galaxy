@@ -3,7 +3,7 @@ import type { StageOneData } from "../stage-one/data.js";
 import { ShipRole, ShipState } from "../ships/ships.js";
 import type { StageOneWorld } from "../world/state.js";
 
-export const TAX_PER_POP_PER_DAY = 0.08;
+export const TAX_PER_POP_PER_DAY = 0.12;
 export const CIVILIAN_UPKEEP_PER_DAY = 2.5;
 export const SUPPORT_UPKEEP_PER_DAY = 2.5;
 export const WARSHIP_UPKEEP_PER_DAY = 14;
@@ -40,7 +40,8 @@ export function applyDailyTreasury(
       if ((world.factions.treasury[faction] ?? 0) < TREASURY_DEBT_FLOOR) {
         world.factions.treasury[faction] = TREASURY_DEBT_FLOOR;
       }
-      if (fleetUpkeep(world, faction) <= factionPopulation(world, faction) * TAX_PER_POP_PER_DAY) break;
+      if (fleetUpkeep(world, faction) <= factionPopulation(world, faction) * TAX_PER_POP_PER_DAY)
+        break;
     }
   }
 
@@ -80,6 +81,7 @@ function bestShipToDisband(world: StageOneWorld, faction: number): number {
   for (let ship = 0; ship < world.ships.length; ship += 1) {
     if ((world.ships.faction[ship] ?? -1) !== faction) continue;
     if (world.ships.state[ship] === ShipState.Disbanded) continue;
+    if (world.ships.role[ship] !== ShipRole.Warship) continue;
     const upkeep = upkeepForRole(world.ships.role[ship] ?? ShipRole.Hauler);
     if (upkeep > bestUpkeep) {
       best = ship;

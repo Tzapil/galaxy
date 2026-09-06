@@ -4,7 +4,7 @@ import { Buildings } from "../econ/buildings.js";
 import { MarketPrices } from "../market/prices.js";
 import { SupplyEma } from "../pop/supply-ema.js";
 import { StageOneEventLog } from "../events/log.js";
-import { Ships } from "../ships/ships.js";
+import { ShipRole, Ships } from "../ships/ships.js";
 import { Bodies, BodyType } from "./bodies.js";
 import { Factions } from "./factions.js";
 import { Gates } from "./gates.js";
@@ -30,5 +30,6 @@ export declare class StageOneWorld {
     addFaction(label: string, capitalSystem: number, capitalBody: number, treasury: number, expansion: number, industry: number): number;
     addColony(faction: number, body: number, population: number): void;
     addHauler(faction: number, currentSystem: number, cargoCapacity: number, fuelCapacity: number, fuelPerJump: number): number;
+    addShip(faction: number, currentSystem: number, role: ShipRole, cargoCapacity: number, fuelCapacity: number, fuelPerJump: number): number;
 }
 //# sourceMappingURL=state.d.ts.map

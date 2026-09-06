@@ -105,13 +105,14 @@ export class StageOneWorld {
     population: number,
     featureMask = 0
   ): number {
+    const expectedBody = this.bodies.length;
     const stockpile = this.stockpiles.add();
     const supplyRow = this.supply.addBody();
     const priceRow = this.prices.addPoint();
-    if (stockpile !== supplyRow || stockpile !== priceRow) {
-      throw new RangeError("Body sidecar arenas must keep identical row indexes.");
+    if (supplyRow !== expectedBody || priceRow !== expectedBody) {
+      throw new RangeError("Body supply and price sidecar arenas must keep body row indexes.");
     }
-    return this.bodies.add(
+    const body = this.bodies.add(
       this.systems,
       system,
       type,
@@ -123,6 +124,10 @@ export class StageOneWorld {
       population,
       featureMask
     );
+    if (body !== expectedBody) {
+      throw new RangeError("Body arena row index diverged from sidecar arenas.");
+    }
+    return body;
   }
 
   public addFaction(

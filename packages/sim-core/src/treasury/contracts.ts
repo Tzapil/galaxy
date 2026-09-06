@@ -1,6 +1,7 @@
 import { StageOneLogKind } from "../events/log.js";
 import type { StageOneData } from "../stage-one/data.js";
 import type { StageOneWorld } from "../world/state.js";
+import { TREASURY_DEBT_FLOOR } from "./treasury.js";
 
 export interface ContractSubsidy {
   readonly faction: number;
@@ -53,7 +54,7 @@ export class GovernmentContracts {
 }
 
 export function payContractSubsidy(
-  data: StageOneData,
+  _data: StageOneData,
   world: StageOneWorld,
   contracts: GovernmentContracts | undefined,
   faction: number,
@@ -65,7 +66,10 @@ export function payContractSubsidy(
   const creditsPerUnit = contracts?.subsidyFor(faction, targetBody, resource) ?? 0;
   const credits = Math.max(0, creditsPerUnit * amount);
   if (credits <= 0) return 0;
-  world.factions.treasury[faction] = (world.factions.treasury[faction] ?? 0) - credits;
+  const treasury = world.factions.treasury[faction] ?? 0;
+  const payable = Math.min(credits, Math.max(0, treasury - TREASURY_DEBT_FLOOR));
+  if (payable <= 0) return 0;
+  world.factions.treasury[faction] = treasury - payable;
   world.eventLog.append(
     tick,
     StageOneLogKind.ContractSubsidyPaid,
@@ -73,8 +77,7 @@ export function payContractSubsidy(
     targetBody,
     faction,
     resource,
-    credits
+    payable
   );
-  void data;
-  return credits;
+  return payable;
 }

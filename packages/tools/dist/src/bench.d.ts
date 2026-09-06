@@ -1,5 +1,6 @@
-import { type EntityCounters, type StageOneMetrics } from "@galaxy-sim/sim-core";
+import { type EntityCounters, type StageOneMetrics, type StageTwoMetrics } from "@galaxy-sim/sim-core";
 interface BenchOptions {
+    readonly stage: 1 | 2;
     readonly seeds: number;
     readonly years: number;
     readonly out: string | undefined;
@@ -9,7 +10,7 @@ interface WorkerResult {
     readonly finalHash: string;
     readonly ticks: number;
     readonly counters: EntityCounters;
-    readonly metrics: StageOneMetrics;
+    readonly metrics: StageOneMetrics | StageTwoMetrics;
     readonly elapsedMs: number;
 }
 export declare function runBench(options: BenchOptions): Promise<readonly WorkerResult[]>;

@@ -2,11 +2,15 @@ import { SoAArena } from "../soa/arena.js";
 import type { ArenaSnapshot } from "../soa/arena.js";
 export declare const enum ShipRole {
     Hauler = 1,
-    Colonizer = 2
+    Colonizer = 2,
+    Warship = 3,
+    Miner = 4,
+    Scout = 5
 }
 export declare const enum ShipState {
     Idle = 0,
-    InTransit = 1
+    InTransit = 1,
+    Disbanded = 2
 }
 export type ShipColumn = "faction" | "role" | "state" | "currentSystem" | "fromSystem" | "toSystem" | "sourceBody" | "targetBody" | "departTick" | "arriveTick" | "cargoResource" | "cargoAmount" | "cargoCapacity" | "fuelTank" | "fuelCapacity" | "fuelPerJump" | "stockpile";
 export declare class Ships {
@@ -33,6 +37,7 @@ export declare class Ships {
     static fromSnapshot(snapshot: ArenaSnapshot): Ships;
     get length(): number;
     addHauler(faction: number, currentSystem: number, stockpile: number, cargoCapacity: number, fuelCapacity: number, fuelPerJump: number): number;
+    addShip(faction: number, currentSystem: number, stockpile: number, role: ShipRole, cargoCapacity: number, fuelCapacity: number, fuelPerJump: number): number;
     private refreshColumns;
 }
 //# sourceMappingURL=ships.d.ts.map

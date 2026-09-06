@@ -58,7 +58,10 @@ export function choosePowerSourceForRemoteBase(
   return scores[0]?.buildingId ?? "";
 }
 
-function outputEnergy(outputs: readonly { readonly resource: number; readonly amount: number }[], energy: number): number {
+function outputEnergy(
+  outputs: readonly { readonly resource: number; readonly amount: number }[],
+  energy: number
+): number {
   for (let i = 0; i < outputs.length; i += 1) {
     const output = outputs[i];
     if (output?.resource === energy) return output.amount;

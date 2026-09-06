@@ -45,6 +45,8 @@ export function tryStartBatch(data, world, queue, building, tick) {
     return true;
 }
 export function handleBatchComplete(data, world, queue, building, tick) {
+    if (world.buildings.state[building] === BuildingState.Demolished)
+        return;
     const recipeIndex = world.buildings.batchRecipe[building] ?? -1;
     if (recipeIndex < 0)
         return;

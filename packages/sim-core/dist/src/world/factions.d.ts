@@ -1,12 +1,16 @@
 import { SoAArena } from "../soa/arena.js";
 import type { ArenaSnapshot } from "../soa/arena.js";
 import type { Bodies } from "./bodies.js";
-export type FactionColumn = "capitalSystem" | "capitalBody" | "treasury" | "firstColony" | "colonyCount" | "characterExpansion" | "characterIndustry";
+export type FactionColumn = "capitalSystem" | "capitalBody" | "treasury" | "dataPhysics" | "dataEngineering" | "dataBio" | "researchedCount" | "firstColony" | "colonyCount" | "characterExpansion" | "characterIndustry";
 export declare class Factions {
     readonly arena: SoAArena<FactionColumn>;
     capitalSystem: Uint32Array;
     capitalBody: Uint32Array;
     treasury: Float64Array;
+    dataPhysics: Float64Array;
+    dataEngineering: Float64Array;
+    dataBio: Float64Array;
+    researchedCount: Uint16Array;
     firstColony: Int32Array;
     colonyCount: Uint32Array;
     characterExpansion: Float64Array;

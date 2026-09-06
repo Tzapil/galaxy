@@ -110,6 +110,21 @@ export function estimateDailyDemand(
   let building = bodies.firstBuilding[body] ?? -1;
   while (building >= 0) {
     const state = buildings.state[building] ?? BuildingState.Demolished;
+    if (state === BuildingState.UnderConstruction) {
+      if ((buildings.finishTick[building] ?? -1) < 0) {
+        const type = buildings.type[building] ?? -1;
+        const def = data.buildings[type];
+        if (def !== undefined) {
+          for (let i = 0; i < def.buildCost.length; i += 1) {
+            const input = def.buildCost[i];
+            if (input === undefined) throw new RangeError("Build cost is inconsistent.");
+            if (input.resource === resource) demand += input.amount / 30;
+          }
+        }
+      }
+      building = buildings.nextInBody[building] ?? -1;
+      continue;
+    }
     if (state === BuildingState.UnderConstruction || state === BuildingState.Demolished) {
       building = buildings.nextInBody[building] ?? -1;
       continue;

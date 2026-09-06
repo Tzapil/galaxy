@@ -13,7 +13,8 @@ export function validatePlacement(data, world, body, buildingType) {
     if (!world.bodies.hasFeatureMask(body, def.requiredFeatureMask)) {
         return { ok: false, reason: "missingDeposit" };
     }
-    if (requiresLocalPower(data, def.batchRecipe, def.continuousProcess) && !hasPowerSource(data, world, body, buildingType)) {
+    if (requiresLocalPower(data, def.batchRecipe, def.continuousProcess) &&
+        !hasPowerSource(data, world, body, buildingType)) {
         return { ok: false, reason: "noPowerSource" };
     }
     return { ok: true };
@@ -25,8 +26,7 @@ export function hasPowerSource(data, world, body, buildingTypeInPlan = -1) {
     while (building >= 0) {
         const state = world.buildings.state[building] ?? BuildingState.Demolished;
         const type = world.buildings.type[building] ?? -1;
-        if (state !== BuildingState.Demolished &&
-            data.buildings[type]?.powerSource === true) {
+        if (state !== BuildingState.Demolished && data.buildings[type]?.powerSource === true) {
             return true;
         }
         building = world.buildings.nextInBody[building] ?? -1;
@@ -35,7 +35,7 @@ export function hasPowerSource(data, world, body, buildingTypeInPlan = -1) {
 }
 function requiresLocalPower(data, batchRecipe, continuousProcess) {
     if (continuousProcess >= 0)
-        return data.continuous[continuousProcess]?.outputsPerTick.some((out) => out.resource === data.energyResource) !== true;
+        return (data.continuous[continuousProcess]?.outputsPerTick.some((out) => out.resource === data.energyResource) !== true);
     if (batchRecipe < 0)
         return false;
     const recipe = data.batchRecipes[batchRecipe];

@@ -4,6 +4,10 @@ export class Factions {
     capitalSystem;
     capitalBody;
     treasury;
+    dataPhysics;
+    dataEngineering;
+    dataBio;
+    researchedCount;
     firstColony;
     colonyCount;
     characterExpansion;
@@ -15,6 +19,10 @@ export class Factions {
         this.capitalSystem = new Uint32Array(0);
         this.capitalBody = new Uint32Array(0);
         this.treasury = new Float64Array(0);
+        this.dataPhysics = new Float64Array(0);
+        this.dataEngineering = new Float64Array(0);
+        this.dataBio = new Float64Array(0);
+        this.researchedCount = new Uint16Array(0);
         this.firstColony = new Int32Array(0);
         this.colonyCount = new Uint32Array(0);
         this.characterExpansion = new Float64Array(0);
@@ -29,6 +37,10 @@ export class Factions {
             { name: "capitalSystem", kind: "u32" },
             { name: "capitalBody", kind: "u32" },
             { name: "treasury", kind: "f64" },
+            { name: "dataPhysics", kind: "f64" },
+            { name: "dataEngineering", kind: "f64" },
+            { name: "dataBio", kind: "f64" },
+            { name: "researchedCount", kind: "u16" },
             { name: "firstColony", kind: "i32" },
             { name: "colonyCount", kind: "u32" },
             { name: "characterExpansion", kind: "f64" },
@@ -57,6 +69,10 @@ export class Factions {
         this.capitalSystem[row] = capitalSystem;
         this.capitalBody[row] = capitalBody;
         this.treasury[row] = treasury;
+        this.dataPhysics[row] = 0;
+        this.dataEngineering[row] = 0;
+        this.dataBio[row] = 0;
+        this.researchedCount[row] = 0;
         this.firstColony[row] = -1;
         this.colonyCount[row] = 0;
         this.characterExpansion[row] = expansion;
@@ -100,6 +116,10 @@ export class Factions {
         this.capitalSystem = this.arena.column("capitalSystem");
         this.capitalBody = this.arena.column("capitalBody");
         this.treasury = this.arena.column("treasury");
+        this.dataPhysics = this.arena.column("dataPhysics");
+        this.dataEngineering = this.arena.column("dataEngineering");
+        this.dataBio = this.arena.column("dataBio");
+        this.researchedCount = this.arena.column("researchedCount");
         this.firstColony = this.arena.column("firstColony");
         this.colonyCount = this.arena.column("colonyCount");
         this.characterExpansion = this.arena.column("characterExpansion");

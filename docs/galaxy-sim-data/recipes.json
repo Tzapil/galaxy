@@ -126,7 +126,7 @@
   "sinks": [
     { "id": "ship_construction",   "consumes": ["hull_frames", "reactors", "thrusters", "weapons", "shields", "armor", "life_support", "nanomaterials"], "comment": "Главный сток. Модуль корабля тира N = базовое количество системного ресурса × множитель тира + редкие добавки. Наноматериалы попадают сюда через наноброню (расширение v1.1)." },
     { "id": "station_construction","consumes": ["station_parts", "reactors", "life_support"] },
-    { "id": "building_construction","consumes": ["metal", "alloys", "composites", "electronics", "nanomaterials"], "comment": "Наноматериалы входят в стоимость аркологии (расширение v1.1)." },
+    { "id": "building_construction","consumes": ["metal", "alloys", "composites", "electronics", "polymers", "superconductors", "nanomaterials"], "comment": "Наноматериалы, полимеры и сверхпроводники входят в стоимость зданий (расширение v1.1)." },
     { "id": "population",          "consumes": ["food", "water", "medicine", "consumer_goods", "luxury_goods"], "comment": "Второй обязательный сток. Без него экономика вырождается в чисто военную. Роскошь — комфортная потребность развитых колоний (расширение v1.1)." },
     { "id": "ship_movement",       "consumes": ["fuel"], "comment": "Списывается в момент вылета из склада точки отправления (решение №14)." },
     { "id": "research",            "consumes": ["data_physics", "data_engineering", "data_bio"] }

@@ -1,0 +1,1696 @@
+{
+  "options": {
+    "stage": 2,
+    "seeds": 50,
+    "years": 1000,
+    "out": "reports/bench-stage2.json"
+  },
+  "distributions": {
+    "minPopulation": {
+      "min": 9.27669977264626,
+      "p10": 9.27669977264626,
+      "median": 9.27669977264626,
+      "p90": 9.27669977264626,
+      "max": 9.27669977264626
+    },
+    "averageFoodWaterSpread": {
+      "min": 0.26469848840160676,
+      "p10": 0.26469848840160676,
+      "median": 0.26469848840160676,
+      "p90": 0.26469848840160676,
+      "max": 0.26469848840160676
+    },
+    "deliveredShipments": {
+      "min": 218922,
+      "p10": 218922,
+      "median": 218922,
+      "p90": 218922,
+      "max": 218922
+    },
+    "missedDeparturesFuel": {
+      "min": 0,
+      "p10": 0,
+      "median": 0,
+      "p90": 0,
+      "max": 0
+    },
+    "stageTwo": {
+      "idleNoPower": {
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "idleMissingInput": {
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "constructedBuildings": {
+        "min": 12,
+        "p10": 12,
+        "median": 12,
+        "p90": 12,
+        "max": 12
+      },
+      "researchedTechnologies": {
+        "min": 15,
+        "p10": 15,
+        "median": 15,
+        "p90": 15,
+        "max": 15
+      },
+      "disbandedShips": {
+        "min": 4,
+        "p10": 4,
+        "median": 4,
+        "p90": 4,
+        "max": 4
+      },
+      "activeConstructions": {
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "slotFillRatio": {
+        "min": 0.6582278481012658,
+        "p10": 0.6582278481012658,
+        "median": 0.6582278481012658,
+        "p90": 0.6582278481012658,
+        "max": 0.6582278481012658
+      },
+      "maxResourceZeroStreakDays": {
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "treasuryMin": {
+        "min": -185.7012934352017,
+        "p10": -185.7012934352017,
+        "median": -185.7012934352017,
+        "p90": -185.7012934352017,
+        "max": -185.7012934352017
+      }
+    },
+    "elapsedMs": {
+      "min": 68559.1331,
+      "p10": 116403.6902,
+      "median": 126852.7036,
+      "p90": 145722.8776,
+      "max": 155911.2469
+    }
+  },
+  "metrics": [
+    {
+      "name": "alive_factions_by_time",
+      "status": "ok: two seeded factions"
+    },
+    {
+      "name": "power_concentration_index",
+      "status": "n/a until Stage 7"
+    },
+    {
+      "name": "median_faction_age",
+      "status": "n/a until Stage 7"
+    },
+    {
+      "name": "building_idle_without_inputs",
+      "status": "ok: Stage 2 idleMissingInput"
+    },
+    {
+      "name": "resources_at_zero_longer_than_n_years",
+      "status": "ok: Stage 2 maxResourceZeroStreakDays"
+    },
+    {
+      "name": "average_transport_utilization",
+      "status": "ok: deliveredShipments proxy"
+    },
+    {
+      "name": "war_count_and_duration",
+      "status": "n/a until Stage 6"
+    },
+    {
+      "name": "galactic_price_spread",
+      "status": "ok: averageFoodWaterSpread"
+    }
+  ],
+  "runs": [
+    {
+      "seed": 20260904,
+      "finalHash": "2e4ff0d96c5ac71095e691cc33ef833f",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 126412.5361
+    },
+    {
+      "seed": 20260905,
+      "finalHash": "91fca30996749673e49cd451053aa970",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 155911.2469
+    },
+    {
+      "seed": 20260906,
+      "finalHash": "0b2bde4213f12abed90f6f01b22b76de",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 131523.6481
+    },
+    {
+      "seed": 20260907,
+      "finalHash": "2c885aa010ee0f63e599720baf09a97d",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 149599.1735
+    },
+    {
+      "seed": 20260908,
+      "finalHash": "8b5cd95ca13a5b9b6d58dc61f6fcc7ca",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 129129.8013
+    },
+    {
+      "seed": 20260909,
+      "finalHash": "01a083b990eb7301ac34ec7c4cf9d197",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 129629.2652
+    },
+    {
+      "seed": 20260910,
+      "finalHash": "8478a9b9c2f436294470d00c0f197fb6",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 131464.0769
+    },
+    {
+      "seed": 20260911,
+      "finalHash": "e2d05eae6e652349a6ac9d9fa96b0d47",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 149222.354
+    },
+    {
+      "seed": 20260912,
+      "finalHash": "fa2ef15c89fb98e8e79f2b193a24c5ef",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 125459.5397
+    },
+    {
+      "seed": 20260913,
+      "finalHash": "2d2ec425dea77086e3c67eae56d75352",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 153118.8117
+    },
+    {
+      "seed": 20260914,
+      "finalHash": "6caf7a06573312ec6bfe300ea00f1f93",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 141670.194
+    },
+    {
+      "seed": 20260915,
+      "finalHash": "40b02d97fb7fdec798832f179ed4d502",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 128561.6225
+    },
+    {
+      "seed": 20260916,
+      "finalHash": "0d9ad00dc25377160eeff0ea96495207",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 129474.5782
+    },
+    {
+      "seed": 20260917,
+      "finalHash": "f3027a4583853649e072f1c49cc9465f",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 124619.882
+    },
+    {
+      "seed": 20260918,
+      "finalHash": "723679612bf3c1836831e3a01b223c48",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 155797.4476
+    },
+    {
+      "seed": 20260919,
+      "finalHash": "8e656fb8bccdae2375c8400dac84cc06",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 126005.777
+    },
+    {
+      "seed": 20260920,
+      "finalHash": "f15ce97b8ae3c51839c0877b7dc06acc",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 126031.7189
+    },
+    {
+      "seed": 20260921,
+      "finalHash": "ae5a073ddf3d0fc95887e9cfc605253d",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 126852.7036
+    },
+    {
+      "seed": 20260922,
+      "finalHash": "019aca353dad3d1bfb5f45e8a2728665",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 126883.8099
+    },
+    {
+      "seed": 20260923,
+      "finalHash": "6568a8a75bf6434c74e2fdac7016b0c7",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 129376.093
+    },
+    {
+      "seed": 20260924,
+      "finalHash": "c5d1a926ff610f12bc8b06b7426955e6",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 124746.594
+    },
+    {
+      "seed": 20260925,
+      "finalHash": "5bef1607b32b27e64180a208e3fec0d6",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 128724.9463
+    },
+    {
+      "seed": 20260926,
+      "finalHash": "f371e463acf641684dad82af59344b93",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 131827.5574
+    },
+    {
+      "seed": 20260927,
+      "finalHash": "b290c473309a6cc407a62750c88ff203",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 125906.4812
+    },
+    {
+      "seed": 20260928,
+      "finalHash": "a9a350969bb208a415b2d8aa33824c39",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 123144.8034
+    },
+    {
+      "seed": 20260929,
+      "finalHash": "3e95faa669e12ad72d0128f0185c0c6c",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 131192.6267
+    },
+    {
+      "seed": 20260930,
+      "finalHash": "c08a1179fd295a347f87ecdcd7f81c56",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 129262.6819
+    },
+    {
+      "seed": 20260931,
+      "finalHash": "35880025faceba9485b84261088028de",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 126495.3014
+    },
+    {
+      "seed": 20260932,
+      "finalHash": "18ae365a7defe3d1aa067a3736ad1fda",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 124359.8704
+    },
+    {
+      "seed": 20260933,
+      "finalHash": "38278404a8f4ae52e8dde85b54282deb",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 129398.9702
+    },
+    {
+      "seed": 20260934,
+      "finalHash": "e3a44849602750c1cb68fee135d06b43",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 129987.1504
+    },
+    {
+      "seed": 20260935,
+      "finalHash": "ad37d147207943caf518068d8931b93c",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 127445.1768
+    },
+    {
+      "seed": 20260936,
+      "finalHash": "23706fe874185bd699f04c590eeaeffb",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 122977.3356
+    },
+    {
+      "seed": 20260937,
+      "finalHash": "57aad14211dcafcf23b70d651b26c341",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 145722.8776
+    },
+    {
+      "seed": 20260938,
+      "finalHash": "34b23d75441be27284f9395a75cff619",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 128002.2625
+    },
+    {
+      "seed": 20260939,
+      "finalHash": "8eee33958ebc7579b50801778270cf1b",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 127502.7921
+    },
+    {
+      "seed": 20260940,
+      "finalHash": "5d70ce576a6fda0754938c44643a19b7",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 124514.2332
+    },
+    {
+      "seed": 20260941,
+      "finalHash": "6640ba2e73d6e27162ad68a6271816d5",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 129275.8328
+    },
+    {
+      "seed": 20260942,
+      "finalHash": "d8c27adcf5884663f64bcf2ccb5be9b9",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 123728.7105
+    },
+    {
+      "seed": 20260943,
+      "finalHash": "8c6cf66c3935837ed11be802319d87fd",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 120590.8753
+    },
+    {
+      "seed": 20260944,
+      "finalHash": "69999447687ff3b203d147cd0368b109",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 123298.2089
+    },
+    {
+      "seed": 20260945,
+      "finalHash": "5212a6a56524317328e721444fc9ad66",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 123871.4655
+    },
+    {
+      "seed": 20260946,
+      "finalHash": "337ea5109a21e5846242c6e29f953d63",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 120961.6448
+    },
+    {
+      "seed": 20260947,
+      "finalHash": "c12ece5f57a352866618333ff7205207",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 117857.0249
+    },
+    {
+      "seed": 20260948,
+      "finalHash": "9fc4a310dbf488f1dad5f916579e8c88",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 118863.3426
+    },
+    {
+      "seed": 20260949,
+      "finalHash": "4770dd309c2298eb28c2942fe95827ca",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 116403.6902
+    },
+    {
+      "seed": 20260950,
+      "finalHash": "e901e903a526ca513e2531644471f21b",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 115626.4924
+    },
+    {
+      "seed": 20260951,
+      "finalHash": "41693e793c81f3df910ca0447f7a509f",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 113677.5131
+    },
+    {
+      "seed": 20260952,
+      "finalHash": "07a43999e2b131a9b4e4a46ae5f18d53",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 70650.1361
+    },
+    {
+      "seed": 20260953,
+      "finalHash": "5f85fb15974765fb64fbff4fd4cd7b55",
+      "ticks": 365000,
+      "counters": {
+        "systems": 20,
+        "factions": 2,
+        "ships": 16,
+        "buildings": 104
+      },
+      "metrics": {
+        "totalPopulation": 801.4784780372737,
+        "minPopulation": 9.27669977264626,
+        "averageFoodWaterSpread": 0.26469848840160676,
+        "completedBatches": 7845870,
+        "deliveredShipments": 218922,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 6,
+        "idleNoPower": 0,
+        "idleMissingInput": 0,
+        "constructedBuildings": 12,
+        "disbandedShips": 4,
+        "researchedTechnologies": 15,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6582278481012658,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -185.7012934352017
+      },
+      "elapsedMs": 68559.1331
+    }
+  ]
+}

@@ -210,7 +210,8 @@ export function createDefaultStageOneData() {
             requiredFeatureMask: requiredFeatureMaskFrom(featureIndex, building.placement?.requires),
             buildCost: convertBagFromRecord(building.buildCost ?? {}, resourceIndex),
             buildDays: building.buildDays ?? 1,
-            powerSource: continuousProcess >= 0 && producesResource(continuous[continuousProcess], resourceIndexOf(resourceIndex, "energy"))
+            powerSource: continuousProcess >= 0 &&
+                producesResource(continuous[continuousProcess], resourceIndexOf(resourceIndex, "energy"))
         };
     });
     const buildingIndex = indexById(buildings);
@@ -418,28 +419,6 @@ export function buildingIndexOf(index, id) {
     if (value === undefined)
         throw new RangeError(`Unknown building id "${id}".`);
     return value;
-}
-function deriveBaseValues(resourceCount, recipes, resourceIndex) {
-    const values = new Float64Array(resourceCount);
-    for (let i = 0; i < values.length; i += 1)
-        values[i] = 1;
-    values[resourceIndexOf(resourceIndex, "energy")] = 0.03;
-    for (let pass = 0; pass < 64; pass += 1) {
-        for (let recipeIndex = 0; recipeIndex < recipes.length; recipeIndex += 1) {
-            const recipe = must(recipes[recipeIndex], "recipe");
-            let cost = recipe.workers * recipe.durationTicks * 0.5;
-            for (let i = 0; i < recipe.inputs.length; i += 1) {
-                const input = must(recipe.inputs[i], "recipe input");
-                cost += (values[input.resource] ?? 0) * input.amount;
-            }
-            for (let i = 0; i < recipe.outputs.length; i += 1) {
-                const output = must(recipe.outputs[i], "recipe output");
-                const next = cost / Math.max(1, output.amount);
-                values[output.resource] = next;
-            }
-        }
-    }
-    return values;
 }
 function convertBag(items, resourceIndex) {
     return items

@@ -1,5 +1,6 @@
 import type { RoutePlanner } from "../nav/route.js";
 import { type StageOneData } from "../stage-one/data.js";
+import type { GovernmentContracts } from "../treasury/contracts.js";
 import type { StageOneWorld } from "../world/state.js";
 export declare class JobBoard {
     readonly capacity: number;
@@ -20,7 +21,7 @@ export declare class JobBoard {
     takeBestAtSystem(faction: number, system: number): number;
     unreserve(job: number): void;
     bestUnreservedForFaction(faction: number): number;
-    update(data: StageOneData, world: StageOneWorld, routes: RoutePlanner): void;
+    update(data: StageOneData, world: StageOneWorld, routes: RoutePlanner, contracts?: GovernmentContracts): void;
     private scanPair;
     private pushSorted;
     private bubbleUp;

@@ -2,6 +2,7 @@ import { SoAArena } from "../soa/arena.js";
 import type { ArenaSnapshot } from "../soa/arena.js";
 import type { StageOneData } from "../stage-one/data.js";
 import type { Bodies } from "../world/bodies.js";
+import type { Stockpiles } from "../world/stockpiles.js";
 export declare const enum BuildingState {
     UnderConstruction = 0,
     Working = 1,
@@ -30,10 +31,10 @@ export declare class Buildings {
     static create(initialCapacity?: number): Buildings;
     static fromSnapshot(snapshot: ArenaSnapshot): Buildings;
     get length(): number;
-    addBuilt(data: StageOneData, bodies: Bodies, body: number, buildingType: number): number;
+    addBuilt(data: StageOneData, bodies: Bodies, body: number, buildingType: number, stockpiles?: Stockpiles): number;
     addUnderConstruction(data: StageOneData, bodies: Bodies, body: number, buildingType: number, tick: number): number;
-    activateBuilt(data: StageOneData, bodies: Bodies, building: number): void;
-    markDemolished(data: StageOneData, bodies: Bodies, building: number): void;
+    activateBuilt(data: StageOneData, bodies: Bodies, building: number, stockpiles?: Stockpiles): void;
+    markDemolished(data: StageOneData, bodies: Bodies, building: number, stockpiles?: Stockpiles): void;
     private addShell;
     setIdleMissing(building: number, resource: number, energyResource: number): void;
     setIdleNoWorkers(building: number): void;

@@ -45,7 +45,7 @@ export function completeConstruction(data, world, queue, building, tick) {
     if (world.buildings.state[building] !== BuildingState.UnderConstruction)
         return;
     const body = world.buildings.body[building] ?? 0;
-    world.buildings.activateBuilt(data, world.bodies, building);
+    world.buildings.activateBuilt(data, world.bodies, building, world.stockpiles);
     world.eventLog.append(tick, StageOneLogKind.ConstructionComplete, world.bodies.system[body] ?? -1, body, building, -1, 1);
     tryStartIdleBuildingsOnBody(data, world, queue, body, tick);
 }

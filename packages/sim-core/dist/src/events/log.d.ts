@@ -13,7 +13,8 @@ export declare const enum StageOneLogKind {
     ConstructionWaitingMaterials = 10,
     ConstructionComplete = 11,
     BuildingDemolished = 12,
-    ContractSubsidyPaid = 13
+    ContractSubsidyPaid = 13,
+    ResearchCompleted = 14
 }
 export type EventLogColumn = "serial" | "tick" | "kind" | "system" | "body" | "subject" | "resource" | "amount";
 export declare class StageOneEventLog {

@@ -6,14 +6,18 @@ import { pathToFileURL } from "node:url";
 import {
   Instrumentation,
   StageOneSimulation,
+  StageTwoSimulation,
   StageZeroSimulation,
   ticksFromYears,
   type StageOneRunReport,
+  type StageTwoRunReport,
   type StageZeroRunReport
 } from "@galaxy-sim/sim-core";
 
+import { loadStageTwoData } from "./stage-two-loader.js";
+
 interface HeadlessOptions {
-  readonly stage: 0 | 1;
+  readonly stage: 0 | 1 | 2;
   readonly seed: number;
   readonly ticks: number;
   readonly snapshotEvery: number;
@@ -24,11 +28,14 @@ const subsystemNames = ["continuous", "events", "snapshot", "total"] as const;
 
 export async function runHeadless(
   options: HeadlessOptions
-): Promise<StageZeroRunReport | StageOneRunReport> {
+): Promise<StageZeroRunReport | StageOneRunReport | StageTwoRunReport> {
+  const stageTwoData = options.stage === 2 ? await loadStageTwoData() : undefined;
   const sim =
     options.stage === 0
       ? StageZeroSimulation.create(options.seed)
-      : StageOneSimulation.create(options.seed);
+      : options.stage === 1
+        ? StageOneSimulation.create(options.seed)
+        : StageTwoSimulation.create(options.seed, requireStageTwoData(stageTwoData));
   const started = hrtime.bigint();
   const instrumentation = new Instrumentation({
     enabled: true,
@@ -56,7 +63,7 @@ export async function runHeadless(
 
 function printRunReport(
   options: HeadlessOptions,
-  report: StageZeroRunReport | StageOneRunReport,
+  report: StageZeroRunReport | StageOneRunReport | StageTwoRunReport,
   elapsedMs: number,
   subsystemMs: readonly number[]
 ): void {
@@ -77,6 +84,11 @@ function printRunReport(
     console.log(
       `metrics: totalPop=${report.metrics.totalPopulation.toFixed(2)}, minPop=${report.metrics.minPopulation.toFixed(2)}, delivered=${report.metrics.deliveredShipments}, spread=${report.metrics.averageFoodWaterSpread.toFixed(4)}`
     );
+    if ("idleNoPower" in report.metrics) {
+      console.log(
+        `stage2: idleNoPower=${report.metrics.idleNoPower}, idleMissingInput=${report.metrics.idleMissingInput}, constructed=${report.metrics.constructedBuildings}, researched=${report.metrics.researchedTechnologies}, disbanded=${report.metrics.disbandedShips}, activeConstruction=${report.metrics.activeConstructions}, slotFill=${report.metrics.slotFillRatio.toFixed(3)}, maxZero=${report.metrics.maxResourceZeroStreakDays}, treasuryMin=${report.metrics.treasuryMin.toFixed(2)}`
+      );
+    }
   }
   console.log("intermediateHashes:");
   for (const checkpoint of report.intermediateHashes) {
@@ -87,7 +99,7 @@ function printRunReport(
 
 function parseArgs(argv: readonly string[]): HeadlessOptions {
   const stage = numberArg(argv, "stage", 1);
-  if (stage !== 0 && stage !== 1) throw new Error("--stage must be 0 or 1.");
+  if (stage !== 0 && stage !== 1 && stage !== 2) throw new Error("--stage must be 0, 1 or 2.");
   return {
     stage,
     seed: numberArg(argv, "seed", 20260904),
@@ -95,6 +107,11 @@ function parseArgs(argv: readonly string[]): HeadlessOptions {
     snapshotEvery: numberArg(argv, "snapshot-every", 10_000),
     reportPath: stringArg(argv, "report")
   };
+}
+
+function requireStageTwoData(data: Awaited<ReturnType<typeof loadStageTwoData>> | undefined) {
+  if (data === undefined) throw new Error("Stage two data was not loaded.");
+  return data;
 }
 
 function numberArg(argv: readonly string[], name: string, fallback: number): number {

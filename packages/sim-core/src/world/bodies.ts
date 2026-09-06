@@ -219,7 +219,7 @@ export class Bodies {
   }
 
   public hasFeatureMask(body: number, mask: number): boolean {
-    return mask === 0 || (((this.featureMask[body] ?? 0) & mask) === mask);
+    return mask === 0 || ((this.featureMask[body] ?? 0) & mask) === mask;
   }
 
   private ensureAuxCapacity(required: number): void {

@@ -2,10 +2,12 @@ import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { StageOneSimulation, StageZeroSimulation } from "@galaxy-sim/sim-core";
+import { StageOneSimulation, StageTwoSimulation, StageZeroSimulation } from "@galaxy-sim/sim-core";
+
+import { loadStageTwoData } from "./stage-two-loader.js";
 
 interface GoldenScenario {
-  readonly stage: 0 | 1;
+  readonly stage: 0 | 1 | 2;
   readonly seed: number;
   readonly ticks: number;
   readonly checkpointEvery: number;
@@ -23,24 +25,30 @@ const changelogPath = resolve(here, "../../../CHANGELOG.md");
 const scenarios: readonly GoldenScenario[] = [
   { stage: 1, seed: 20260904, ticks: 100_000, checkpointEvery: 10_000 },
   { stage: 1, seed: 7, ticks: 100_000, checkpointEvery: 10_000 },
-  { stage: 1, seed: 424242, ticks: 100_000, checkpointEvery: 10_000 }
+  { stage: 1, seed: 424242, ticks: 100_000, checkpointEvery: 10_000 },
+  { stage: 2, seed: 20260904, ticks: 100_000, checkpointEvery: 10_000 }
 ];
 
 export async function checkGolden(): Promise<boolean> {
+  const stageTwoData = scenarios.some((scenario) => scenario.stage === 2)
+    ? await loadStageTwoData()
+    : undefined;
   let ok = true;
   for (const scenario of scenarios) {
-    const actual = runScenario(scenario);
+    const actual = runScenario(scenario, stageTwoData);
     const expected = await readBaseline(scenario);
     if (expected === undefined) {
       console.error(
-        `Missing golden baseline for seed ${scenario.seed}. Run golden:update with --reason.`
+        `Missing golden baseline for stage ${scenario.stage} seed ${scenario.seed}. Run golden:update with --reason.`
       );
       ok = false;
       continue;
     }
     const mismatch = firstMismatch(expected, actual);
     if (mismatch !== undefined) {
-      console.error(`Golden mismatch for seed ${scenario.seed}: ${mismatch}`);
+      console.error(
+        `Golden mismatch for stage ${scenario.stage} seed ${scenario.seed}: ${mismatch}`
+      );
       ok = false;
     } else {
       console.log(`stage ${scenario.stage} seed ${scenario.seed}: ${actual.finalHash} ok`);
@@ -52,8 +60,11 @@ export async function checkGolden(): Promise<boolean> {
 export async function updateGolden(reason: string): Promise<void> {
   if (reason.trim().length === 0) throw new Error('golden:update requires --reason "text".');
   await mkdir(goldenDir, { recursive: true });
+  const stageTwoData = scenarios.some((scenario) => scenario.stage === 2)
+    ? await loadStageTwoData()
+    : undefined;
   for (const scenario of scenarios) {
-    const report = runScenario(scenario);
+    const report = runScenario(scenario, stageTwoData);
     await writeFile(
       baselinePath(scenario),
       `${JSON.stringify({ ...scenario, ...report }, null, 2)}\n`,
@@ -68,11 +79,16 @@ export async function updateGolden(reason: string): Promise<void> {
   );
 }
 
-function runScenario(scenario: GoldenScenario): Omit<GoldenBaseline, keyof GoldenScenario> {
+function runScenario(
+  scenario: GoldenScenario,
+  stageTwoData: Awaited<ReturnType<typeof loadStageTwoData>> | undefined
+): Omit<GoldenBaseline, keyof GoldenScenario> {
   const sim =
     scenario.stage === 0
       ? StageZeroSimulation.create(scenario.seed)
-      : StageOneSimulation.create(scenario.seed);
+      : scenario.stage === 1
+        ? StageOneSimulation.create(scenario.seed)
+        : StageTwoSimulation.create(scenario.seed, requireStageTwoData(stageTwoData));
   const report = sim.run(scenario.ticks, scenario.checkpointEvery);
   return {
     finalHash: report.finalHash,
@@ -102,12 +118,21 @@ function firstMismatch(
       const left = expected.intermediateHashes[i];
       const right = actual.intermediateHashes[i];
       if (left?.hash !== right?.hash) {
-        return `checkpoint ${left?.tick ?? right?.tick ?? "unknown"} expected ${left?.hash ?? "missing"}, got ${right?.hash ?? "missing"}`;
+        return `checkpoint ${left?.tick ?? right?.tick ?? "unknown"} expected ${
+          left?.hash ?? "missing"
+        }, got ${right?.hash ?? "missing"}`;
       }
     }
     return `final expected ${expected.finalHash}, got ${actual.finalHash}`;
   }
   return undefined;
+}
+
+function requireStageTwoData(
+  data: Awaited<ReturnType<typeof loadStageTwoData>> | undefined
+): Awaited<ReturnType<typeof loadStageTwoData>> {
+  if (data === undefined) throw new Error("Stage 2 data was not loaded.");
+  return data;
 }
 
 function reasonArg(argv: readonly string[]): string | undefined {

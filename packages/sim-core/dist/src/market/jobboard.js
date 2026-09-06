@@ -59,7 +59,7 @@ export class JobBoard {
         }
         return -1;
     }
-    update(data, world, routes) {
+    update(data, world, routes, contracts) {
         this.clear();
         const fuel = resourceIndexOf(data.resourceIndex, "fuel");
         for (let faction = 0; faction < world.factions.length; faction += 1) {
@@ -68,14 +68,14 @@ export class JobBoard {
                 let target = world.factions.firstColony[faction] ?? -1;
                 while (target >= 0) {
                     if (target !== source)
-                        this.scanPair(data, world, routes, faction, source, target, fuel);
+                        this.scanPair(data, world, routes, contracts, faction, source, target, fuel);
                     target = world.bodies.nextInFaction[target] ?? -1;
                 }
                 source = world.bodies.nextInFaction[source] ?? -1;
             }
         }
     }
-    scanPair(data, world, routes, faction, source, target, fuel) {
+    scanPair(data, world, routes, contracts, faction, source, target, fuel) {
         const sourceSystem = world.bodies.system[source] ?? 0;
         const targetSystem = world.bodies.system[target] ?? 0;
         const route = routes.find(world.systems, world.gates, sourceSystem, targetSystem);
@@ -86,7 +86,8 @@ export class JobBoard {
                 continue;
             const sourcePrice = world.prices.price(source, resource);
             const targetPrice = world.prices.price(target, resource);
-            if (targetPrice <= sourcePrice * 1.25)
+            const subsidy = contracts?.subsidyFor(faction, target, resource) ?? 0;
+            if (subsidy <= 0 && targetPrice <= sourcePrice * 1.25)
                 continue;
             const reserve = resource === fuel ? 40 : 0;
             const sourceDemandReserve = Math.max(reserve, world.prices.demand(source, resource) * 60);
@@ -97,7 +98,9 @@ export class JobBoard {
             const quantity = Math.max(0, Math.min(sourceStock, targetSpace, demandWindow));
             if (quantity <= 0.001)
                 continue;
-            const gain = (targetPrice - sourcePrice) * quantity;
+            const gain = (targetPrice + subsidy - sourcePrice) * quantity;
+            if (gain <= 0)
+                continue;
             this.pushSorted(faction, source, target, sourceSystem, targetSystem, resource, quantity, route.travelTicks, gain / Math.max(1, route.travelTicks));
         }
     }

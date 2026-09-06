@@ -1,5 +1,4 @@
 import { bootProduction } from "../econ/batch.js";
-import { BuildingState } from "../econ/buildings.js";
 import { validatePlacement } from "../econ/placement.js";
 import type { EventQueue } from "../events/queue.js";
 import { ShipRole } from "../ships/ships.js";
@@ -10,7 +9,6 @@ import {
   type StageOneData,
   type StageOneStartPackage
 } from "../stage-one/data.js";
-import { BodyType } from "../world/bodies.js";
 import type { StageOneWorld } from "../world/state.js";
 
 export interface AppliedStartPackage {
@@ -22,6 +20,7 @@ export interface StartPackageValidation {
   readonly ok: boolean;
   readonly bodyCount: number;
   readonly buildingCount: number;
+  readonly effectivePopulation: number;
   readonly requiredWorkerRatio: number;
   readonly hasLocalPowerEverywhere: boolean;
   readonly hasScienceDataFlow: boolean;
@@ -43,7 +42,8 @@ export function applyStartPackage(
   world: StageOneWorld,
   system: number,
   label: string,
-  queue?: EventQueue
+  queue?: EventQueue,
+  includeShips = true
 ): AppliedStartPackage {
   const pack = requireStartPackage(data);
   const bodies: number[] = [];
@@ -66,13 +66,22 @@ export function applyStartPackage(
 
   const faction = world.addFaction(label, system, bodies[0] ?? 0, pack.treasuryCredits, 1, 1);
   distributeStartPopulation(data, world, pack, faction, bodies);
-  seedStartStockpiles(data, world, pack, bodies);
   addStartBuildings(data, world, pack, bodies);
-  addStartShips(data, world, pack, faction, system);
+  seedStartStockpiles(data, world, pack, bodies);
+  if (includeShips) addStartPackageShips(data, world, faction, system);
   world.factions.researchedCount[faction] = pack.technologies.length;
 
   if (queue !== undefined) bootProduction(data, world, queue, 0);
   return { faction, bodies };
+}
+
+export function addStartPackageShips(
+  data: StageOneData,
+  world: StageOneWorld,
+  faction: number,
+  system: number
+): void {
+  addStartShips(data, world, requireStartPackage(data), faction, system);
 }
 
 export function validateStartPackage(data: StageOneData): StartPackageValidation {
@@ -113,8 +122,9 @@ export function validateStartPackage(data: StageOneData): StartPackageValidation
     if (bodyNeedsPower[i] === 1 && bodyHasPower[i] !== 1) hasLocalPowerEverywhere = false;
   }
 
+  const effectivePopulation = effectiveStartPopulation(pack, workerNeed);
   const requiredWorkerRatio =
-    workerNeed > 0 ? (pack.population * pack.employmentRate) / workerNeed : 1;
+    workerNeed > 0 ? (effectivePopulation * pack.employmentRate) / workerNeed : 1;
   const hasScienceDataFlow =
     hasStartProducer(data, pack, "data_physics") &&
     hasStartProducer(data, pack, "data_engineering") &&
@@ -126,9 +136,10 @@ export function validateStartPackage(data: StageOneData): StartPackageValidation
       placementsValid &&
       hasLocalPowerEverywhere &&
       hasScienceDataFlow &&
-      requiredWorkerRatio >= 0.8,
+      requiredWorkerRatio + 1e-9 >= 0.8,
     bodyCount: pack.bodies.length,
     buildingCount: pack.buildings.length,
+    effectivePopulation,
     requiredWorkerRatio,
     hasLocalPowerEverywhere,
     hasScienceDataFlow,
@@ -142,6 +153,7 @@ export function startPackageSummary(data: StageOneData): string {
   return [
     `bodies=${validation.bodyCount}`,
     `buildings=${validation.buildingCount}`,
+    `population=${validation.effectivePopulation.toFixed(1)}`,
     `workerRatio=${validation.requiredWorkerRatio.toFixed(2)}`,
     `power=${validation.hasLocalPowerEverywhere ? "ok" : "fail"}`,
     `science=${validation.hasScienceDataFlow ? "ok" : "fail"}`,
@@ -171,21 +183,25 @@ function distributeStartPopulation(
     totalNeed += workers;
   }
 
+  const startPopulation = effectiveStartPopulation(pack, totalNeed);
   const baseline = totalNeed / Math.max(0.01, pack.employmentRate);
-  const scale = baseline > 0 ? pack.population / baseline : 1;
+  const scale = baseline > 0 ? startPopulation / baseline : 1;
   let assigned = 0;
-  for (let i = 0; i < bodies.length; i += 1) {
+  for (let i = 1; i < bodies.length; i += 1) {
     const body = bodies[i] ?? -1;
     if (body < 0) continue;
-    const population =
-      i === 0
-        ? 0
-        : Math.max(1, ((need[i] ?? 0) / Math.max(0.01, pack.employmentRate)) * scale);
+    const population = Math.max(1, ((need[i] ?? 0) / Math.max(0.01, pack.employmentRate)) * scale);
     assigned += population;
     world.addColony(faction, body, population);
   }
   const capital = bodies[0] ?? 0;
-  world.bodies.population[capital] = Math.max(1, pack.population - assigned);
+  world.bodies.population[capital] = Math.max(1, startPopulation - assigned);
+}
+
+function effectiveStartPopulation(pack: StageOneStartPackage, workerNeed: number): number {
+  if (workerNeed <= 0) return pack.population;
+  const minimum = (workerNeed * 0.8) / Math.max(0.01, pack.employmentRate);
+  return Math.max(pack.population, minimum);
 }
 
 function seedStartStockpiles(
@@ -214,9 +230,15 @@ function startStockpileAmount(
   item: ResourceAmount,
   capital: boolean
 ): number {
+  const need = data.populationNeeds.perThousandPopPerDay[item.resource] ?? 0;
+  if (need > 0 && data.populationNeeds.comfortOnly[item.resource] !== 1) {
+    return Math.max(item.amount, (world.bodies.population[body] ?? 0) * need * 730);
+  }
   if (capital) return item.amount;
+  if (need > 0) {
+    return item.amount;
+  }
   if (resourceIsDepositOnBody(data, world, body, item.resource)) return item.amount * 0.35;
-  if (data.populationNeeds.perThousandPopPerDay[item.resource] > 0) return item.amount * 0.25;
   if (data.resources[item.resource]?.id === "fuel") return item.amount * 0.2;
   if (resourceUsedByLocalBuilding(data, world, body, item.resource)) return item.amount * 0.15;
   return 0;
@@ -277,7 +299,7 @@ function addStartShips(
   }
 }
 
-function addDepositsForFeatures(
+export function addDepositsForFeatures(
   data: StageOneData,
   world: StageOneWorld,
   body: number,
@@ -290,7 +312,15 @@ function addDepositsForFeatures(
   addDepositIfFeature(data, world, body, featureMask, "gas_giant_orbit", "gas", yieldValue);
   addDepositIfFeature(data, world, body, featureMask, "rare_earth_vein", "rare_earth", yieldValue);
   addDepositIfFeature(data, world, body, featureMask, "crystal_vein", "crystals", yieldValue);
-  addDepositIfFeature(data, world, body, featureMask, "radioactive_vein", "radioactives", yieldValue);
+  addDepositIfFeature(
+    data,
+    world,
+    body,
+    featureMask,
+    "radioactive_vein",
+    "radioactives",
+    yieldValue
+  );
   addDepositIfFeature(data, world, body, featureMask, "habitable", "biomass", yieldValue);
 }
 
@@ -309,10 +339,16 @@ function addDepositIfFeature(
   if ((featureMask & (1 << bit)) !== 0) world.bodies.addDeposit(body, resourceIndex, yieldValue);
 }
 
-function requiresEnergy(data: StageOneData, batchRecipe: number, continuousProcess: number): boolean {
+function requiresEnergy(
+  data: StageOneData,
+  batchRecipe: number,
+  continuousProcess: number
+): boolean {
   if (continuousProcess >= 0) {
     const process = data.continuous[continuousProcess];
-    return process?.outputsPerTick.some((output) => output.resource === data.energyResource) !== true;
+    return (
+      process?.outputsPerTick.some((output) => output.resource === data.energyResource) !== true
+    );
   }
   if (batchRecipe < 0) return false;
   const recipe = data.batchRecipes[batchRecipe];
@@ -357,7 +393,10 @@ function resourceUsedByLocalBuilding(
   while (building >= 0) {
     const type = world.buildings.type[building] ?? -1;
     const def = data.buildings[type];
-    if (def !== undefined && buildingUsesResource(data, def.batchRecipe, def.continuousProcess, resource)) {
+    if (
+      def !== undefined &&
+      buildingUsesResource(data, def.batchRecipe, def.continuousProcess, resource)
+    ) {
       return true;
     }
     building = world.buildings.nextInBody[building] ?? -1;

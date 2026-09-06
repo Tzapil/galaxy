@@ -2,7 +2,7 @@ import { Buildings } from "../econ/buildings.js";
 import { MarketPrices } from "../market/prices.js";
 import { SupplyEma } from "../pop/supply-ema.js";
 import { StageOneEventLog } from "../events/log.js";
-import { Ships } from "../ships/ships.js";
+import { ShipRole, Ships } from "../ships/ships.js";
 import { Bodies, BodyType } from "./bodies.js";
 import { Factions } from "./factions.js";
 import { Gates } from "./gates.js";
@@ -69,13 +69,18 @@ export class StageOneWorld {
         ];
     }
     addBody(system, type, size, habitability, slots, owner, population, featureMask = 0) {
+        const expectedBody = this.bodies.length;
         const stockpile = this.stockpiles.add();
         const supplyRow = this.supply.addBody();
         const priceRow = this.prices.addPoint();
-        if (stockpile !== supplyRow || stockpile !== priceRow) {
-            throw new RangeError("Body sidecar arenas must keep identical row indexes.");
+        if (supplyRow !== expectedBody || priceRow !== expectedBody) {
+            throw new RangeError("Body supply and price sidecar arenas must keep body row indexes.");
         }
-        return this.bodies.add(this.systems, system, type, size, habitability, slots, owner, stockpile, population, featureMask);
+        const body = this.bodies.add(this.systems, system, type, size, habitability, slots, owner, stockpile, population, featureMask);
+        if (body !== expectedBody) {
+            throw new RangeError("Body arena row index diverged from sidecar arenas.");
+        }
+        return body;
     }
     addFaction(label, capitalSystem, capitalBody, treasury, expansion, industry) {
         const faction = this.factions.add(label, capitalSystem, capitalBody, treasury, expansion, industry);
@@ -94,6 +99,10 @@ export class StageOneWorld {
     addHauler(faction, currentSystem, cargoCapacity, fuelCapacity, fuelPerJump) {
         const stockpile = this.stockpiles.add();
         return this.ships.addHauler(faction, currentSystem, stockpile, cargoCapacity, fuelCapacity, fuelPerJump);
+    }
+    addShip(faction, currentSystem, role, cargoCapacity, fuelCapacity, fuelPerJump) {
+        const stockpile = this.stockpiles.add();
+        return this.ships.addShip(faction, currentSystem, stockpile, role, cargoCapacity, fuelCapacity, fuelPerJump);
     }
 }
 function findArena(snapshots, name) {

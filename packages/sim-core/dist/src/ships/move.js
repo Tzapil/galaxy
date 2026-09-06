@@ -1,5 +1,6 @@
 import { EventKind } from "../events/kinds.js";
 import { StageOneLogKind } from "../events/log.js";
+import { payContractSubsidy } from "../treasury/contracts.js";
 import { tryStartIdleBuildingsOnBody } from "../econ/batch.js";
 import { fuelNeededForJumps, refuelShipAtBody } from "./fuel.js";
 import { ShipRole, ShipState } from "./ships.js";
@@ -9,6 +10,7 @@ export var LaunchResult;
     LaunchResult[LaunchResult["NoJob"] = 2] = "NoJob";
     LaunchResult[LaunchResult["NoFuel"] = 3] = "NoFuel";
     LaunchResult[LaunchResult["NoCargo"] = 4] = "NoCargo";
+    LaunchResult[LaunchResult["NonTransportable"] = 5] = "NonTransportable";
 })(LaunchResult || (LaunchResult = {}));
 export function assignIdleHaulers(data, world, jobs, routes, queue, tick) {
     let launched = 0;
@@ -48,6 +50,10 @@ export function launchBestLocalJob(data, world, jobs, routes, queue, ship, tick)
         return LaunchResult.NoFuel;
     }
     const resource = jobs.resource[job] ?? 0;
+    if (data.transportable[resource] !== 1) {
+        jobs.unreserve(job);
+        return LaunchResult.NonTransportable;
+    }
     const maxByVolume = (world.ships.cargoCapacity[ship] ?? 0) / Math.max(0.000001, data.unitVolume[resource] ?? 1);
     const quantity = Math.max(0, Math.min(jobs.quantity[job] ?? 0, maxByVolume));
     const sourceStockpile = world.bodies.stockpile[sourceBody] ?? 0;
@@ -106,7 +112,7 @@ function repositionToBestSource(data, world, jobs, routes, queue, ship, tick) {
     queue.schedule(tick + route.travelTicks, EventKind.ShipArrival, ship);
     return LaunchResult.Launched;
 }
-export function handleShipArrival(data, world, queue, ship, tick) {
+export function handleShipArrival(data, world, queue, ship, tick, contracts) {
     if (world.ships.state[ship] !== ShipState.InTransit)
         return false;
     const targetBody = world.ships.targetBody[ship] ?? -1;
@@ -119,6 +125,7 @@ export function handleShipArrival(data, world, queue, ship, tick) {
         const removed = world.stockpiles.removeAvailable(shipStockpile, resource, amount);
         const lost = world.stockpiles.addClamped(targetStockpile, resource, removed);
         world.eventLog.append(tick, StageOneLogKind.ShipmentDelivered, world.bodies.system[targetBody] ?? -1, targetBody, ship, resource, removed - lost);
+        payContractSubsidy(data, world, contracts, world.ships.faction[ship] ?? 0, targetBody, resource, removed - lost, tick);
         tryStartIdleBuildingsOnBody(data, world, queue, targetBody, tick);
         delivered = true;
     }

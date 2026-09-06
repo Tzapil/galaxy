@@ -1,5 +1,5 @@
 import { StageOneLogKind } from "../events/log.js";
-import type { StageOneSimulation } from "../simulation/stage-one.js";
+import type { StageOneWorld } from "../world/state.js";
 export declare const STAGE_ONE_VIEW_MAGIC = 1196634454;
 export declare const STAGE_ONE_VIEW_VERSION = 1;
 export declare const enum RenderSliceBit {
@@ -65,6 +65,11 @@ export interface RenderEvent {
     readonly resource: number;
     readonly amount: number;
 }
-export declare function buildStageOneRenderSnapshot(sim: StageOneSimulation, slices: number): ArrayBuffer;
+interface RenderSnapshotSource {
+    readonly tick: number;
+    readonly world: StageOneWorld;
+}
+export declare function buildStageOneRenderSnapshot(sim: RenderSnapshotSource, slices: number): ArrayBuffer;
 export declare function decodeStageOneRenderSnapshot(buffer: ArrayBuffer): StageOneRenderSnapshot;
+export {};
 //# sourceMappingURL=render-snapshot.d.ts.map

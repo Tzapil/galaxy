@@ -14,6 +14,7 @@ export var StageOneLogKind;
     StageOneLogKind[StageOneLogKind["ConstructionComplete"] = 11] = "ConstructionComplete";
     StageOneLogKind[StageOneLogKind["BuildingDemolished"] = 12] = "BuildingDemolished";
     StageOneLogKind[StageOneLogKind["ContractSubsidyPaid"] = 13] = "ContractSubsidyPaid";
+    StageOneLogKind[StageOneLogKind["ResearchCompleted"] = 14] = "ResearchCompleted";
 })(StageOneLogKind || (StageOneLogKind = {}));
 const DEFAULT_STAGE_ONE_EVENT_LOG_LIMIT = 512;
 export class StageOneEventLog {
