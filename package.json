@@ -15,7 +15,8 @@
     "golden:check": "corepack pnpm --filter @galaxy-sim/tools golden:check",
     "golden:update": "corepack pnpm --filter @galaxy-sim/tools golden:update",
     "bench": "corepack pnpm --filter @galaxy-sim/tools bench",
-    "scenarios:check": "corepack pnpm --filter @galaxy-sim/tools scenarios:check"
+    "scenarios:check": "corepack pnpm --filter @galaxy-sim/tools scenarios:check",
+    "galaxy:stage3": "corepack pnpm --filter @galaxy-sim/tools galaxy:stage3"
   },
   "devDependencies": {
     "@eslint/js": "latest",

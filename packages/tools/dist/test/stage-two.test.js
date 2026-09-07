@@ -19,6 +19,7 @@ describe("Stage 2 data and runtime", () => {
         expect(data.unitVolume[data.energyResource]).toBe(0);
         expect(data.graph.materialCycleCount).toBe(0);
         expect(data.graph.energyCycleCount).toBeGreaterThan(0);
+        expect(data.graph.energyCostShareMin).toBeGreaterThanOrEqual(0.0039);
         expect(allBuildCostResourcesAreSinks(data)).toBe(true);
         expect(missingPhaseOneTurnover(data)).toEqual([]);
     });
@@ -139,4 +140,134 @@ describe("Stage 2 data and runtime", () => {
         expect(hasLogKind(world, StageOneLogKind.BuildingDemolished)).toBe(true);
     });
     it("keeps energy out of transport contracts while allowing material subsidies to launch", () => {
-        const world
+        const world = StageOneWorld.create(data);
+        const system = world.systems.add(0, 0, 0, -1);
+        const source = world.addBody(system, BodyType.Planet, 1, 0.5, 4, -1, 0);
+        const target = world.addBody(system, BodyType.Planet, 1, 0.5, 4, -1, 0);
+        const faction = world.addFaction("Test", system, source, 1_000, 1, 1);
+        world.addColony(faction, target, 0);
+        const energy = data.energyResource;
+        const water = resourceIndexOf(data.resourceIndex, "water");
+        const sourceStockpile = world.bodies.stockpile[source] ?? 0;
+        world.stockpiles.set(sourceStockpile, energy, 100);
+        world.stockpiles.set(sourceStockpile, water, 100);
+        const routes = new RoutePlanner();
+        const contracts = new GovernmentContracts();
+        const jobs = new JobBoard();
+        contracts.add({ faction, targetBody: target, resource: energy, creditsPerUnit: 10 });
+        jobs.update(data, world, routes, contracts);
+        expect(jobs.count).toBe(0);
+        contracts.add({ faction, targetBody: target, resource: water, creditsPerUnit: 10 });
+        jobs.update(data, world, routes, contracts);
+        expect(jobs.count).toBe(1);
+        expect(jobs.resource[0]).toBe(water);
+        const ship = world.addHauler(faction, system, 100, 0, 1);
+        expect(launchBestLocalJob(data, world, jobs, routes, new EventQueue(), ship, 0)).toBe(LaunchResult.Launched);
+    });
+    it("disbands unaffordable warships and writes a reasoned treasury event", () => {
+        const world = StageOneWorld.create(data);
+        const system = world.systems.add(0, 0, 0, -1);
+        const body = world.addBody(system, BodyType.Planet, 1, 0.5, 4, -1, 0);
+        const faction = world.addFaction("Test", system, body, -1, 1, 1);
+        const warship = world.addShip(faction, system, ShipRole.Warship, 0, 0, 1);
+        const result = applyDailyTreasury(data, world, 3);
+        expect(result.disbandedShips).toBe(1);
+        expect(world.ships.state[warship]).toBe(ShipState.Disbanded);
+        expect(hasLogKind(world, StageOneLogKind.FleetDisbanded)).toBe(true);
+    });
+    it("survives the first year with local power and warship disbanding", () => {
+        const report = StageTwoSimulation.create(20260904, data).run(365, 0);
+        expect(report.metrics.idleNoPower).toBe(0);
+        expect(report.metrics.missedDeparturesFuel).toBeLessThanOrEqual(2);
+        expect(report.metrics.disbandedShips).toBeGreaterThanOrEqual(4);
+        expect(report.metrics.maxResourceZeroStreakDays).toBe(0);
+        expect(report.metrics.treasuryMin).toBeGreaterThanOrEqual(-200);
+    });
+    it("runs fifty years without collapse, deadlock, or research stall", () => {
+        const report = StageTwoSimulation.create(20260904, data).run(18_250, 0);
+        expect(report.metrics.totalPopulation).toBeGreaterThan(500);
+        expect(report.metrics.minPopulation).toBeGreaterThan(5);
+        expect(report.metrics.idleNoPower).toBe(0);
+        expect(report.metrics.idleMissingInput).toBeLessThan(90);
+        expect(report.metrics.researchedTechnologies).toBeGreaterThan(1);
+        expect(report.metrics.missedDeparturesFuel).toBeLessThan(10);
+        expect(report.metrics.maxResourceZeroStreakDays).toBe(0);
+        expect(report.metrics.treasuryMin).toBeGreaterThanOrEqual(-200);
+        const findings = detectPathologies({
+            seed: 20260904,
+            tick: 18_250,
+            stage: 2,
+            metrics: report.metrics
+        });
+        expect(findings.filter((finding) => finding.status === "failed")).toEqual([]);
+    }, 120_000);
+});
+function missingPhaseOneTurnover(data) {
+    const produced = new Uint8Array(data.resources.length);
+    const consumed = new Uint8Array(data.resources.length);
+    for (const recipe of data.batchRecipes) {
+        for (const output of recipe.outputs)
+            produced[output.resource] = 1;
+        for (const input of recipe.inputs)
+            consumed[input.resource] = 1;
+    }
+    for (const process of data.continuous) {
+        for (const output of process.outputsPerTick)
+            produced[output.resource] = 1;
+        for (const input of process.inputsPerTick)
+            consumed[input.resource] = 1;
+    }
+    for (let resource = 0; resource < data.resources.length; resource += 1) {
+        if ((data.populationNeeds.perThousandPopPerDay[resource] ?? 0) > 0)
+            consumed[resource] = 1;
+    }
+    for (const sink of data.sinks) {
+        for (const resource of sink.consumes)
+            consumed[resource] = 1;
+    }
+    const missing = [];
+    for (let resource = 0; resource < data.resources.length; resource += 1) {
+        if ((data.phase[resource] ?? 0) !== 1)
+            continue;
+        if (produced[resource] !== 1 || consumed[resource] !== 1) {
+            missing.push(data.resources[resource]?.id ?? String(resource));
+        }
+    }
+    return missing;
+}
+function findOwnedBodyWithFeature(data, world, faction, feature) {
+    const mask = featureMaskFromNames(data.featureIndex, [feature]);
+    let body = world.factions.firstColony[faction] ?? -1;
+    while (body >= 0) {
+        if (world.bodies.hasFeatureMask(body, mask))
+            return body;
+        body = world.bodies.nextInFaction[body] ?? -1;
+    }
+    throw new Error(`No owned body has feature ${feature}.`);
+}
+function findOwnedBodyOfType(world, faction, type) {
+    let body = world.factions.firstColony[faction] ?? -1;
+    while (body >= 0) {
+        if ((world.bodies.type[body] ?? 0) === type)
+            return body;
+        body = world.bodies.nextInFaction[body] ?? -1;
+    }
+    throw new Error(`No owned body has type ${type}.`);
+}
+function findBuildingOnBody(world, body, buildingType) {
+    let building = world.bodies.firstBuilding[body] ?? -1;
+    while (building >= 0) {
+        if ((world.buildings.type[building] ?? -1) === buildingType)
+            return building;
+        building = world.buildings.nextInBody[building] ?? -1;
+    }
+    return -1;
+}
+function hasLogKind(world, kind) {
+    for (let row = 0; row < world.eventLog.length; row += 1) {
+        if (world.eventLog.kind[row] === kind)
+            return true;
+    }
+    return false;
+}
+//# sourceMappingURL=stage-two.test.js.map

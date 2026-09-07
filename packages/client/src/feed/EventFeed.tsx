@@ -48,4 +48,5 @@ function eventText(event: RenderEvent): string {
     case StageOneLogKind.PopulationWarning:
       return `population warning @ ${event.system}`;
   }
+  return `event ${event.kind} @ ${event.system}`;
 }

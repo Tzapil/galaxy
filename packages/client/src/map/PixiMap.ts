@@ -7,6 +7,7 @@ export class PixiMap {
   private readonly graphics = new Graphics();
   private readonly labels = new Container();
   private app: Application | undefined;
+  private canvas: HTMLCanvasElement | undefined;
   private container: HTMLElement | undefined;
   private snapshot: StageOneRenderSnapshot | undefined;
   private selectedSystem = -1;
@@ -19,13 +20,20 @@ export class PixiMap {
   }
 
   public async mount(container: HTMLElement): Promise<void> {
+    const app = new Application();
     this.container = container;
-    this.app = new Application();
-    await this.app.init({ background: 0x000000, resizeTo: container, antialias: false });
-    this.app.stage.addChild(this.graphics);
-    this.app.stage.addChild(this.labels);
-    this.app.canvas.addEventListener("click", this.handleClick);
-    container.appendChild(this.app.canvas);
+    this.app = app;
+    await app.init({ background: 0x000000, resizeTo: container, antialias: false });
+    if (this.app !== app || this.container !== container) {
+      app.destroy(true);
+      return;
+    }
+    const canvas = app.canvas;
+    this.canvas = canvas;
+    app.stage.addChild(this.graphics);
+    app.stage.addChild(this.labels);
+    canvas.addEventListener("click", this.handleClick);
+    container.appendChild(canvas);
     this.resizeObserver = new ResizeObserver(() => this.draw());
     this.resizeObserver.observe(container);
     this.draw();
@@ -44,12 +52,18 @@ export class PixiMap {
 
   public destroy(): void {
     this.resizeObserver?.disconnect();
-    if (this.app !== undefined) {
-      this.app.canvas.removeEventListener("click", this.handleClick);
-      this.app.destroy(true);
-    }
+    this.resizeObserver = undefined;
+    const app = this.app;
+    const canvas = this.canvas;
     this.app = undefined;
+    this.canvas = undefined;
     this.container = undefined;
+    if (canvas !== undefined) {
+      canvas.removeEventListener("click", this.handleClick);
+    }
+    if (app !== undefined && canvas !== undefined) {
+      app.destroy(true);
+    }
   }
 
   private readonly handleClick = (event: MouseEvent): void => {

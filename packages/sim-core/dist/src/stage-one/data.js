@@ -271,7 +271,8 @@ export function createDefaultStageOneData() {
             resourceIndexOf(resourceIndex, "water"),
             resourceIndexOf(resourceIndex, "food"),
             resourceIndexOf(resourceIndex, "fuel")
-        ]
+        ],
+        galaxyPresets: []
     };
 }
 export function createStageTwoDataFromGameData(input) {
@@ -405,7 +406,8 @@ export function createStageTwoDataFromGameData(input) {
         hulls,
         hullIndex,
         techs,
-        sliceResourceIndices: preferredSliceResources(resourceIndex)
+        sliceResourceIndices: preferredSliceResources(resourceIndex),
+        galaxyPresets: galaxyPresetsFrom(input.galaxyPresets)
     };
 }
 export function resourceIndexOf(index, id) {
@@ -659,6 +661,48 @@ function preferredSliceResources(resourceIndex) {
             result.push(value);
     }
     return result;
+}
+function galaxyPresetsFrom(input) {
+    return input.presets
+        .map((preset) => ({
+        id: preset.id,
+        label: preset.label,
+        params: galaxyPresetParamsFrom(preset.params)
+    }))
+        .sort((a, b) => a.id.localeCompare(b.id));
+}
+function galaxyPresetParamsFrom(raw) {
+    const params = {};
+    setNumberParam(params, raw, "systemCount");
+    setShapeParam(params, raw);
+    setNumberParam(params, raw, "armCount");
+    setNumberParam(params, raw, "armTightness");
+    setNumberParam(params, raw, "avgGateDegree");
+    setNumberParam(params, raw, "gateDegreeVariance");
+    setNumberParam(params, raw, "maxGateLength");
+    setNumberParam(params, raw, "regionCount");
+    setNumberParam(params, raw, "chokepointStrength");
+    setNumberParam(params, raw, "planetsPerSystemMin");
+    setNumberParam(params, raw, "planetsPerSystemMax");
+    setNumberParam(params, raw, "habitableFraction");
+    setNumberParam(params, raw, "resourceClusterStrength");
+    setNumberParam(params, raw, "rareResourceAbundance");
+    setNumberParam(params, raw, "factionCount");
+    setNumberParam(params, raw, "factionMinJumps");
+    setNumberParam(params, raw, "startViabilityJumps");
+    return params;
+}
+function setNumberParam(params, raw, key) {
+    const value = raw[key];
+    if (typeof value === "number") {
+        params[key] = value;
+    }
+}
+function setShapeParam(params, raw) {
+    const value = raw.shape;
+    if (value === "disc" || value === "spiral" || value === "ring" || value === "cluster") {
+        params.shape = value;
+    }
 }
 function defaultTier(id) {
     if (id === "energy")

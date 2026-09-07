@@ -1,7 +1,7 @@
 import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { StageOneSimulation, StageTwoSimulation, StageZeroSimulation } from "@galaxy-sim/sim-core";
+import { buildStageThreeWorld, paramsWithPreset, StageOneSimulation, StageTwoSimulation, StageZeroSimulation } from "@galaxy-sim/sim-core";
 import { loadStageTwoData } from "./stage-two-loader.js";
 const here = dirname(fileURLToPath(import.meta.url));
 const goldenDir = resolve(here, "../golden");
@@ -10,10 +10,11 @@ const scenarios = [
     { stage: 1, seed: 20260904, ticks: 100_000, checkpointEvery: 10_000 },
     { stage: 1, seed: 7, ticks: 100_000, checkpointEvery: 10_000 },
     { stage: 1, seed: 424242, ticks: 100_000, checkpointEvery: 10_000 },
-    { stage: 2, seed: 20260904, ticks: 100_000, checkpointEvery: 10_000 }
+    { stage: 2, seed: 20260904, ticks: 100_000, checkpointEvery: 10_000 },
+    { stage: 3, seed: 20260904, ticks: 10_000, checkpointEvery: 1_000 }
 ];
 export async function checkGolden() {
-    const stageTwoData = scenarios.some((scenario) => scenario.stage === 2)
+    const stageTwoData = scenarios.some((scenario) => scenario.stage === 2 || scenario.stage === 3)
         ? await loadStageTwoData()
         : undefined;
     let ok = true;
@@ -40,7 +41,7 @@ export async function updateGolden(reason) {
     if (reason.trim().length === 0)
         throw new Error('golden:update requires --reason "text".');
     await mkdir(goldenDir, { recursive: true });
-    const stageTwoData = scenarios.some((scenario) => scenario.stage === 2)
+    const stageTwoData = scenarios.some((scenario) => scenario.stage === 2 || scenario.stage === 3)
         ? await loadStageTwoData()
         : undefined;
     for (const scenario of scenarios) {
@@ -55,7 +56,9 @@ function runScenario(scenario, stageTwoData) {
         ? StageZeroSimulation.create(scenario.seed)
         : scenario.stage === 1
             ? StageOneSimulation.create(scenario.seed)
-            : StageTwoSimulation.create(scenario.seed, requireStageTwoData(stageTwoData));
+            : scenario.stage === 2
+                ? StageTwoSimulation.create(scenario.seed, requireStageTwoData(stageTwoData))
+                : StageTwoSimulation.createFromWorld(scenario.seed, requireStageTwoData(stageTwoData), buildStageThreeWorld(requireStageTwoData(stageTwoData), scenario.seed, paramsWithPreset(requireStageTwoData(stageTwoData).galaxyPresets, "balanced")));
     const report = sim.run(scenario.ticks, scenario.checkpointEvery);
     return {
         finalHash: report.finalHash,

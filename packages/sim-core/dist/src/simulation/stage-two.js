@@ -49,8 +49,11 @@ export class StageTwoSimulation {
         this.updateTreasuryMinimum();
     }
     static create(seed, data) {
-        const rootRng = Rng.fromSeed(seed);
         const world = buildStageTwoWorld(data, seed);
+        return StageTwoSimulation.createFromWorld(seed, data, world);
+    }
+    static createFromWorld(seed, data, world) {
+        const rootRng = Rng.fromSeed(seed);
         const sim = new StageTwoSimulation(rootRng, data, world, 0);
         world.prices.recalculate(data, world.bodies, world.stockpiles, world.buildings);
         bootProduction(data, world, sim.queue, 0);

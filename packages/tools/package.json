@@ -26,7 +26,9 @@
     "prebench": "corepack pnpm --filter @galaxy-sim/sim-core build",
     "bench": "tsx src/bench.ts",
     "prescenarios:check": "corepack pnpm --filter @galaxy-sim/sim-core build",
-    "scenarios:check": "tsx src/scenarios.ts"
+    "scenarios:check": "tsx src/scenarios.ts",
+    "pregalaxy:stage3": "corepack pnpm --filter @galaxy-sim/sim-core build",
+    "galaxy:stage3": "tsx src/galaxy-stage3.ts"
   },
   "dependencies": {
     "@galaxy-sim/sim-core": "workspace:*",

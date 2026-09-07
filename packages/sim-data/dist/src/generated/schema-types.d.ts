@@ -60,6 +60,132 @@ export interface DoctrinesFile {
     };
     [k: string]: unknown;
 }
+export interface GalaxyPresetsFile {
+    $schema?: string;
+    version: string;
+    notes?: string[];
+    /**
+     * @minItems 4
+     */
+    presets: [
+        {
+            id: string;
+            label: string;
+            params: {
+                systemCount?: number;
+                shape?: "disc" | "spiral" | "ring" | "cluster";
+                armCount?: number;
+                armTightness?: number;
+                avgGateDegree?: number;
+                gateDegreeVariance?: number;
+                maxGateLength?: number;
+                regionCount?: number;
+                chokepointStrength?: number;
+                planetsPerSystemMin?: number;
+                planetsPerSystemMax?: number;
+                habitableFraction?: number;
+                resourceClusterStrength?: number;
+                rareResourceAbundance?: number;
+                factionCount?: number;
+                factionMinJumps?: number;
+                startViabilityJumps?: number;
+            };
+        },
+        {
+            id: string;
+            label: string;
+            params: {
+                systemCount?: number;
+                shape?: "disc" | "spiral" | "ring" | "cluster";
+                armCount?: number;
+                armTightness?: number;
+                avgGateDegree?: number;
+                gateDegreeVariance?: number;
+                maxGateLength?: number;
+                regionCount?: number;
+                chokepointStrength?: number;
+                planetsPerSystemMin?: number;
+                planetsPerSystemMax?: number;
+                habitableFraction?: number;
+                resourceClusterStrength?: number;
+                rareResourceAbundance?: number;
+                factionCount?: number;
+                factionMinJumps?: number;
+                startViabilityJumps?: number;
+            };
+        },
+        {
+            id: string;
+            label: string;
+            params: {
+                systemCount?: number;
+                shape?: "disc" | "spiral" | "ring" | "cluster";
+                armCount?: number;
+                armTightness?: number;
+                avgGateDegree?: number;
+                gateDegreeVariance?: number;
+                maxGateLength?: number;
+                regionCount?: number;
+                chokepointStrength?: number;
+                planetsPerSystemMin?: number;
+                planetsPerSystemMax?: number;
+                habitableFraction?: number;
+                resourceClusterStrength?: number;
+                rareResourceAbundance?: number;
+                factionCount?: number;
+                factionMinJumps?: number;
+                startViabilityJumps?: number;
+            };
+        },
+        {
+            id: string;
+            label: string;
+            params: {
+                systemCount?: number;
+                shape?: "disc" | "spiral" | "ring" | "cluster";
+                armCount?: number;
+                armTightness?: number;
+                avgGateDegree?: number;
+                gateDegreeVariance?: number;
+                maxGateLength?: number;
+                regionCount?: number;
+                chokepointStrength?: number;
+                planetsPerSystemMin?: number;
+                planetsPerSystemMax?: number;
+                habitableFraction?: number;
+                resourceClusterStrength?: number;
+                rareResourceAbundance?: number;
+                factionCount?: number;
+                factionMinJumps?: number;
+                startViabilityJumps?: number;
+            };
+        },
+        ...{
+            id: string;
+            label: string;
+            params: {
+                systemCount?: number;
+                shape?: "disc" | "spiral" | "ring" | "cluster";
+                armCount?: number;
+                armTightness?: number;
+                avgGateDegree?: number;
+                gateDegreeVariance?: number;
+                maxGateLength?: number;
+                regionCount?: number;
+                chokepointStrength?: number;
+                planetsPerSystemMin?: number;
+                planetsPerSystemMax?: number;
+                habitableFraction?: number;
+                resourceClusterStrength?: number;
+                rareResourceAbundance?: number;
+                factionCount?: number;
+                factionMinJumps?: number;
+                startViabilityJumps?: number;
+            };
+        }[]
+    ];
+    [k: string]: unknown;
+}
 export interface HullsFile {
     $schema?: string;
     version: string;

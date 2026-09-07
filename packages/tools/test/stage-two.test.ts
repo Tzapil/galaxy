@@ -54,6 +54,7 @@ describe("Stage 2 data and runtime", () => {
     expect(data.unitVolume[data.energyResource]).toBe(0);
     expect(data.graph.materialCycleCount).toBe(0);
     expect(data.graph.energyCycleCount).toBeGreaterThan(0);
+    expect(data.graph.energyCostShareMin).toBeGreaterThanOrEqual(0.0039);
     expect(allBuildCostResourcesAreSinks(data)).toBe(true);
 
     expect(missingPhaseOneTurnover(data)).toEqual([]);

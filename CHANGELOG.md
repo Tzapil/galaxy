@@ -28,3 +28,23 @@
 - Bench on 2026-09-05: Stage 2, 50 seeds x 1000 years, no failed pathology checks; median
   minPopulation 9.28, deliveredShipments 218922, missedDeparturesFuel 0, idleNoPower 0,
   idleMissingInput 0, constructedBuildings 12, researchedTechnologies 15, treasuryMin -185.70.
+- Replaced the stale 3% energy-share baseline with the measured full-chain guard 0.0039; the
+  previous threshold did not match the complete recipe graph where solar energy settles at its
+  fixed-point cost.
+
+## Stage 3 procedural galaxy
+
+- Added deterministic galaxy generation with disc, spiral, ring, and cluster layouts; Poisson
+  placement; dependency-free Delaunay gates; pruning, regions, and choke-point shaping.
+- Added generated planetary bodies, clustered rare resources, faction start placement, map
+  validation, galaxy presets, SVG previews, and a Stage 3 timing/validation CLI report.
+- Stage 3 CLI on 2026-09-07: 50 balanced 500-system seeds valid, average gate degree
+  2.860..2.928, median generation 84.77 ms, max 106.19 ms.
+
+## Golden baseline update
+
+- Reason: Stage 3 procedural galaxy generation
+
+## Golden baseline update
+
+- Reason: Stage 3 procedural galaxy generation

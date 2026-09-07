@@ -181,6 +181,12 @@ async function checkStageTwoRuntimeData(baseline: Baseline): Promise<boolean> {
     );
     ok = false;
   }
+  if (data.graph.energyCostShareMin + 1e-9 < baseline.energyCostShareMin) {
+    console.error(
+      `stage-two-data: energy cost share expected at least ${baseline.energyCostShareMin}, got ${data.graph.energyCostShareMin}`
+    );
+    ok = false;
+  }
   if ((data.transportable[resourceIndexOf(data.resourceIndex, "energy")] ?? 1) !== 0) {
     console.error("stage-two-data: energy must be non-transportable.");
     ok = false;

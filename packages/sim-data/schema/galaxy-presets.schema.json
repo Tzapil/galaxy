@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://galaxy-sim.local/schema/galaxy-presets.schema.json",
+  "title": "GalaxyPresetsFile",
+  "type": "object",
+  "required": ["version", "presets"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "presets": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "params"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "label": { "type": "string", "minLength": 1 },
+          "params": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "systemCount": { "type": "integer", "minimum": 1, "maximum": 2000 },
+              "shape": { "type": "string", "enum": ["disc", "spiral", "ring", "cluster"] },
+              "armCount": { "type": "integer", "minimum": 1, "maximum": 8 },
+              "armTightness": { "type": "number", "minimum": 0, "maximum": 1 },
+              "avgGateDegree": { "type": "number", "minimum": 2, "maximum": 5 },
+              "gateDegreeVariance": { "type": "number", "minimum": 0, "maximum": 1 },
+              "maxGateLength": { "type": "number", "exclusiveMinimum": 0 },
+              "regionCount": { "type": "integer", "minimum": 1, "maximum": 64 },
+              "chokepointStrength": { "type": "number", "minimum": 0, "maximum": 1 },
+              "planetsPerSystemMin": { "type": "integer", "minimum": 1, "maximum": 16 },
+              "planetsPerSystemMax": { "type": "integer", "minimum": 1, "maximum": 16 },
+              "habitableFraction": { "type": "number", "minimum": 0, "maximum": 1 },
+              "resourceClusterStrength": { "type": "number", "minimum": 0, "maximum": 1 },
+              "rareResourceAbundance": { "type": "number", "minimum": 0, "maximum": 1 },
+              "factionCount": { "type": "integer", "minimum": 1, "maximum": 32 },
+              "factionMinJumps": { "type": "integer", "minimum": 1, "maximum": 64 },
+              "startViabilityJumps": { "type": "integer", "minimum": 1, "maximum": 64 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

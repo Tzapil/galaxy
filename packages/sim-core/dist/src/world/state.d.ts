@@ -8,8 +8,19 @@ import { ShipRole, Ships } from "../ships/ships.js";
 import { Bodies, BodyType } from "./bodies.js";
 import { Factions } from "./factions.js";
 import { Gates } from "./gates.js";
+import { CapitalDistances, Regions } from "./regions.js";
 import { Stockpiles } from "./stockpiles.js";
 import { Systems } from "./systems.js";
+export interface StageOneWorldCapacities {
+    readonly systems: number;
+    readonly gates: number;
+    readonly bodies: number;
+    readonly stockpiles: number;
+    readonly factions: number;
+    readonly buildings: number;
+    readonly ships: number;
+    readonly regions: number;
+}
 export declare class StageOneWorld {
     readonly data: StageOneData;
     readonly systems: Systems;
@@ -17,15 +28,18 @@ export declare class StageOneWorld {
     readonly bodies: Bodies;
     readonly stockpiles: Stockpiles;
     readonly factions: Factions;
+    readonly regions: Regions;
+    readonly capitalDistances: CapitalDistances;
     readonly buildings: Buildings;
     readonly ships: Ships;
     readonly supply: SupplyEma;
     readonly prices: MarketPrices;
     readonly eventLog: StageOneEventLog;
-    constructor(data: StageOneData, systems: Systems, gates: Gates, bodies: Bodies, stockpiles: Stockpiles, factions: Factions, buildings: Buildings, ships: Ships, supply: SupplyEma, prices: MarketPrices, eventLog: StageOneEventLog);
-    static create(data: StageOneData): StageOneWorld;
+    constructor(data: StageOneData, systems: Systems, gates: Gates, bodies: Bodies, stockpiles: Stockpiles, factions: Factions, regions: Regions, capitalDistances: CapitalDistances, buildings: Buildings, ships: Ships, supply: SupplyEma, prices: MarketPrices, eventLog: StageOneEventLog);
+    static create(data: StageOneData, capacities?: Partial<StageOneWorldCapacities>): StageOneWorld;
     static fromSnapshots(data: StageOneData, snapshots: readonly ArenaSnapshot[]): StageOneWorld;
     arenas(): readonly ArenaSnapshot[];
+    private regionArenas;
     addBody(system: number, type: BodyType, size: number, habitability: number, slots: number, owner: number, population: number, featureMask?: number): number;
     addFaction(label: string, capitalSystem: number, capitalBody: number, treasury: number, expansion: number, industry: number): number;
     addColony(faction: number, body: number, population: number): void;

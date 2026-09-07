@@ -1,0 +1,89 @@
+{
+  "$schema": "./schema/galaxy-presets.schema.json",
+  "version": "1.0",
+  "notes": [
+    "Пресеты генерации карты из ТЗ 4.5. Значения живут в данных, чтобы экран создания партии и CLI брали один источник."
+  ],
+  "presets": [
+    {
+      "id": "balanced",
+      "label": "Сбалансированная",
+      "params": {
+        "systemCount": 500,
+        "shape": "spiral",
+        "armCount": 4,
+        "armTightness": 0.4,
+        "avgGateDegree": 3.0,
+        "gateDegreeVariance": 0.6,
+        "regionCount": 8,
+        "chokepointStrength": 0.6,
+        "planetsPerSystemMin": 1,
+        "planetsPerSystemMax": 9,
+        "habitableFraction": 0.12,
+        "resourceClusterStrength": 0.7,
+        "rareResourceAbundance": 0.05,
+        "factionCount": 8,
+        "factionMinJumps": 6,
+        "startViabilityJumps": 6
+      }
+    },
+    {
+      "id": "fragmented",
+      "label": "Раздробленная",
+      "params": {
+        "systemCount": 500,
+        "shape": "cluster",
+        "avgGateDegree": 2.8,
+        "gateDegreeVariance": 0.85,
+        "regionCount": 12,
+        "chokepointStrength": 0.9,
+        "habitableFraction": 0.1,
+        "resourceClusterStrength": 0.85,
+        "rareResourceAbundance": 0.055,
+        "factionCount": 8,
+        "factionMinJumps": 6,
+        "startViabilityJumps": 7
+      }
+    },
+    {
+      "id": "open_frontier",
+      "label": "Открытый фронтир",
+      "params": {
+        "systemCount": 500,
+        "shape": "disc",
+        "avgGateDegree": 2.55,
+        "gateDegreeVariance": 0.45,
+        "regionCount": 6,
+        "chokepointStrength": 0.35,
+        "planetsPerSystemMin": 1,
+        "planetsPerSystemMax": 8,
+        "habitableFraction": 0.09,
+        "resourceClusterStrength": 0.65,
+        "rareResourceAbundance": 0.06,
+        "factionCount": 8,
+        "factionMinJumps": 7,
+        "startViabilityJumps": 7
+      }
+    },
+    {
+      "id": "tight",
+      "label": "Тесная галактика",
+      "params": {
+        "systemCount": 500,
+        "shape": "ring",
+        "avgGateDegree": 3.65,
+        "gateDegreeVariance": 0.35,
+        "regionCount": 8,
+        "chokepointStrength": 0.45,
+        "planetsPerSystemMin": 2,
+        "planetsPerSystemMax": 9,
+        "habitableFraction": 0.16,
+        "resourceClusterStrength": 0.55,
+        "rareResourceAbundance": 0.05,
+        "factionCount": 10,
+        "factionMinJumps": 5,
+        "startViabilityJumps": 5
+      }
+    }
+  ]
+}

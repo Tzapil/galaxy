@@ -94,8 +94,16 @@ export class StageTwoSimulation {
   }
 
   public static create(seed: number, data: StageOneData): StageTwoSimulation {
-    const rootRng = Rng.fromSeed(seed);
     const world = buildStageTwoWorld(data, seed);
+    return StageTwoSimulation.createFromWorld(seed, data, world);
+  }
+
+  public static createFromWorld(
+    seed: number,
+    data: StageOneData,
+    world: StageOneWorld
+  ): StageTwoSimulation {
+    const rootRng = Rng.fromSeed(seed);
     const sim = new StageTwoSimulation(rootRng, data, world, 0);
     world.prices.recalculate(data, world.bodies, world.stockpiles, world.buildings);
     bootProduction(data, world, sim.queue, 0);

@@ -17,6 +17,12 @@ describe("sim-data loader", () => {
         expect(loaded.data.hulls.hulls).toHaveLength(12);
         expect(loaded.data.modules.modules).toHaveLength(49);
         expect(loaded.data.doctrines.doctrines).toHaveLength(9);
+        expect(loaded.data.galaxyPresets.presets.map((preset) => preset.id)).toEqual([
+            "balanced",
+            "fragmented",
+            "open_frontier",
+            "tight"
+        ]);
     });
     it("links buildings, recipe resources, and producedBy references", async () => {
         const loaded = await loadFromDirectory(dataDir, schemaDir);

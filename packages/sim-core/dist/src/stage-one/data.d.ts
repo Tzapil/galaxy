@@ -1,4 +1,5 @@
 import { type EconGraph } from "../econ/graph.js";
+import type { GalaxyPreset } from "../galaxy/params.js";
 import { BodyType } from "../world/bodies.js";
 export interface ResourceAmount {
     readonly resource: number;
@@ -121,6 +122,7 @@ export interface StageOneData {
     readonly hullIndex: ReadonlyMap<string, number>;
     readonly techs: readonly StageOneTech[];
     readonly sliceResourceIndices: readonly number[];
+    readonly galaxyPresets: readonly GalaxyPreset[];
 }
 export interface StageGameDataInput {
     readonly resources: {
@@ -141,6 +143,7 @@ export interface StageGameDataInput {
     readonly techs: {
         readonly techs: readonly RawGameTech[];
     };
+    readonly galaxyPresets: RawGalaxyPresetsFile;
 }
 interface RawGameResource {
     readonly id: string;
@@ -234,6 +237,33 @@ interface RawGameTech {
         readonly engineering?: number;
         readonly bio?: number;
     };
+}
+interface RawGalaxyPresetsFile {
+    readonly presets: readonly RawGalaxyPreset[];
+}
+interface RawGalaxyPreset {
+    readonly id: string;
+    readonly label: string;
+    readonly params: RawGalaxyPresetParams;
+}
+interface RawGalaxyPresetParams {
+    readonly systemCount?: number;
+    readonly shape?: string;
+    readonly armCount?: number;
+    readonly armTightness?: number;
+    readonly avgGateDegree?: number;
+    readonly gateDegreeVariance?: number;
+    readonly maxGateLength?: number;
+    readonly regionCount?: number;
+    readonly chokepointStrength?: number;
+    readonly planetsPerSystemMin?: number;
+    readonly planetsPerSystemMax?: number;
+    readonly habitableFraction?: number;
+    readonly resourceClusterStrength?: number;
+    readonly rareResourceAbundance?: number;
+    readonly factionCount?: number;
+    readonly factionMinJumps?: number;
+    readonly startViabilityJumps?: number;
 }
 export declare function createDefaultStageOneData(): StageOneData;
 export declare function createStageTwoDataFromGameData(input: StageGameDataInput): StageOneData;

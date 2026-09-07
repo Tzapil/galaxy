@@ -58,6 +58,7 @@ export declare class StageTwoSimulation {
     private treasuryMin;
     private constructor();
     static create(seed: number, data: StageOneData): StageTwoSimulation;
+    static createFromWorld(seed: number, data: StageOneData, world: StageOneWorld): StageTwoSimulation;
     static fromSnapshot(buffer: ArrayBuffer, data: StageOneData): StageTwoSimulation;
     private queue;
     step(instrumentation?: Instrumentation): void;

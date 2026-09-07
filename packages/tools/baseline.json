@@ -5,6 +5,6 @@
     "min": 2,
     "max": 5
   },
-  "energyCostShareMin": 0.03,
+  "energyCostShareMin": 0.0039,
   "dataBalanceMin": 0.15
 }

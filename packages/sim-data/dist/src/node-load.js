@@ -13,7 +13,8 @@ export async function loadFromDirectory(dataDir = resolve(packageRoot, "data"), 
         hulls: await readJson(resolve(dataDir, "hulls.json")),
         modules: await readJson(resolve(dataDir, "modules.json")),
         doctrines: await readJson(resolve(dataDir, "doctrines.json")),
-        startPackage: await readJson(resolve(dataDir, "start-package.json"))
+        startPackage: await readJson(resolve(dataDir, "start-package.json")),
+        galaxyPresets: await readJson(resolve(dataDir, "galaxy-presets.json"))
     };
     const schemas = {
         resources: await readJson(resolve(schemaDir, "resources.schema.json")),
@@ -23,7 +24,8 @@ export async function loadFromDirectory(dataDir = resolve(packageRoot, "data"), 
         hulls: await readJson(resolve(schemaDir, "hulls.schema.json")),
         modules: await readJson(resolve(schemaDir, "modules.schema.json")),
         doctrines: await readJson(resolve(schemaDir, "doctrines.schema.json")),
-        startPackage: await readJson(resolve(schemaDir, "start-package.schema.json"))
+        startPackage: await readJson(resolve(schemaDir, "start-package.schema.json")),
+        galaxyPresets: await readJson(resolve(schemaDir, "galaxy-presets.schema.json"))
     };
     return load(data, schemas);
 }

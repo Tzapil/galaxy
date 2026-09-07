@@ -5,6 +5,8 @@ import { pathToFileURL } from "node:url";
 
 import {
   Instrumentation,
+  buildStageThreeWorld,
+  paramsWithPreset,
   StageOneSimulation,
   StageTwoSimulation,
   StageZeroSimulation,
@@ -17,11 +19,12 @@ import {
 import { loadStageTwoData } from "./stage-two-loader.js";
 
 interface HeadlessOptions {
-  readonly stage: 0 | 1 | 2;
+  readonly stage: 0 | 1 | 2 | 3;
   readonly seed: number;
   readonly ticks: number;
   readonly snapshotEvery: number;
   readonly reportPath: string | undefined;
+  readonly preset: string;
 }
 
 const subsystemNames = ["continuous", "events", "snapshot", "total"] as const;
@@ -29,13 +32,24 @@ const subsystemNames = ["continuous", "events", "snapshot", "total"] as const;
 export async function runHeadless(
   options: HeadlessOptions
 ): Promise<StageZeroRunReport | StageOneRunReport | StageTwoRunReport> {
-  const stageTwoData = options.stage === 2 ? await loadStageTwoData() : undefined;
+  const stageTwoData =
+    options.stage === 2 || options.stage === 3 ? await loadStageTwoData() : undefined;
   const sim =
     options.stage === 0
       ? StageZeroSimulation.create(options.seed)
       : options.stage === 1
         ? StageOneSimulation.create(options.seed)
-        : StageTwoSimulation.create(options.seed, requireStageTwoData(stageTwoData));
+        : options.stage === 2
+          ? StageTwoSimulation.create(options.seed, requireStageTwoData(stageTwoData))
+          : StageTwoSimulation.createFromWorld(
+              options.seed,
+              requireStageTwoData(stageTwoData),
+              buildStageThreeWorld(
+                requireStageTwoData(stageTwoData),
+                options.seed,
+                paramsWithPreset(requireStageTwoData(stageTwoData).galaxyPresets, options.preset)
+              )
+            );
   const started = hrtime.bigint();
   const instrumentation = new Instrumentation({
     enabled: true,
@@ -99,13 +113,15 @@ function printRunReport(
 
 function parseArgs(argv: readonly string[]): HeadlessOptions {
   const stage = numberArg(argv, "stage", 1);
-  if (stage !== 0 && stage !== 1 && stage !== 2) throw new Error("--stage must be 0, 1 or 2.");
+  if (stage !== 0 && stage !== 1 && stage !== 2 && stage !== 3)
+    throw new Error("--stage must be 0, 1, 2 or 3.");
   return {
     stage,
     seed: numberArg(argv, "seed", 20260904),
     ticks: numberArg(argv, "ticks", ticksFromYears(100)),
     snapshotEvery: numberArg(argv, "snapshot-every", 10_000),
-    reportPath: stringArg(argv, "report")
+    reportPath: stringArg(argv, "report"),
+    preset: stringArg(argv, "preset") ?? "balanced"
   };
 }
 

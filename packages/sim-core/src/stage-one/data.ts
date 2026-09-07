@@ -1,4 +1,5 @@
 import { buildEconGraph, computeBaseValues, type EconGraph } from "../econ/graph.js";
+import type { GalaxyGenerationParams, GalaxyPreset, GalaxyShape } from "../galaxy/params.js";
 import { BodyType } from "../world/bodies.js";
 
 export interface ResourceAmount {
@@ -135,6 +136,7 @@ export interface StageOneData {
   readonly hullIndex: ReadonlyMap<string, number>;
   readonly techs: readonly StageOneTech[];
   readonly sliceResourceIndices: readonly number[];
+  readonly galaxyPresets: readonly GalaxyPreset[];
 }
 
 export interface StageGameDataInput {
@@ -148,6 +150,7 @@ export interface StageGameDataInput {
   readonly startPackage: RawGameStartPackage;
   readonly hulls: { readonly hulls: readonly RawGameHull[] };
   readonly techs: { readonly techs: readonly RawGameTech[] };
+  readonly galaxyPresets: RawGalaxyPresetsFile;
 }
 
 interface RawResource {
@@ -284,6 +287,41 @@ interface RawGameTech {
     readonly bio?: number;
   };
 }
+
+interface RawGalaxyPresetsFile {
+  readonly presets: readonly RawGalaxyPreset[];
+}
+
+interface RawGalaxyPreset {
+  readonly id: string;
+  readonly label: string;
+  readonly params: RawGalaxyPresetParams;
+}
+
+interface RawGalaxyPresetParams {
+  readonly systemCount?: number;
+  readonly shape?: string;
+  readonly armCount?: number;
+  readonly armTightness?: number;
+  readonly avgGateDegree?: number;
+  readonly gateDegreeVariance?: number;
+  readonly maxGateLength?: number;
+  readonly regionCount?: number;
+  readonly chokepointStrength?: number;
+  readonly planetsPerSystemMin?: number;
+  readonly planetsPerSystemMax?: number;
+  readonly habitableFraction?: number;
+  readonly resourceClusterStrength?: number;
+  readonly rareResourceAbundance?: number;
+  readonly factionCount?: number;
+  readonly factionMinJumps?: number;
+  readonly startViabilityJumps?: number;
+}
+
+type NumericGalaxyPresetParam = Exclude<
+  Extract<keyof RawGalaxyPresetParams, keyof GalaxyGenerationParams>,
+  "shape"
+>;
 
 const PLACEMENT_PLANET = 1 << 0;
 const PLACEMENT_ASTEROID = 1 << 1;
@@ -573,7 +611,8 @@ export function createDefaultStageOneData(): StageOneData {
       resourceIndexOf(resourceIndex, "water"),
       resourceIndexOf(resourceIndex, "food"),
       resourceIndexOf(resourceIndex, "fuel")
-    ]
+    ],
+    galaxyPresets: []
   };
 }
 
@@ -730,7 +769,8 @@ export function createStageTwoDataFromGameData(input: StageGameDataInput): Stage
     hulls,
     hullIndex,
     techs,
-    sliceResourceIndices: preferredSliceResources(resourceIndex)
+    sliceResourceIndices: preferredSliceResources(resourceIndex),
+    galaxyPresets: galaxyPresetsFrom(input.galaxyPresets)
   };
 }
 
@@ -1014,6 +1054,56 @@ function preferredSliceResources(resourceIndex: ReadonlyMap<string, number>): re
     if (value !== undefined) result.push(value);
   }
   return result;
+}
+
+function galaxyPresetsFrom(input: RawGalaxyPresetsFile): readonly GalaxyPreset[] {
+  return input.presets
+    .map((preset) => ({
+      id: preset.id,
+      label: preset.label,
+      params: galaxyPresetParamsFrom(preset.params)
+    }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function galaxyPresetParamsFrom(raw: RawGalaxyPresetParams): GalaxyGenerationParams {
+  const params: GalaxyGenerationParams = {};
+  setNumberParam(params, raw, "systemCount");
+  setShapeParam(params, raw);
+  setNumberParam(params, raw, "armCount");
+  setNumberParam(params, raw, "armTightness");
+  setNumberParam(params, raw, "avgGateDegree");
+  setNumberParam(params, raw, "gateDegreeVariance");
+  setNumberParam(params, raw, "maxGateLength");
+  setNumberParam(params, raw, "regionCount");
+  setNumberParam(params, raw, "chokepointStrength");
+  setNumberParam(params, raw, "planetsPerSystemMin");
+  setNumberParam(params, raw, "planetsPerSystemMax");
+  setNumberParam(params, raw, "habitableFraction");
+  setNumberParam(params, raw, "resourceClusterStrength");
+  setNumberParam(params, raw, "rareResourceAbundance");
+  setNumberParam(params, raw, "factionCount");
+  setNumberParam(params, raw, "factionMinJumps");
+  setNumberParam(params, raw, "startViabilityJumps");
+  return params;
+}
+
+function setNumberParam(
+  params: GalaxyGenerationParams,
+  raw: RawGalaxyPresetParams,
+  key: NumericGalaxyPresetParam
+): void {
+  const value = raw[key];
+  if (typeof value === "number") {
+    (params as Record<NumericGalaxyPresetParam, number>)[key] = value;
+  }
+}
+
+function setShapeParam(params: GalaxyGenerationParams, raw: RawGalaxyPresetParams): void {
+  const value = raw.shape;
+  if (value === "disc" || value === "spiral" || value === "ring" || value === "cluster") {
+    (params as { shape?: GalaxyShape }).shape = value;
+  }
 }
 
 function defaultTier(id: string): number {
