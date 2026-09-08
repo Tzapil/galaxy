@@ -1,9 +1,10 @@
 import { type EntityCounters, type StageOneMetrics, type StageTwoMetrics } from "@galaxy-sim/sim-core";
 interface BenchOptions {
-    readonly stage: 1 | 2;
+    readonly stage: 1 | 2 | 3;
     readonly seeds: number;
     readonly years: number;
     readonly out: string | undefined;
+    readonly preset: string;
 }
 interface WorkerResult {
     readonly seed: number;

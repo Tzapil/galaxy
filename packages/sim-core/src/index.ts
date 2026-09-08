@@ -20,7 +20,7 @@ export {
   startBuildingConstruction
 } from "./build/construction.js";
 export type { ConstructionResult } from "./build/construction.js";
-export { calculateCapitalDemand } from "./build/capital-demand.js";
+export { calculateCapitalDemand, calculateCapitalDemandForFaction } from "./build/capital-demand.js";
 export type { PlannedConstruction } from "./build/capital-demand.js";
 export { canDemolishByFlow, demolishBuilding } from "./build/demolish.js";
 export type { DemolitionCheck } from "./build/demolish.js";
@@ -40,6 +40,68 @@ export type {
   InstrumentationOptions,
   InstrumentationSummary
 } from "./instrument.js";
+export {
+  AI_OPERATIONAL_PERIOD_TICKS,
+  AI_STRATEGIC_PERIOD_TICKS,
+  AiLayer,
+  AiScheduler
+} from "./ai/scheduler.js";
+export type { AiScheduledRun } from "./ai/scheduler.js";
+export { chooseUtilityOption, personalityWeightsForFaction } from "./ai/utility.js";
+export type { UtilityAxis, UtilityChoice, UtilityOption } from "./ai/utility.js";
+export {
+  findBottleneck,
+  reserveDays,
+  STOCK_RESERVE_HORIZON_DAYS,
+  toOperationalTask,
+  AiOperationalTaskKind
+} from "./ai/bottleneck.js";
+export type { AiBottleneck, AiOperationalTask } from "./ai/bottleneck.js";
+export { createStrategicGoal, AiGoalKind } from "./ai/goals.js";
+export type { AiGoal } from "./ai/goals.js";
+export { chooseProducer, explodeDemand } from "./ai/mrp/explode.js";
+export type {
+  MrpExplosion,
+  MrpExplosionOptions,
+  MrpHullTarget,
+  MrpResourceTarget,
+  MrpTarget,
+  MrpTraceStep
+} from "./ai/mrp/explode.js";
+export {
+  calculateFleetDemandPerDay,
+  collectFactionDemandSources,
+  demandByColonyShare
+} from "./ai/mrp/demand-sources.js";
+export type { FactionDemandSources } from "./ai/mrp/demand-sources.js";
+export { calculateFactionSupplyRates } from "./ai/mrp/supply.js";
+export type { FactionSupply } from "./ai/mrp/supply.js";
+export {
+  guardAlternativeProducer,
+  guardDemolishByFlow,
+  guardHousingCap,
+  guardPowerAvailable,
+  guardStockHorizon,
+  guardVitalVsComfort,
+  NeedBranch
+} from "./ai/build-plan/guards.js";
+export { solveLinearProgram } from "./ai/build-plan/lp.js";
+export type { LinearProgram, LinearProgramSolution } from "./ai/build-plan/lp.js";
+export { createBuildPlan } from "./ai/build-plan/plan.js";
+export type { BuildPlan, BuildPlanItem } from "./ai/build-plan/plan.js";
+export { activeConstructionForFaction, applyBuildPlan } from "./ai/build-plan/apply.js";
+export type { AppliedBuildPlan } from "./ai/build-plan/apply.js";
+export { bestColonyTarget, scoreColonyTarget } from "./ai/expansion/colony-score.js";
+export type { ColonyScore } from "./ai/expansion/colony-score.js";
+export {
+  buildColonizerIfNeeded,
+  handleColonizerArrival,
+  launchIdleColonizer,
+  runColonization
+} from "./ai/expansion/colonize.js";
+export type { ColonizationStep } from "./ai/expansion/colonize.js";
+export { scaleCivilianFleet } from "./ai/expansion/fleet-scale.js";
+export type { FleetScaleResult } from "./ai/expansion/fleet-scale.js";
 export { compactJournalEntries } from "./persist/port.js";
 export type { JournalEntry, PersistPort } from "./persist/port.js";
 export { consumePopulationWithLocalRedistribution } from "./pop/consume-stage-two.js";
@@ -148,6 +210,8 @@ export type {
   StageOneContinuousProcess,
   StageOneData,
   StageOneHull,
+  StageOnePersonality,
+  StageOnePersonalityWeights,
   StageOnePopulationNeeds,
   StageOneResource,
   StageOneSink,

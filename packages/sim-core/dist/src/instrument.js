@@ -3,8 +3,12 @@ export var InstrumentSubsystem;
     InstrumentSubsystem[InstrumentSubsystem["Continuous"] = 0] = "Continuous";
     InstrumentSubsystem[InstrumentSubsystem["Events"] = 1] = "Events";
     InstrumentSubsystem[InstrumentSubsystem["Snapshot"] = 2] = "Snapshot";
-    InstrumentSubsystem[InstrumentSubsystem["Total"] = 3] = "Total";
+    InstrumentSubsystem[InstrumentSubsystem["AiStrategic"] = 3] = "AiStrategic";
+    InstrumentSubsystem[InstrumentSubsystem["AiOperational"] = 4] = "AiOperational";
+    InstrumentSubsystem[InstrumentSubsystem["AiTactical"] = 5] = "AiTactical";
+    InstrumentSubsystem[InstrumentSubsystem["Total"] = 6] = "Total";
 })(InstrumentSubsystem || (InstrumentSubsystem = {}));
+export const INSTRUMENT_SUBSYSTEM_COUNT = 7;
 export class Instrumentation {
     options;
     subsystemMs;
@@ -16,7 +20,7 @@ export class Instrumentation {
     constructor(options) {
         this.options = options;
         const historyCapacity = options.enabled ? (options.historyCapacity ?? 60_000) : 0;
-        this.subsystemMs = new Float64Array(options.enabled ? 4 : 0);
+        this.subsystemMs = new Float64Array(options.enabled ? INSTRUMENT_SUBSYSTEM_COUNT : 0);
         this.tickHistory = new Float64Array(historyCapacity);
     }
     get enabled() {

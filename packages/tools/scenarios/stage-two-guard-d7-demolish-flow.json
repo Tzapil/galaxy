@@ -1,0 +1,7 @@
+{
+  "stage": 2,
+  "seed": 20260907,
+  "ticks": 365,
+  "description": "Stage 4 guard D7: demolition eligibility is checked by flow coverage.",
+  "expectedPathologyStatus": "ok"
+}

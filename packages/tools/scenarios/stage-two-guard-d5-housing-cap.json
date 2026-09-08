@@ -1,0 +1,7 @@
+{
+  "stage": 2,
+  "seed": 20260905,
+  "ticks": 365,
+  "description": "Stage 4 guard D5: housing growth is capped and cannot consume all colony slots.",
+  "expectedPathologyStatus": "ok"
+}

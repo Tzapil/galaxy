@@ -2,8 +2,13 @@ export const enum InstrumentSubsystem {
   Continuous = 0,
   Events = 1,
   Snapshot = 2,
-  Total = 3
+  AiStrategic = 3,
+  AiOperational = 4,
+  AiTactical = 5,
+  Total = 6
 }
+
+export const INSTRUMENT_SUBSYSTEM_COUNT = 7;
 
 export interface EntityCounters {
   readonly systems: number;
@@ -38,7 +43,7 @@ export class Instrumentation {
 
   public constructor(private readonly options: InstrumentationOptions) {
     const historyCapacity = options.enabled ? (options.historyCapacity ?? 60_000) : 0;
-    this.subsystemMs = new Float64Array(options.enabled ? 4 : 0);
+    this.subsystemMs = new Float64Array(options.enabled ? INSTRUMENT_SUBSYSTEM_COUNT : 0);
     this.tickHistory = new Float64Array(historyCapacity);
   }
 

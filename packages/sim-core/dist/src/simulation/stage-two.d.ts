@@ -34,6 +34,14 @@ export interface StageTwoMetrics {
     readonly slotFillRatio: number;
     readonly maxResourceZeroStreakDays: number;
     readonly treasuryMin: number;
+    readonly aiStrategicDecisions: number;
+    readonly aiOperationalDecisions: number;
+    readonly aiTacticalDecisions: number;
+    readonly aiBuildPlansStarted: number;
+    readonly aiColonizationLaunches: number;
+    readonly aiFleetBuilds: number;
+    readonly coloniesFounded: number;
+    readonly aiOperations: number;
 }
 export interface StageTwoHashCheckpoint {
     readonly tick: number;
@@ -48,6 +56,9 @@ export declare class StageTwoSimulation {
     private readonly routes;
     private readonly jobs;
     private readonly contracts;
+    private readonly aiScheduler;
+    private readonly aiRuns;
+    private readonly lastBottleneckResource;
     private readonly zeroStreakDays;
     private readonly maxZeroStreakDays;
     private completedBatches;
@@ -55,6 +66,14 @@ export declare class StageTwoSimulation {
     private missedDeparturesFuel;
     private constructedBuildings;
     private disbandedShips;
+    private aiStrategicDecisions;
+    private aiOperationalDecisions;
+    private aiTacticalDecisions;
+    private aiBuildPlansStarted;
+    private aiColonizationLaunches;
+    private aiFleetBuilds;
+    private coloniesFounded;
+    private aiOperations;
     private treasuryMin;
     private constructor();
     static create(seed: number, data: StageOneData): StageTwoSimulation;
@@ -71,17 +90,32 @@ export declare class StageTwoSimulation {
     jobBoard(): JobBoard;
     routePlanner(): RoutePlanner;
     private applyEvents;
+    private runAi;
+    private runStrategicAi;
+    private runOperationalAi;
+    private runFleetIndustryNudge;
+    private fleetIndustryTask;
+    private canStartAiBuild;
+    private canStartAiExpansion;
+    private runExpansionNudge;
+    private canStartFleetIndustry;
     private refreshLogistics;
     private refreshContracts;
     private addShortageContracts;
-    private scaleHaulers;
+    private addConstructionMaterialContracts;
     private updateTreasuryMinimum;
+    private resourceIsStabilityCritical;
+    private factionHasBuilding;
+    private bestBodyForBuilding;
+    private minVitalReserveDays;
+    private factionDailyNeed;
+    private factionStock;
+    private factionPopulation;
     private updateZeroStreaks;
     private tracksZeroStreak;
     private totalOwnedStock;
     private countBuildingsInState;
     private countIdleHaulers;
-    private countIdleHaulersForFaction;
     private minResearchedTechnologies;
     private maxTrackedZeroStreak;
 }

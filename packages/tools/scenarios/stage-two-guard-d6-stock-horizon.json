@@ -1,0 +1,7 @@
+{
+  "stage": 2,
+  "seed": 20260906,
+  "ticks": 365,
+  "description": "Stage 4 guard D6: stock above the planning horizon suppresses redundant expansion.",
+  "expectedPathologyStatus": "ok"
+}

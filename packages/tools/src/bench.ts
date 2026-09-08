@@ -6,6 +6,8 @@ import { isMainThread, parentPort, workerData, Worker } from "node:worker_thread
 import {
   StageOneSimulation,
   StageTwoSimulation,
+  buildStageThreeWorld,
+  paramsWithPreset,
   ticksFromYears,
   type EntityCounters,
   type StageOneMetrics,
@@ -15,16 +17,18 @@ import {
 import { loadStageTwoData } from "./stage-two-loader.js";
 
 interface BenchOptions {
-  readonly stage: 1 | 2;
+  readonly stage: 1 | 2 | 3;
   readonly seeds: number;
   readonly years: number;
   readonly out: string | undefined;
+  readonly preset: string;
 }
 
 interface WorkerInput {
-  readonly stage: 1 | 2;
+  readonly stage: 1 | 2 | 3;
   readonly seed: number;
   readonly ticks: number;
+  readonly preset: string;
 }
 
 interface WorkerResult {
@@ -54,10 +58,15 @@ interface StageTwoDistributions {
   readonly slotFillRatio: Distribution;
   readonly maxResourceZeroStreakDays: Distribution;
   readonly treasuryMin: Distribution;
+  readonly aiBuildPlansStarted: Distribution;
+  readonly aiColonizationLaunches: Distribution;
+  readonly aiFleetBuilds: Distribution;
+  readonly coloniesFounded: Distribution;
+  readonly aiOperations: Distribution;
 }
 
 const metricNotes = [
-  ["alive_factions_by_time", "ok: two seeded factions"],
+  ["alive_factions_by_time", "ok: seeded factions remain alive"],
   ["power_concentration_index", "n/a until Stage 7"],
   ["median_faction_age", "n/a until Stage 7"],
   ["building_idle_without_inputs", "ok: Stage 2 idleMissingInput"],
@@ -73,7 +82,7 @@ if (!isMainThread) {
   const sim =
     input.stage === 1
       ? StageOneSimulation.create(input.seed)
-      : StageTwoSimulation.create(input.seed, await loadStageTwoData());
+      : await createStageTwoBenchSimulation(input);
   const report = sim.run(input.ticks, 0);
   const elapsedMs = Number(process.hrtime.bigint() - started) / 1_000_000;
   parentPort?.postMessage({
@@ -93,7 +102,7 @@ export async function runBench(options: BenchOptions): Promise<readonly WorkerRe
   const seeds: number[] = [];
   for (let i = 0; i < options.seeds; i += 1) seeds.push(20260904 + i);
 
-  const results = await runWorkers(options.stage, seeds, ticks);
+  const results = await runWorkers(options.stage, seeds, options.preset, ticks);
   const minPopulation = describeDistribution(results.map((result) => result.metrics.minPopulation));
   const priceSpread = describeDistribution(
     results.map((result) => result.metrics.averageFoodWaterSpread)
@@ -104,7 +113,7 @@ export async function runBench(options: BenchOptions): Promise<readonly WorkerRe
   const missedDeparturesFuel = describeDistribution(
     results.map((result) => result.metrics.missedDeparturesFuel)
   );
-  const stageTwo = options.stage === 2 ? describeStageTwoDistributions(results) : undefined;
+  const stageTwo = options.stage >= 2 ? describeStageTwoDistributions(results) : undefined;
   const elapsedMs = describeDistribution(results.map((result) => result.elapsedMs));
   const report = {
     options,
@@ -138,8 +147,9 @@ export async function runBench(options: BenchOptions): Promise<readonly WorkerRe
 }
 
 async function runWorkers(
-  stage: 1 | 2,
+  stage: 1 | 2 | 3,
   seeds: readonly number[],
+  preset: string,
   ticks: number
 ): Promise<readonly WorkerResult[]> {
   const maxWorkers = Math.max(1, Math.min(cpus().length, seeds.length));
@@ -150,7 +160,7 @@ async function runWorkers(
     const seed = seeds[cursor];
     cursor += 1;
     if (seed === undefined) return;
-    const result = await runWorker({ stage, seed, ticks });
+    const result = await runWorker({ stage, seed, ticks, preset });
     results.push(result);
     await next();
   }
@@ -160,6 +170,16 @@ async function runWorkers(
   await Promise.all(starters);
   results.sort((a, b) => a.seed - b.seed);
   return results;
+}
+
+async function createStageTwoBenchSimulation(input: WorkerInput): Promise<StageTwoSimulation> {
+  const data = await loadStageTwoData();
+  if (input.stage === 2) return StageTwoSimulation.create(input.seed, data);
+  return StageTwoSimulation.createFromWorld(
+    input.seed,
+    data,
+    buildStageThreeWorld(data, input.seed, paramsWithPreset(data.galaxyPresets, input.preset))
+  );
 }
 
 function runWorker(input: WorkerInput): Promise<WorkerResult> {
@@ -193,7 +213,14 @@ function describeStageTwoDistributions(results: readonly WorkerResult[]): StageT
     maxResourceZeroStreakDays: describeDistribution(
       metrics.map((metric) => metric.maxResourceZeroStreakDays)
     ),
-    treasuryMin: describeDistribution(metrics.map((metric) => metric.treasuryMin))
+    treasuryMin: describeDistribution(metrics.map((metric) => metric.treasuryMin)),
+    aiBuildPlansStarted: describeDistribution(metrics.map((metric) => metric.aiBuildPlansStarted)),
+    aiColonizationLaunches: describeDistribution(
+      metrics.map((metric) => metric.aiColonizationLaunches)
+    ),
+    aiFleetBuilds: describeDistribution(metrics.map((metric) => metric.aiFleetBuilds)),
+    coloniesFounded: describeDistribution(metrics.map((metric) => metric.coloniesFounded)),
+    aiOperations: describeDistribution(metrics.map((metric) => metric.aiOperations))
   };
 }
 
@@ -211,6 +238,11 @@ function printStageTwoDistributions(distributions: StageTwoDistributions): void 
     formatDistribution("maxResourceZeroStreakDays", distributions.maxResourceZeroStreakDays, 0)
   );
   console.log(formatDistribution("treasuryMin", distributions.treasuryMin, 2));
+  console.log(formatDistribution("aiBuildPlansStarted", distributions.aiBuildPlansStarted, 0));
+  console.log(formatDistribution("aiColonizationLaunches", distributions.aiColonizationLaunches, 0));
+  console.log(formatDistribution("aiFleetBuilds", distributions.aiFleetBuilds, 0));
+  console.log(formatDistribution("coloniesFounded", distributions.coloniesFounded, 0));
+  console.log(formatDistribution("aiOperations", distributions.aiOperations, 0));
 }
 
 function requireStageTwoMetrics(metrics: StageOneMetrics | StageTwoMetrics): StageTwoMetrics {
@@ -244,13 +276,14 @@ function percentile(sorted: readonly number[], q: number): number {
 }
 
 function parseArgs(argv: readonly string[]): BenchOptions {
-  const stage = numberArg(argv, "stage", 2);
-  if (stage !== 1 && stage !== 2) throw new Error("--stage must be 1 or 2.");
+  const stage = numberArg(argv, "stage", 3);
+  if (stage !== 1 && stage !== 2 && stage !== 3) throw new Error("--stage must be 1, 2 or 3.");
   return {
     stage,
     seeds: numberArg(argv, "seeds", 50),
-    years: numberArg(argv, "years", stage === 2 ? 1000 : 100),
-    out: stringArg(argv, "out")
+    years: numberArg(argv, "years", stage >= 2 ? 1000 : 100),
+    out: stringArg(argv, "out"),
+    preset: stringArg(argv, "preset") ?? "balanced"
   };
 }
 

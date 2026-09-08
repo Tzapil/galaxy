@@ -15,8 +15,14 @@ export var StageOneLogKind;
     StageOneLogKind[StageOneLogKind["BuildingDemolished"] = 12] = "BuildingDemolished";
     StageOneLogKind[StageOneLogKind["ContractSubsidyPaid"] = 13] = "ContractSubsidyPaid";
     StageOneLogKind[StageOneLogKind["ResearchCompleted"] = 14] = "ResearchCompleted";
+    StageOneLogKind[StageOneLogKind["AiStrategicGoal"] = 15] = "AiStrategicGoal";
+    StageOneLogKind[StageOneLogKind["AiBottleneck"] = 16] = "AiBottleneck";
+    StageOneLogKind[StageOneLogKind["AiBuildPlan"] = 17] = "AiBuildPlan";
+    StageOneLogKind[StageOneLogKind["AiColonization"] = 18] = "AiColonization";
+    StageOneLogKind[StageOneLogKind["AiFleetScale"] = 19] = "AiFleetScale";
+    StageOneLogKind[StageOneLogKind["AiNoop"] = 20] = "AiNoop";
 })(StageOneLogKind || (StageOneLogKind = {}));
-const DEFAULT_STAGE_ONE_EVENT_LOG_LIMIT = 512;
+const DEFAULT_STAGE_ONE_EVENT_LOG_LIMIT = 4096;
 export class StageOneEventLog {
     arena;
     maxEntries;

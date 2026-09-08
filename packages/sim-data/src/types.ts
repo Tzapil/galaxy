@@ -4,6 +4,7 @@ export type {
   GalaxyPresetsFile,
   HullsFile,
   ModulesFile,
+  PersonalitiesFile,
   RecipesFile,
   ResourcesFile,
   StartPackageFile,
@@ -16,6 +17,7 @@ import type {
   GalaxyPresetsFile,
   HullsFile,
   ModulesFile,
+  PersonalitiesFile,
   RecipesFile,
   ResourcesFile,
   StartPackageFile,
@@ -32,6 +34,7 @@ export type HullRecord = HullsFile["hulls"][number];
 export type ModuleRecord = ModulesFile["modules"][number];
 export type DoctrineRecord = DoctrinesFile["doctrines"][number];
 export type GalaxyPresetRecord = GalaxyPresetsFile["presets"][number];
+export type PersonalityRecord = PersonalitiesFile["personalities"][number];
 
 export interface GameDataFiles {
   readonly resources: ResourcesFile;
@@ -43,6 +46,7 @@ export interface GameDataFiles {
   readonly doctrines: DoctrinesFile;
   readonly startPackage: StartPackageFile;
   readonly galaxyPresets: GalaxyPresetsFile;
+  readonly personalities: PersonalitiesFile;
 }
 
 export interface GameDataSchemas {
@@ -55,6 +59,7 @@ export interface GameDataSchemas {
   readonly doctrines: unknown;
   readonly startPackage: unknown;
   readonly galaxyPresets: unknown;
+  readonly personalities: unknown;
 }
 
 export interface LoadedGameData {

@@ -52,7 +52,7 @@ export function Perf({ stats, metrics, speed, onSpeed, onSave, onLoad }: PerfPro
         <b>{(metrics?.averageFoodWaterSpread ?? 0).toFixed(3)}</b>
       </div>
       <div className="subsystems">
-        {(stats?.subsystemMs ?? []).slice(0, 4).map((value, index) => (
+        {(stats?.subsystemMs ?? []).slice(0, 7).map((value, index) => (
           <span key={index}>{value.toFixed(1)}</span>
         ))}
       </div>

@@ -2,8 +2,12 @@ export declare const enum InstrumentSubsystem {
     Continuous = 0,
     Events = 1,
     Snapshot = 2,
-    Total = 3
+    AiStrategic = 3,
+    AiOperational = 4,
+    AiTactical = 5,
+    Total = 6
 }
+export declare const INSTRUMENT_SUBSYSTEM_COUNT = 7;
 export interface EntityCounters {
     readonly systems: number;
     readonly factions: number;

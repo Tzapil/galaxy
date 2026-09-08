@@ -33,7 +33,9 @@ export function applyDailyTreasury(
   let disbandedShips = 0;
   for (let faction = 0; faction < world.factions.length; faction += 1) {
     while ((world.factions.treasury[faction] ?? 0) < 0) {
-      const ship = bestShipToDisband(world, faction);
+      const allowCivilianDisband =
+        (world.factions.treasury[faction] ?? 0) < TREASURY_DEBT_FLOOR * 20;
+      const ship = bestShipToDisband(world, faction, allowCivilianDisband);
       if (ship < 0) break;
       disbandShip(world, ship, tick);
       disbandedShips += 1;
@@ -75,17 +77,23 @@ function factionPopulation(world: StageOneWorld, faction: number): number {
   return total;
 }
 
-function bestShipToDisband(world: StageOneWorld, faction: number): number {
+function bestShipToDisband(
+  world: StageOneWorld,
+  faction: number,
+  allowCivilian: boolean
+): number {
   let best = -1;
-  let bestUpkeep = -1;
+  let bestScore = -1;
   for (let ship = 0; ship < world.ships.length; ship += 1) {
     if ((world.ships.faction[ship] ?? -1) !== faction) continue;
     if (world.ships.state[ship] === ShipState.Disbanded) continue;
-    if (world.ships.role[ship] !== ShipRole.Warship) continue;
+    if (!allowCivilian && world.ships.role[ship] !== ShipRole.Warship) continue;
     const upkeep = upkeepForRole(world.ships.role[ship] ?? ShipRole.Hauler);
-    if (upkeep > bestUpkeep) {
+    const rolePriority = world.ships.role[ship] === ShipRole.Warship ? 1000 : 1;
+    const score = rolePriority + upkeep;
+    if (score > bestScore) {
       best = ship;
-      bestUpkeep = upkeep;
+      bestScore = score;
     }
   }
   return best;

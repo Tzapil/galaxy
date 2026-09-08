@@ -40,7 +40,7 @@ export class StageOneWorld {
     }
     static create(data, capacities) {
         const bodyCapacity = capacities?.bodies ?? 96;
-        return new StageOneWorld(data, Systems.create(capacities?.systems ?? 32), Gates.create(capacities?.gates ?? 96), Bodies.create(bodyCapacity), Stockpiles.create(data, capacities?.stockpiles ?? bodyCapacity), Factions.create(capacities?.factions ?? 4), Regions.create(capacities?.regions ?? 8), CapitalDistances.create(capacities?.systems ?? 32), Buildings.create(capacities?.buildings ?? 256), Ships.create(capacities?.ships ?? 64), SupplyEma.create(data, bodyCapacity), MarketPrices.create(data, bodyCapacity), StageOneEventLog.create(512));
+        return new StageOneWorld(data, Systems.create(capacities?.systems ?? 32), Gates.create(capacities?.gates ?? 96), Bodies.create(bodyCapacity), Stockpiles.create(data, capacities?.stockpiles ?? bodyCapacity), Factions.create(capacities?.factions ?? 4), Regions.create(capacities?.regions ?? 8), CapitalDistances.create(capacities?.systems ?? 32), Buildings.create(capacities?.buildings ?? 256), Ships.create(capacities?.ships ?? 64), SupplyEma.create(data, bodyCapacity), MarketPrices.create(data, bodyCapacity), StageOneEventLog.create());
     }
     static fromSnapshots(data, snapshots) {
         const systems = Systems.fromSnapshot(findArena(snapshots, "systems"));

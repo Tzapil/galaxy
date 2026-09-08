@@ -4,7 +4,15 @@ import { hrtime } from "node:process";
 import { pathToFileURL } from "node:url";
 import { Instrumentation, buildStageThreeWorld, paramsWithPreset, StageOneSimulation, StageTwoSimulation, StageZeroSimulation, ticksFromYears } from "@galaxy-sim/sim-core";
 import { loadStageTwoData } from "./stage-two-loader.js";
-const subsystemNames = ["continuous", "events", "snapshot", "total"];
+const subsystemNames = [
+    "continuous",
+    "events",
+    "snapshot",
+    "aiStrategic",
+    "aiOperational",
+    "aiTactical",
+    "total"
+];
 export async function runHeadless(options) {
     const stageTwoData = options.stage === 2 || options.stage === 3 ? await loadStageTwoData() : undefined;
     const sim = options.stage === 0

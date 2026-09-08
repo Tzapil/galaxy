@@ -1,0 +1,61 @@
+{
+  "$schema": "../schema/personalities.schema.json",
+  "version": "0.4.0",
+  "notes": [
+    "Stage 4 faction AI utility weights. Values are deterministic knobs, not probabilities."
+  ],
+  "personalities": [
+    {
+      "id": "default",
+      "label": "Balanced",
+      "weights": {
+        "growth": 1,
+        "industry": 1,
+        "research": 1,
+        "military": 1,
+        "logistics": 1,
+        "stockpile": 1,
+        "risk": 1
+      }
+    },
+    {
+      "id": "expansionist",
+      "label": "Expansionist",
+      "weights": {
+        "growth": 1.55,
+        "industry": 1.05,
+        "research": 0.85,
+        "military": 0.95,
+        "logistics": 1.25,
+        "stockpile": 0.75,
+        "risk": 1.35
+      }
+    },
+    {
+      "id": "industrialist",
+      "label": "Industrialist",
+      "weights": {
+        "growth": 0.95,
+        "industry": 1.55,
+        "research": 0.9,
+        "military": 1,
+        "logistics": 1.2,
+        "stockpile": 1.15,
+        "risk": 0.85
+      }
+    },
+    {
+      "id": "isolationist",
+      "label": "Isolationist",
+      "weights": {
+        "growth": 0.75,
+        "industry": 1.05,
+        "research": 1.2,
+        "military": 1.25,
+        "logistics": 0.85,
+        "stockpile": 1.65,
+        "risk": 0.55
+      }
+    }
+  ]
+}

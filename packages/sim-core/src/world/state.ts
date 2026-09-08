@@ -59,7 +59,7 @@ export class StageOneWorld {
       Ships.create(capacities?.ships ?? 64),
       SupplyEma.create(data, bodyCapacity),
       MarketPrices.create(data, bodyCapacity),
-      StageOneEventLog.create(512)
+      StageOneEventLog.create()
     );
   }
 

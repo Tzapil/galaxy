@@ -48,3 +48,7 @@
 ## Golden baseline update
 
 - Reason: Stage 3 procedural galaxy generation
+
+## Golden baseline update
+
+- Reason: Stage 4 faction AI, MRP planning, AI event log capacity

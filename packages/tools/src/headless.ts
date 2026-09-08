@@ -27,7 +27,15 @@ interface HeadlessOptions {
   readonly preset: string;
 }
 
-const subsystemNames = ["continuous", "events", "snapshot", "total"] as const;
+const subsystemNames = [
+  "continuous",
+  "events",
+  "snapshot",
+  "aiStrategic",
+  "aiOperational",
+  "aiTactical",
+  "total"
+] as const;
 
 export async function runHeadless(
   options: HeadlessOptions

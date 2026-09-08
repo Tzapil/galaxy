@@ -11,7 +11,8 @@ const schemaKeys = [
   "modules",
   "doctrines",
   "startPackage",
-  "galaxyPresets"
+  "galaxyPresets",
+  "personalities"
 ] as const;
 
 type SchemaKey = (typeof schemaKeys)[number];
@@ -46,6 +47,7 @@ export function load(data: GameDataFiles, schemas: GameDataSchemas): LoadedGameD
   const doctrineById = indexById("doctrine", data.doctrines.doctrines);
   const techById = indexById("tech", data.techs.techs);
   indexById("galaxy preset", data.galaxyPresets.presets);
+  indexById("personality", data.personalities.personalities);
 
   const producedByMutable = new Map<string, BatchRecipeRecord[]>();
 

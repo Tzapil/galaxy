@@ -80,6 +80,22 @@ export interface StageOneTech {
   readonly bioCost: number;
 }
 
+export interface StageOnePersonalityWeights {
+  readonly growth: number;
+  readonly industry: number;
+  readonly research: number;
+  readonly military: number;
+  readonly logistics: number;
+  readonly stockpile: number;
+  readonly risk: number;
+}
+
+export interface StageOnePersonality {
+  readonly id: string;
+  readonly label: string;
+  readonly weights: StageOnePersonalityWeights;
+}
+
 export interface StageOneStartBody {
   readonly id: string;
   readonly type: BodyType;
@@ -135,6 +151,8 @@ export interface StageOneData {
   readonly hulls: readonly StageOneHull[];
   readonly hullIndex: ReadonlyMap<string, number>;
   readonly techs: readonly StageOneTech[];
+  readonly personalities: readonly StageOnePersonality[];
+  readonly personalityIndex: ReadonlyMap<string, number>;
   readonly sliceResourceIndices: readonly number[];
   readonly galaxyPresets: readonly GalaxyPreset[];
 }
@@ -151,6 +169,7 @@ export interface StageGameDataInput {
   readonly hulls: { readonly hulls: readonly RawGameHull[] };
   readonly techs: { readonly techs: readonly RawGameTech[] };
   readonly galaxyPresets: RawGalaxyPresetsFile;
+  readonly personalities: RawGamePersonalitiesFile;
 }
 
 interface RawResource {
@@ -286,6 +305,26 @@ interface RawGameTech {
     readonly engineering?: number;
     readonly bio?: number;
   };
+}
+
+interface RawGamePersonalityWeights {
+  readonly growth: number;
+  readonly industry: number;
+  readonly research: number;
+  readonly military: number;
+  readonly logistics: number;
+  readonly stockpile: number;
+  readonly risk: number;
+}
+
+interface RawGamePersonality {
+  readonly id: string;
+  readonly label: string;
+  readonly weights: RawGamePersonalityWeights;
+}
+
+interface RawGamePersonalitiesFile {
+  readonly personalities: readonly RawGamePersonality[];
 }
 
 interface RawGalaxyPresetsFile {
@@ -575,6 +614,7 @@ export function createDefaultStageOneData(): StageOneData {
   };
   const baseValue = computeBaseValues(graphInput);
   const graph = buildEconGraph(graphInput, baseValue);
+  const personalities = defaultPersonalities();
 
   return {
     resources,
@@ -601,6 +641,8 @@ export function createDefaultStageOneData(): StageOneData {
     hulls: [],
     hullIndex: new Map<string, number>(),
     techs: [],
+    personalities,
+    personalityIndex: indexById(personalities),
     sliceResourceIndices: [
       resourceIndexOf(resourceIndex, "energy"),
       resourceIndexOf(resourceIndex, "ore"),
@@ -726,6 +768,7 @@ export function createStageTwoDataFromGameData(input: StageGameDataInput): Stage
     engineeringCost: tech.cost?.engineering ?? 0,
     bioCost: tech.cost?.bio ?? 0
   }));
+  const personalities = personalitiesFrom(input.personalities);
 
   const graphInput = {
     resources,
@@ -769,6 +812,8 @@ export function createStageTwoDataFromGameData(input: StageGameDataInput): Stage
     hulls,
     hullIndex,
     techs,
+    personalities,
+    personalityIndex: indexById(personalities),
     sliceResourceIndices: preferredSliceResources(resourceIndex),
     galaxyPresets: galaxyPresetsFrom(input.galaxyPresets)
   };
@@ -1062,6 +1107,42 @@ function galaxyPresetsFrom(input: RawGalaxyPresetsFile): readonly GalaxyPreset[]
       id: preset.id,
       label: preset.label,
       params: galaxyPresetParamsFrom(preset.params)
+    }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function defaultPersonalities(): readonly StageOnePersonality[] {
+  return [
+    {
+      id: "default",
+      label: "Balanced",
+      weights: {
+        growth: 1,
+        industry: 1,
+        research: 1,
+        military: 1,
+        logistics: 1,
+        stockpile: 1,
+        risk: 1
+      }
+    }
+  ];
+}
+
+function personalitiesFrom(input: RawGamePersonalitiesFile): readonly StageOnePersonality[] {
+  return input.personalities
+    .map((personality) => ({
+      id: personality.id,
+      label: personality.label,
+      weights: {
+        growth: personality.weights.growth,
+        industry: personality.weights.industry,
+        research: personality.weights.research,
+        military: personality.weights.military,
+        logistics: personality.weights.logistics,
+        stockpile: personality.weights.stockpile,
+        risk: personality.weights.risk
+      }
     }))
     .sort((a, b) => a.id.localeCompare(b.id));
 }

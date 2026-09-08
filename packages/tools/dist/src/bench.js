@@ -2,10 +2,10 @@ import { cpus } from "node:os";
 import { writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { isMainThread, parentPort, workerData, Worker } from "node:worker_threads";
-import { StageOneSimulation, StageTwoSimulation, ticksFromYears } from "@galaxy-sim/sim-core";
+import { StageOneSimulation, StageTwoSimulation, buildStageThreeWorld, paramsWithPreset, ticksFromYears } from "@galaxy-sim/sim-core";
 import { loadStageTwoData } from "./stage-two-loader.js";
 const metricNotes = [
-    ["alive_factions_by_time", "ok: two seeded factions"],
+    ["alive_factions_by_time", "ok: seeded factions remain alive"],
     ["power_concentration_index", "n/a until Stage 7"],
     ["median_faction_age", "n/a until Stage 7"],
     ["building_idle_without_inputs", "ok: Stage 2 idleMissingInput"],
@@ -19,7 +19,7 @@ if (!isMainThread) {
     const started = process.hrtime.bigint();
     const sim = input.stage === 1
         ? StageOneSimulation.create(input.seed)
-        : StageTwoSimulation.create(input.seed, await loadStageTwoData());
+        : await createStageTwoBenchSimulation(input);
     const report = sim.run(input.ticks, 0);
     const elapsedMs = Number(process.hrtime.bigint() - started) / 1_000_000;
     parentPort?.postMessage({
@@ -39,12 +39,12 @@ export async function runBench(options) {
     const seeds = [];
     for (let i = 0; i < options.seeds; i += 1)
         seeds.push(20260904 + i);
-    const results = await runWorkers(options.stage, seeds, ticks);
+    const results = await runWorkers(options.stage, seeds, options.preset, ticks);
     const minPopulation = describeDistribution(results.map((result) => result.metrics.minPopulation));
     const priceSpread = describeDistribution(results.map((result) => result.metrics.averageFoodWaterSpread));
     const deliveredShipments = describeDistribution(results.map((result) => result.metrics.deliveredShipments));
     const missedDeparturesFuel = describeDistribution(results.map((result) => result.metrics.missedDeparturesFuel));
-    const stageTwo = options.stage === 2 ? describeStageTwoDistributions(results) : undefined;
+    const stageTwo = options.stage >= 2 ? describeStageTwoDistributions(results) : undefined;
     const elapsedMs = describeDistribution(results.map((result) => result.elapsedMs));
     const report = {
         options,
@@ -75,7 +75,7 @@ export async function runBench(options) {
     }
     return results;
 }
-async function runWorkers(stage, seeds, ticks) {
+async function runWorkers(stage, seeds, preset, ticks) {
     const maxWorkers = Math.max(1, Math.min(cpus().length, seeds.length));
     const results = [];
     let cursor = 0;
@@ -84,7 +84,7 @@ async function runWorkers(stage, seeds, ticks) {
         cursor += 1;
         if (seed === undefined)
             return;
-        const result = await runWorker({ stage, seed, ticks });
+        const result = await runWorker({ stage, seed, ticks, preset });
         results.push(result);
         await next();
     }
@@ -94,6 +94,12 @@ async function runWorkers(stage, seeds, ticks) {
     await Promise.all(starters);
     results.sort((a, b) => a.seed - b.seed);
     return results;
+}
+async function createStageTwoBenchSimulation(input) {
+    const data = await loadStageTwoData();
+    if (input.stage === 2)
+        return StageTwoSimulation.create(input.seed, data);
+    return StageTwoSimulation.createFromWorld(input.seed, data, buildStageThreeWorld(data, input.seed, paramsWithPreset(data.galaxyPresets, input.preset)));
 }
 function runWorker(input) {
     return new Promise((resolveWorker, rejectWorker) => {
@@ -120,7 +126,12 @@ function describeStageTwoDistributions(results) {
         activeConstructions: describeDistribution(metrics.map((metric) => metric.activeConstructions)),
         slotFillRatio: describeDistribution(metrics.map((metric) => metric.slotFillRatio)),
         maxResourceZeroStreakDays: describeDistribution(metrics.map((metric) => metric.maxResourceZeroStreakDays)),
-        treasuryMin: describeDistribution(metrics.map((metric) => metric.treasuryMin))
+        treasuryMin: describeDistribution(metrics.map((metric) => metric.treasuryMin)),
+        aiBuildPlansStarted: describeDistribution(metrics.map((metric) => metric.aiBuildPlansStarted)),
+        aiColonizationLaunches: describeDistribution(metrics.map((metric) => metric.aiColonizationLaunches)),
+        aiFleetBuilds: describeDistribution(metrics.map((metric) => metric.aiFleetBuilds)),
+        coloniesFounded: describeDistribution(metrics.map((metric) => metric.coloniesFounded)),
+        aiOperations: describeDistribution(metrics.map((metric) => metric.aiOperations))
     };
 }
 function printStageTwoDistributions(distributions) {
@@ -133,6 +144,11 @@ function printStageTwoDistributions(distributions) {
     console.log(formatDistribution("slotFillRatio", distributions.slotFillRatio, 3));
     console.log(formatDistribution("maxResourceZeroStreakDays", distributions.maxResourceZeroStreakDays, 0));
     console.log(formatDistribution("treasuryMin", distributions.treasuryMin, 2));
+    console.log(formatDistribution("aiBuildPlansStarted", distributions.aiBuildPlansStarted, 0));
+    console.log(formatDistribution("aiColonizationLaunches", distributions.aiColonizationLaunches, 0));
+    console.log(formatDistribution("aiFleetBuilds", distributions.aiFleetBuilds, 0));
+    console.log(formatDistribution("coloniesFounded", distributions.coloniesFounded, 0));
+    console.log(formatDistribution("aiOperations", distributions.aiOperations, 0));
 }
 function requireStageTwoMetrics(metrics) {
     if (!("idleNoPower" in metrics))
@@ -159,14 +175,15 @@ function percentile(sorted, q) {
     return sorted[index] ?? 0;
 }
 function parseArgs(argv) {
-    const stage = numberArg(argv, "stage", 2);
-    if (stage !== 1 && stage !== 2)
-        throw new Error("--stage must be 1 or 2.");
+    const stage = numberArg(argv, "stage", 3);
+    if (stage !== 1 && stage !== 2 && stage !== 3)
+        throw new Error("--stage must be 1, 2 or 3.");
     return {
         stage,
         seeds: numberArg(argv, "seeds", 50),
-        years: numberArg(argv, "years", stage === 2 ? 1000 : 100),
-        out: stringArg(argv, "out")
+        years: numberArg(argv, "years", stage >= 2 ? 1000 : 100),
+        out: stringArg(argv, "out"),
+        preset: stringArg(argv, "preset") ?? "balanced"
     };
 }
 function numberArg(argv, name, fallback) {

@@ -1,5 +1,5 @@
-export type { BuildingsFile, DoctrinesFile, GalaxyPresetsFile, HullsFile, ModulesFile, RecipesFile, ResourcesFile, StartPackageFile, TechsFile } from "./generated/schema-types.js";
-import type { BuildingsFile, DoctrinesFile, GalaxyPresetsFile, HullsFile, ModulesFile, RecipesFile, ResourcesFile, StartPackageFile, TechsFile } from "./generated/schema-types.js";
+export type { BuildingsFile, DoctrinesFile, GalaxyPresetsFile, HullsFile, ModulesFile, PersonalitiesFile, RecipesFile, ResourcesFile, StartPackageFile, TechsFile } from "./generated/schema-types.js";
+import type { BuildingsFile, DoctrinesFile, GalaxyPresetsFile, HullsFile, ModulesFile, PersonalitiesFile, RecipesFile, ResourcesFile, StartPackageFile, TechsFile } from "./generated/schema-types.js";
 export type ResourceRecord = ResourcesFile["resources"][number];
 export type BatchRecipeRecord = RecipesFile["batchRecipes"][number];
 export type ContinuousRecord = RecipesFile["continuous"][number];
@@ -10,6 +10,7 @@ export type HullRecord = HullsFile["hulls"][number];
 export type ModuleRecord = ModulesFile["modules"][number];
 export type DoctrineRecord = DoctrinesFile["doctrines"][number];
 export type GalaxyPresetRecord = GalaxyPresetsFile["presets"][number];
+export type PersonalityRecord = PersonalitiesFile["personalities"][number];
 export interface GameDataFiles {
     readonly resources: ResourcesFile;
     readonly recipes: RecipesFile;
@@ -20,6 +21,7 @@ export interface GameDataFiles {
     readonly doctrines: DoctrinesFile;
     readonly startPackage: StartPackageFile;
     readonly galaxyPresets: GalaxyPresetsFile;
+    readonly personalities: PersonalitiesFile;
 }
 export interface GameDataSchemas {
     readonly resources: unknown;
@@ -31,6 +33,7 @@ export interface GameDataSchemas {
     readonly doctrines: unknown;
     readonly startPackage: unknown;
     readonly galaxyPresets: unknown;
+    readonly personalities: unknown;
 }
 export interface LoadedGameData {
     readonly data: GameDataFiles;

@@ -1,0 +1,7 @@
+{
+  "stage": 2,
+  "seed": 20260909,
+  "ticks": 365,
+  "description": "Stage 4 guard D10: hydroponics remains available when farmland is not placeable.",
+  "expectedPathologyStatus": "ok"
+}

@@ -70,6 +70,20 @@ export interface StageOneTech {
     readonly engineeringCost: number;
     readonly bioCost: number;
 }
+export interface StageOnePersonalityWeights {
+    readonly growth: number;
+    readonly industry: number;
+    readonly research: number;
+    readonly military: number;
+    readonly logistics: number;
+    readonly stockpile: number;
+    readonly risk: number;
+}
+export interface StageOnePersonality {
+    readonly id: string;
+    readonly label: string;
+    readonly weights: StageOnePersonalityWeights;
+}
 export interface StageOneStartBody {
     readonly id: string;
     readonly type: BodyType;
@@ -121,6 +135,8 @@ export interface StageOneData {
     readonly hulls: readonly StageOneHull[];
     readonly hullIndex: ReadonlyMap<string, number>;
     readonly techs: readonly StageOneTech[];
+    readonly personalities: readonly StageOnePersonality[];
+    readonly personalityIndex: ReadonlyMap<string, number>;
     readonly sliceResourceIndices: readonly number[];
     readonly galaxyPresets: readonly GalaxyPreset[];
 }
@@ -144,6 +160,7 @@ export interface StageGameDataInput {
         readonly techs: readonly RawGameTech[];
     };
     readonly galaxyPresets: RawGalaxyPresetsFile;
+    readonly personalities: RawGamePersonalitiesFile;
 }
 interface RawGameResource {
     readonly id: string;
@@ -237,6 +254,23 @@ interface RawGameTech {
         readonly engineering?: number;
         readonly bio?: number;
     };
+}
+interface RawGamePersonalityWeights {
+    readonly growth: number;
+    readonly industry: number;
+    readonly research: number;
+    readonly military: number;
+    readonly logistics: number;
+    readonly stockpile: number;
+    readonly risk: number;
+}
+interface RawGamePersonality {
+    readonly id: string;
+    readonly label: string;
+    readonly weights: RawGamePersonalityWeights;
+}
+interface RawGamePersonalitiesFile {
+    readonly personalities: readonly RawGamePersonality[];
 }
 interface RawGalaxyPresetsFile {
     readonly presets: readonly RawGalaxyPreset[];

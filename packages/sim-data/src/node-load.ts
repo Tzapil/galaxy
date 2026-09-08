@@ -21,7 +21,8 @@ export async function loadFromDirectory(
     modules: await readJson(resolve(dataDir, "modules.json")),
     doctrines: await readJson(resolve(dataDir, "doctrines.json")),
     startPackage: await readJson(resolve(dataDir, "start-package.json")),
-    galaxyPresets: await readJson(resolve(dataDir, "galaxy-presets.json"))
+    galaxyPresets: await readJson(resolve(dataDir, "galaxy-presets.json")),
+    personalities: await readJson(resolve(dataDir, "personalities.json"))
   };
 
   const schemas: GameDataSchemas = {
@@ -33,7 +34,8 @@ export async function loadFromDirectory(
     modules: await readJson(resolve(schemaDir, "modules.schema.json")),
     doctrines: await readJson(resolve(schemaDir, "doctrines.schema.json")),
     startPackage: await readJson(resolve(schemaDir, "start-package.schema.json")),
-    galaxyPresets: await readJson(resolve(schemaDir, "galaxy-presets.schema.json"))
+    galaxyPresets: await readJson(resolve(schemaDir, "galaxy-presets.schema.json")),
+    personalities: await readJson(resolve(schemaDir, "personalities.schema.json"))
   };
 
   return load(data, schemas);

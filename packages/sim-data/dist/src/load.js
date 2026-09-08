@@ -8,7 +8,8 @@ const schemaKeys = [
     "modules",
     "doctrines",
     "startPackage",
-    "galaxyPresets"
+    "galaxyPresets",
+    "personalities"
 ];
 export class GameDataValidationError extends Error {
     constructor(message) {
@@ -37,6 +38,7 @@ export function load(data, schemas) {
     const doctrineById = indexById("doctrine", data.doctrines.doctrines);
     const techById = indexById("tech", data.techs.techs);
     indexById("galaxy preset", data.galaxyPresets.presets);
+    indexById("personality", data.personalities.personalities);
     const producedByMutable = new Map();
     for (const recipe of data.recipes.batchRecipes) {
         assertKnownBuilding(recipe.id, recipe.building, buildingById);

@@ -236,6 +236,7 @@ export function createDefaultStageOneData() {
     };
     const baseValue = computeBaseValues(graphInput);
     const graph = buildEconGraph(graphInput, baseValue);
+    const personalities = defaultPersonalities();
     return {
         resources,
         resourceIndex,
@@ -261,6 +262,8 @@ export function createDefaultStageOneData() {
         hulls: [],
         hullIndex: new Map(),
         techs: [],
+        personalities,
+        personalityIndex: indexById(personalities),
         sliceResourceIndices: [
             resourceIndexOf(resourceIndex, "energy"),
             resourceIndexOf(resourceIndex, "ore"),
@@ -371,6 +374,7 @@ export function createStageTwoDataFromGameData(input) {
         engineeringCost: tech.cost?.engineering ?? 0,
         bioCost: tech.cost?.bio ?? 0
     }));
+    const personalities = personalitiesFrom(input.personalities);
     const graphInput = {
         resources,
         batchRecipes,
@@ -406,6 +410,8 @@ export function createStageTwoDataFromGameData(input) {
         hulls,
         hullIndex,
         techs,
+        personalities,
+        personalityIndex: indexById(personalities),
         sliceResourceIndices: preferredSliceResources(resourceIndex),
         galaxyPresets: galaxyPresetsFrom(input.galaxyPresets)
     };
@@ -668,6 +674,40 @@ function galaxyPresetsFrom(input) {
         id: preset.id,
         label: preset.label,
         params: galaxyPresetParamsFrom(preset.params)
+    }))
+        .sort((a, b) => a.id.localeCompare(b.id));
+}
+function defaultPersonalities() {
+    return [
+        {
+            id: "default",
+            label: "Balanced",
+            weights: {
+                growth: 1,
+                industry: 1,
+                research: 1,
+                military: 1,
+                logistics: 1,
+                stockpile: 1,
+                risk: 1
+            }
+        }
+    ];
+}
+function personalitiesFrom(input) {
+    return input.personalities
+        .map((personality) => ({
+        id: personality.id,
+        label: personality.label,
+        weights: {
+            growth: personality.weights.growth,
+            industry: personality.weights.industry,
+            research: personality.weights.research,
+            military: personality.weights.military,
+            logistics: personality.weights.logistics,
+            stockpile: personality.weights.stockpile,
+            risk: personality.weights.risk
+        }
     }))
         .sort((a, b) => a.id.localeCompare(b.id));
 }

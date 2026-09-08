@@ -249,6 +249,43 @@ export interface ModulesFile {
 export interface ModulesQuantityBag {
     [k: string]: number;
 }
+export interface PersonalitiesFile {
+    $schema?: string;
+    version: string;
+    notes?: string[];
+    /**
+     * @minItems 1
+     */
+    personalities: [
+        {
+            id: string;
+            label: string;
+            weights: {
+                growth: number;
+                industry: number;
+                research: number;
+                military: number;
+                logistics: number;
+                stockpile: number;
+                risk: number;
+            };
+        },
+        ...{
+            id: string;
+            label: string;
+            weights: {
+                growth: number;
+                industry: number;
+                research: number;
+                military: number;
+                logistics: number;
+                stockpile: number;
+                risk: number;
+            };
+        }[]
+    ];
+    [k: string]: unknown;
+}
 export interface RecipesFile {
     $schema?: string;
     version: string;

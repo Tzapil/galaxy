@@ -5,4 +5,5 @@ export interface PlannedConstruction {
     readonly count: number;
 }
 export declare function calculateCapitalDemand(data: StageOneData, world: StageOneWorld, planned?: readonly PlannedConstruction[]): Float64Array;
+export declare function calculateCapitalDemandForFaction(data: StageOneData, world: StageOneWorld, faction: number, planned?: readonly PlannedConstruction[]): Float64Array;
 //# sourceMappingURL=capital-demand.d.ts.map
