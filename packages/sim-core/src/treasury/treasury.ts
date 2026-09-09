@@ -77,11 +77,7 @@ function factionPopulation(world: StageOneWorld, faction: number): number {
   return total;
 }
 
-function bestShipToDisband(
-  world: StageOneWorld,
-  faction: number,
-  allowCivilian: boolean
-): number {
+function bestShipToDisband(world: StageOneWorld, faction: number, allowCivilian: boolean): number {
   let best = -1;
   let bestScore = -1;
   for (let ship = 0; ship < world.ships.length; ship += 1) {

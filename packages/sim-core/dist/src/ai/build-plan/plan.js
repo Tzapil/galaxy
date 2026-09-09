@@ -14,7 +14,13 @@ export function createBuildPlan(data, world, task) {
         return { faction: task.faction, items: [], operations: 1 };
     const power = powerPrerequisite(data, world, producerBody, producer);
     if (power >= 0) {
-        candidates.push({ body: producerBody, buildingType: power, count: 1, resource: data.energyResource, score: 1 });
+        candidates.push({
+            body: producerBody,
+            buildingType: power,
+            count: 1,
+            resource: data.energyResource,
+            score: 1
+        });
     }
     addInputProducer(data, world, task, producerBody, candidates);
     addShipyardSidecar(data, world, task, producerBody, candidates);
@@ -56,7 +62,7 @@ function addInputProducer(data, world, task, body, candidates) {
 }
 function addPrereqProducer(data, world, task, body, resource, candidates) {
     const producer = chooseProducer(data, resource);
-    const buildingType = producer === undefined ? -1 : data.buildingIndex.get(producer.buildingId) ?? -1;
+    const buildingType = producer === undefined ? -1 : (data.buildingIndex.get(producer.buildingId) ?? -1);
     if (buildingType < 0 || buildingType === task.buildingType)
         return false;
     if (alreadyPlanned(candidates, -1, buildingType))
@@ -205,8 +211,7 @@ function containsPower(data, items, body) {
 function alreadyPlanned(items, body, buildingType) {
     for (let i = 0; i < items.length; i += 1) {
         const item = items[i];
-        if (item?.buildingType === buildingType &&
-            (body < 0 || item.body === body)) {
+        if (item?.buildingType === buildingType && (body < 0 || item.body === body)) {
             return true;
         }
     }

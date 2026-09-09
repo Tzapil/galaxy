@@ -60,7 +60,9 @@ describe("Stage 4 faction AI", () => {
         const composites = resourceIndexOf(data.resourceIndex, "composites");
         const polymers = resourceIndexOf(data.resourceIndex, "polymers");
         const gas = resourceIndexOf(data.resourceIndex, "gas");
-        const result = explodeDemand(data, [{ kind: "hull", hull: cruiser, count: 20, horizonDays: 365 }]);
+        const result = explodeDemand(data, [
+            { kind: "hull", hull: cruiser, count: 20, horizonDays: 365 }
+        ]);
         expect(result.requiredPerDay[hullFrames]).toBeGreaterThan(0);
         expect(result.requiredPerDay[composites]).toBeGreaterThan(0);
         expect(result.requiredPerDay[polymers]).toBeGreaterThan(0);
@@ -127,7 +129,11 @@ describe("Stage 4 faction AI", () => {
         expect(ids).toContain("shipyard");
         expect(solveLinearProgram({
             objective: [3, 2],
-            constraints: [[3, 3], [10, 20], [1, 1]],
+            constraints: [
+                [3, 3],
+                [10, 20],
+                [1, 1]
+            ],
             limits: [12, 60, 4]
         }).values[0]).toBeGreaterThan(0);
     });

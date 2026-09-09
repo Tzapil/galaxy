@@ -4,7 +4,13 @@ import { Buildings } from "../econ/buildings.js";
 import { MarketPrices } from "../market/prices.js";
 import { SupplyEma } from "../pop/supply-ema.js";
 import { StageOneEventLog } from "../events/log.js";
+import { Blueprints } from "../ships/blueprint.js";
+import { KitOrders } from "../ships/kit-order.js";
 import { ShipRole, Ships } from "../ships/ships.js";
+import { ShipyardOrders } from "../ships/shipyard.js";
+import { TechGraph } from "../tech/graph.js";
+import { TechModifierCache } from "../tech/modifiers.js";
+import { FactionTechState } from "../tech/state.js";
 import { Bodies, BodyType } from "./bodies.js";
 import { Factions } from "./factions.js";
 import { Gates } from "./gates.js";
@@ -20,6 +26,9 @@ export interface StageOneWorldCapacities {
     readonly buildings: number;
     readonly ships: number;
     readonly regions: number;
+    readonly blueprints: number;
+    readonly kitOrders: number;
+    readonly shipyardOrders: number;
 }
 export declare class StageOneWorld {
     readonly data: StageOneData;
@@ -34,8 +43,14 @@ export declare class StageOneWorld {
     readonly ships: Ships;
     readonly supply: SupplyEma;
     readonly prices: MarketPrices;
+    readonly techGraph: TechGraph;
+    readonly techState: FactionTechState;
+    readonly techModifiers: TechModifierCache;
+    readonly blueprints: Blueprints;
+    readonly kitOrders: KitOrders;
+    readonly shipyardOrders: ShipyardOrders;
     readonly eventLog: StageOneEventLog;
-    constructor(data: StageOneData, systems: Systems, gates: Gates, bodies: Bodies, stockpiles: Stockpiles, factions: Factions, regions: Regions, capitalDistances: CapitalDistances, buildings: Buildings, ships: Ships, supply: SupplyEma, prices: MarketPrices, eventLog: StageOneEventLog);
+    constructor(data: StageOneData, systems: Systems, gates: Gates, bodies: Bodies, stockpiles: Stockpiles, factions: Factions, regions: Regions, capitalDistances: CapitalDistances, buildings: Buildings, ships: Ships, supply: SupplyEma, prices: MarketPrices, techGraph: TechGraph, techState: FactionTechState, techModifiers: TechModifierCache, blueprints: Blueprints, kitOrders: KitOrders, shipyardOrders: ShipyardOrders, eventLog: StageOneEventLog);
     static create(data: StageOneData, capacities?: Partial<StageOneWorldCapacities>): StageOneWorld;
     static fromSnapshots(data: StageOneData, snapshots: readonly ArenaSnapshot[]): StageOneWorld;
     arenas(): readonly ArenaSnapshot[];
@@ -43,7 +58,8 @@ export declare class StageOneWorld {
     addBody(system: number, type: BodyType, size: number, habitability: number, slots: number, owner: number, population: number, featureMask?: number): number;
     addFaction(label: string, capitalSystem: number, capitalBody: number, treasury: number, expansion: number, industry: number): number;
     addColony(faction: number, body: number, population: number): void;
+    refreshAllTechModifiers(): this;
     addHauler(faction: number, currentSystem: number, cargoCapacity: number, fuelCapacity: number, fuelPerJump: number): number;
-    addShip(faction: number, currentSystem: number, role: ShipRole, cargoCapacity: number, fuelCapacity: number, fuelPerJump: number): number;
+    addShip(faction: number, currentSystem: number, role: ShipRole, cargoCapacity: number, fuelCapacity: number, fuelPerJump: number, blueprint?: number): number;
 }
 //# sourceMappingURL=state.d.ts.map

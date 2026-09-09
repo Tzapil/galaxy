@@ -30,13 +30,25 @@ export function createBuildPlan(
     return { faction: task.faction, items: [], operations: 0 };
   }
   const candidates: BuildPlanItem[] = [];
-  const producer = guardAlternativeProducer(data, world, task.faction, task.resource, task.buildingType);
+  const producer = guardAlternativeProducer(
+    data,
+    world,
+    task.faction,
+    task.resource,
+    task.buildingType
+  );
   const producerBody = bestBodyForBuilding(data, world, task.faction, producer, task.body);
   if (producerBody < 0) return { faction: task.faction, items: [], operations: 1 };
 
   const power = powerPrerequisite(data, world, producerBody, producer);
   if (power >= 0) {
-    candidates.push({ body: producerBody, buildingType: power, count: 1, resource: data.energyResource, score: 1 });
+    candidates.push({
+      body: producerBody,
+      buildingType: power,
+      count: 1,
+      resource: data.energyResource,
+      score: 1
+    });
   }
 
   addInputProducer(data, world, task, producerBody, candidates);
@@ -91,7 +103,7 @@ function addPrereqProducer(
 ): boolean {
   const producer = chooseProducer(data, resource);
   const buildingType =
-    producer === undefined ? -1 : data.buildingIndex.get(producer.buildingId) ?? -1;
+    producer === undefined ? -1 : (data.buildingIndex.get(producer.buildingId) ?? -1);
   if (buildingType < 0 || buildingType === task.buildingType) return false;
   if (alreadyPlanned(candidates, -1, buildingType)) return false;
   const targetBody = bestBodyForBuilding(data, world, task.faction, buildingType, body);
@@ -213,7 +225,8 @@ function suggestedCount(
   let outputPerDay = 0;
   for (let i = 0; i < recipe.outputs.length; i += 1) {
     const output = recipe.outputs[i];
-    if (output?.resource === resource) outputPerDay += output.amount / Math.max(1, recipe.durationTicks);
+    if (output?.resource === resource)
+      outputPerDay += output.amount / Math.max(1, recipe.durationTicks);
   }
   if (outputPerDay <= 0) return 1;
   return Math.max(1, Math.min(3, Math.ceil(deficitPerDay / outputPerDay)));
@@ -255,11 +268,7 @@ function canBodyEventuallyPlace(
   return placement.ok || placement.reason === "noPowerSource";
 }
 
-function containsPower(
-  data: StageOneData,
-  items: readonly BuildPlanItem[],
-  body: number
-): boolean {
+function containsPower(data: StageOneData, items: readonly BuildPlanItem[], body: number): boolean {
   for (let i = 0; i < items.length; i += 1) {
     const item = items[i];
     if (item?.body === body && data.buildings[item.buildingType]?.powerSource === true) return true;
@@ -274,10 +283,7 @@ function alreadyPlanned(
 ): boolean {
   for (let i = 0; i < items.length; i += 1) {
     const item = items[i];
-    if (
-      item?.buildingType === buildingType &&
-      (body < 0 || item.body === body)
-    ) {
+    if (item?.buildingType === buildingType && (body < 0 || item.body === body)) {
       return true;
     }
   }

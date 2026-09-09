@@ -239,7 +239,9 @@ function printStageTwoDistributions(distributions: StageTwoDistributions): void 
   );
   console.log(formatDistribution("treasuryMin", distributions.treasuryMin, 2));
   console.log(formatDistribution("aiBuildPlansStarted", distributions.aiBuildPlansStarted, 0));
-  console.log(formatDistribution("aiColonizationLaunches", distributions.aiColonizationLaunches, 0));
+  console.log(
+    formatDistribution("aiColonizationLaunches", distributions.aiColonizationLaunches, 0)
+  );
   console.log(formatDistribution("aiFleetBuilds", distributions.aiFleetBuilds, 0));
   console.log(formatDistribution("coloniesFounded", distributions.coloniesFounded, 0));
   console.log(formatDistribution("aiOperations", distributions.aiOperations, 0));

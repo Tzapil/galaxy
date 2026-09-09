@@ -1,6 +1,7 @@
 import { bootProduction } from "../econ/batch.js";
 import { validatePlacement } from "../econ/placement.js";
 import type { EventQueue } from "../events/queue.js";
+import { refreshFactionBlueprints } from "../ships/shipyard.js";
 import { ShipRole } from "../ships/ships.js";
 import {
   bodyTypePlacementMask,
@@ -9,6 +10,7 @@ import {
   type StageOneData,
   type StageOneStartPackage
 } from "../stage-one/data.js";
+import { refreshFactionBuildingWorkers } from "../tech/modifiers.js";
 import type { StageOneWorld } from "../world/state.js";
 
 export interface AppliedStartPackage {
@@ -69,7 +71,14 @@ export function applyStartPackage(
   addStartBuildings(data, world, pack, bodies);
   seedStartStockpiles(data, world, pack, bodies);
   if (includeShips) addStartPackageShips(data, world, faction, system);
-  world.factions.researchedCount[faction] = pack.technologies.length;
+  for (let i = 0; i < pack.technologies.length; i += 1) {
+    const tech = data.techIndex.get(pack.technologies[i] ?? "");
+    if (tech !== undefined) world.techState.markResearched(faction, tech);
+  }
+  world.techModifiers.recalculateFaction(data, world.techState, faction);
+  refreshFactionBuildingWorkers(data, world, faction);
+  world.factions.researchedCount[faction] = world.techState.countCompleted(faction);
+  refreshFactionBlueprints(data, world, faction, 0);
 
   if (queue !== undefined) bootProduction(data, world, queue, 0);
   return { faction, bodies };

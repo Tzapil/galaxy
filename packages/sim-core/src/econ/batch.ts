@@ -1,12 +1,12 @@
 import { EventKind } from "../events/kinds.js";
 import { StageOneLogKind } from "../events/log.js";
 import type { EventQueue } from "../events/queue.js";
-import type { StageOneData } from "../stage-one/data.js";
+import type { ResourceAmount, StageOneData } from "../stage-one/data.js";
+import { repeatableCostAtLevel } from "../tech/repeatable.js";
 import { BuildingState, type Buildings } from "./buildings.js";
 import { hasWorkersForBuilding } from "../pop/workforce.js";
 import type { StageOneWorld } from "../world/state.js";
 
-import { firstOutputWithoutSpace, reserveInputs } from "./reserve.js";
 export { processContinuousBuildings } from "./continuous.js";
 
 export function tryStartBatch(
@@ -31,8 +31,16 @@ export function tryStartBatch(
   const recipe = data.batchRecipes[recipeIndex];
   if (recipe === undefined) throw new RangeError("Batch recipe index is invalid.");
   const body = buildings.body[building] ?? 0;
+  const faction = world.bodies.owner[body] ?? -1;
   const stockpile = world.bodies.stockpile[body] ?? 0;
-  const noSpace = firstOutputWithoutSpace(world.stockpiles, stockpile, recipe.outputs);
+  const noSpace = firstOutputWithoutSpace(
+    data,
+    world,
+    stockpile,
+    faction,
+    recipeIndex,
+    recipe.outputs
+  );
   if (noSpace >= 0) {
     // Spec 5.4: a full store blocks the next batch explicitly. If an already
     // completed output races with an incoming shipment, capacity clamps it and the log records accepted output.
@@ -44,7 +52,7 @@ export function tryStartBatch(
     return false;
   }
 
-  const missing = reserveInputs(world.stockpiles, stockpile, recipe.inputs);
+  const missing = reserveInputs(data, world, stockpile, faction, recipeIndex, recipe.inputs);
   if (missing >= 0) {
     buildings.setIdleMissing(building, missing, data.energyResource);
     world.eventLog.append(
@@ -59,7 +67,11 @@ export function tryStartBatch(
     return false;
   }
 
-  const finishTick = tick + recipe.durationTicks;
+  const finishTick =
+    tick +
+    (faction >= 0
+      ? world.techModifiers.effectiveDurationTicks(data, faction, recipeIndex)
+      : recipe.durationTicks);
   buildings.setWorking(building, tick, finishTick);
   queue.schedule(finishTick, EventKind.BatchComplete, building);
   return true;
@@ -78,11 +90,16 @@ export function handleBatchComplete(
   const recipe = data.batchRecipes[recipeIndex];
   if (recipe === undefined) throw new RangeError("Batch recipe index is invalid.");
   const body = world.buildings.body[building] ?? 0;
+  const faction = world.bodies.owner[body] ?? -1;
   const stockpile = world.bodies.stockpile[body] ?? 0;
   for (let i = 0; i < recipe.outputs.length; i += 1) {
     const output = recipe.outputs[i];
     if (output === undefined) throw new RangeError("Batch output is inconsistent.");
-    const lost = world.stockpiles.addClamped(stockpile, output.resource, output.amount);
+    const amount =
+      faction >= 0
+        ? world.techModifiers.effectiveOutputAmount(data, faction, recipeIndex, output)
+        : output.amount;
+    const lost = world.stockpiles.addClamped(stockpile, output.resource, amount);
     world.eventLog.append(
       tick,
       StageOneLogKind.BatchComplete,
@@ -90,7 +107,7 @@ export function handleBatchComplete(
       body,
       building,
       output.resource,
-      output.amount - lost
+      amount - lost
     );
   }
   world.buildings.state[building] = BuildingState.IdleMissingInput;
@@ -105,6 +122,18 @@ export function tryStartIdleBuildingsOnBody(
   body: number,
   tick: number
 ): void {
+  startIdleBuildingsPass(data, world, queue, body, tick, true);
+  startIdleBuildingsPass(data, world, queue, body, tick, false);
+}
+
+function startIdleBuildingsPass(
+  data: StageOneData,
+  world: StageOneWorld,
+  queue: EventQueue,
+  body: number,
+  tick: number,
+  researchPriorityOnly: boolean
+): void {
   let building = world.bodies.firstBuilding[body] ?? -1;
   while (building >= 0) {
     const state = world.buildings.state[building] ?? BuildingState.UnderConstruction;
@@ -114,7 +143,8 @@ export function tryStartIdleBuildingsOnBody(
       state === BuildingState.IdleStorageFull ||
       state === BuildingState.IdleNoWorkers
     ) {
-      tryStartBatch(data, world, queue, building, tick);
+      const priority = isResearchPriorityBuilding(data, world, body, building);
+      if (priority === researchPriorityOnly) tryStartBatch(data, world, queue, building, tick);
     }
     building = world.buildings.nextInBody[building] ?? -1;
   }
@@ -166,6 +196,97 @@ export function detectAndBreakProductionDeadlocks(
     }
   }
   return 0;
+}
+
+function reserveInputs(
+  data: StageOneData,
+  world: StageOneWorld,
+  stockpile: number,
+  faction: number,
+  recipeIndex: number,
+  inputs: readonly ResourceAmount[]
+): number {
+  for (let i = 0; i < inputs.length; i += 1) {
+    const input = inputs[i];
+    if (input === undefined) throw new RangeError("Recipe input is inconsistent.");
+    const amount =
+      faction >= 0
+        ? world.techModifiers.effectiveInputAmount(input, faction, recipeIndex)
+        : input.amount;
+    if (!world.stockpiles.hasAtLeast(stockpile, input.resource, amount)) return input.resource;
+  }
+  for (let i = 0; i < inputs.length; i += 1) {
+    const input = inputs[i];
+    if (input === undefined) throw new RangeError("Recipe input is inconsistent.");
+    const amount =
+      faction >= 0
+        ? world.techModifiers.effectiveInputAmount(input, faction, recipeIndex)
+        : input.amount;
+    if (!world.stockpiles.remove(stockpile, input.resource, amount)) {
+      throw new RangeError("Whole-batch reservation changed while applying it.");
+    }
+  }
+  void data;
+  return -1;
+}
+
+function firstOutputWithoutSpace(
+  data: StageOneData,
+  world: StageOneWorld,
+  stockpile: number,
+  faction: number,
+  recipeIndex: number,
+  outputs: readonly ResourceAmount[]
+): number {
+  for (let i = 0; i < outputs.length; i += 1) {
+    const output = outputs[i];
+    if (output === undefined) throw new RangeError("Recipe output is inconsistent.");
+    const amount =
+      faction >= 0
+        ? world.techModifiers.effectiveOutputAmount(data, faction, recipeIndex, output)
+        : output.amount;
+    if (!world.stockpiles.canFit(stockpile, output.resource, amount)) return output.resource;
+  }
+  return -1;
+}
+
+function isResearchPriorityBuilding(
+  data: StageOneData,
+  world: StageOneWorld,
+  body: number,
+  building: number
+): boolean {
+  const faction = world.bodies.owner[body] ?? -1;
+  if (faction < 0 || (world.factions.capitalBody[faction] ?? -1) !== body) return false;
+  const current = world.techState.currentTech[faction] ?? -1;
+  const tech = data.techs[current];
+  if (tech === undefined) return false;
+  const recipeIndex = world.buildings.batchRecipe[building] ?? -1;
+  const recipe = data.batchRecipes[recipeIndex];
+  if (recipe === undefined) return false;
+  const cost = repeatableCostAtLevel(tech, world.techState.level(current, faction) + 1);
+  for (let i = 0; i < recipe.outputs.length; i += 1) {
+    const resourceId = data.resources[recipe.outputs[i]?.resource ?? -1]?.id;
+    if (
+      resourceId === "data_physics" &&
+      (world.techState.progressPhysics[faction] ?? 0) + 1e-9 < cost.physics
+    ) {
+      return true;
+    }
+    if (
+      resourceId === "data_engineering" &&
+      (world.techState.progressEngineering[faction] ?? 0) + 1e-9 < cost.engineering
+    ) {
+      return true;
+    }
+    if (
+      resourceId === "data_bio" &&
+      (world.techState.progressBio[faction] ?? 0) + 1e-9 < cost.bio
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function recipeFor(data: StageOneData, buildings: Buildings, building: number): number {

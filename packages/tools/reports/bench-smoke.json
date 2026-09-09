@@ -1,0 +1,260 @@
+{
+  "options": {
+    "stage": 3,
+    "seeds": 2,
+    "years": 20,
+    "out": "reports/bench-smoke.json",
+    "preset": "balanced"
+  },
+  "distributions": {
+    "minPopulation": {
+      "min": 15.656041483242447,
+      "p10": 15.656041483242447,
+      "median": 15.656041483242447,
+      "p90": 15.656041483242447,
+      "max": 15.656041483242447
+    },
+    "averageFoodWaterSpread": {
+      "min": 0.6884139800150829,
+      "p10": 0.6884139800150829,
+      "median": 0.6884139800150829,
+      "p90": 0.6884139800150829,
+      "max": 0.6884139800150829
+    },
+    "deliveredShipments": {
+      "min": 17532,
+      "p10": 17532,
+      "median": 17532,
+      "p90": 17532,
+      "max": 17532
+    },
+    "missedDeparturesFuel": {
+      "min": 0,
+      "p10": 0,
+      "median": 0,
+      "p90": 0,
+      "max": 0
+    },
+    "stageTwo": {
+      "idleNoPower": {
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "idleMissingInput": {
+        "min": 43,
+        "p10": 43,
+        "median": 43,
+        "p90": 43,
+        "max": 43
+      },
+      "constructedBuildings": {
+        "min": 16,
+        "p10": 16,
+        "median": 16,
+        "p90": 16,
+        "max": 16
+      },
+      "researchedTechnologies": {
+        "min": 1,
+        "p10": 1,
+        "median": 1,
+        "p90": 1,
+        "max": 1
+      },
+      "disbandedShips": {
+        "min": 16,
+        "p10": 16,
+        "median": 16,
+        "p90": 16,
+        "max": 16
+      },
+      "activeConstructions": {
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "slotFillRatio": {
+        "min": 0.6075949367088608,
+        "p10": 0.6075949367088608,
+        "median": 0.6075949367088608,
+        "p90": 0.6075949367088608,
+        "max": 0.6075949367088608
+      },
+      "maxResourceZeroStreakDays": {
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "treasuryMin": {
+        "min": -200,
+        "p10": -200,
+        "median": -200,
+        "p90": -200,
+        "max": -200
+      },
+      "aiBuildPlansStarted": {
+        "min": 16,
+        "p10": 16,
+        "median": 16,
+        "p90": 16,
+        "max": 16
+      },
+      "aiColonizationLaunches": {
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "aiFleetBuilds": {
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "coloniesFounded": {
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "aiOperations": {
+        "min": 646654,
+        "p10": 646654,
+        "median": 646654,
+        "p90": 646654,
+        "max": 646654
+      }
+    },
+    "elapsedMs": {
+      "min": 67974.5857,
+      "p10": 67974.5857,
+      "median": 67974.5857,
+      "p90": 67974.5857,
+      "max": 72746.9635
+    }
+  },
+  "metrics": [
+    {
+      "name": "alive_factions_by_time",
+      "status": "ok: seeded factions remain alive"
+    },
+    {
+      "name": "power_concentration_index",
+      "status": "n/a until Stage 7"
+    },
+    {
+      "name": "median_faction_age",
+      "status": "n/a until Stage 7"
+    },
+    {
+      "name": "building_idle_without_inputs",
+      "status": "ok: Stage 2 idleMissingInput"
+    },
+    {
+      "name": "resources_at_zero_longer_than_n_years",
+      "status": "ok: Stage 2 maxResourceZeroStreakDays"
+    },
+    {
+      "name": "average_transport_utilization",
+      "status": "ok: deliveredShipments proxy"
+    },
+    {
+      "name": "war_count_and_duration",
+      "status": "n/a until Stage 6"
+    },
+    {
+      "name": "galactic_price_spread",
+      "status": "ok: averageFoodWaterSpread"
+    }
+  ],
+  "runs": [
+    {
+      "seed": 20260904,
+      "finalHash": "0c19604d20e92e9b63b2df380b36870d",
+      "ticks": 7300,
+      "counters": {
+        "systems": 500,
+        "factions": 8,
+        "ships": 64,
+        "buildings": 384
+      },
+      "metrics": {
+        "totalPopulation": 2944.8734290297757,
+        "minPopulation": 15.656041483242447,
+        "averageFoodWaterSpread": 0.6884139800150829,
+        "completedBatches": 287240,
+        "deliveredShipments": 17532,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 24,
+        "idleNoPower": 0,
+        "idleMissingInput": 43,
+        "constructedBuildings": 16,
+        "disbandedShips": 16,
+        "researchedTechnologies": 1,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6075949367088608,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -200,
+        "aiStrategicDecisions": 162,
+        "aiOperationalDecisions": 1951,
+        "aiTacticalDecisions": 1557352,
+        "aiBuildPlansStarted": 16,
+        "aiColonizationLaunches": 0,
+        "aiFleetBuilds": 0,
+        "coloniesFounded": 0,
+        "aiOperations": 646654
+      },
+      "elapsedMs": 72746.9635
+    },
+    {
+      "seed": 20260905,
+      "finalHash": "cb34c36afdada64800c98f3096055d74",
+      "ticks": 7300,
+      "counters": {
+        "systems": 500,
+        "factions": 8,
+        "ships": 64,
+        "buildings": 384
+      },
+      "metrics": {
+        "totalPopulation": 2944.8734290297757,
+        "minPopulation": 15.656041483242447,
+        "averageFoodWaterSpread": 0.6884139800150829,
+        "completedBatches": 287240,
+        "deliveredShipments": 17532,
+        "missedDeparturesFuel": 0,
+        "jobsAvailable": 160,
+        "idleHaulers": 24,
+        "idleNoPower": 0,
+        "idleMissingInput": 43,
+        "constructedBuildings": 16,
+        "disbandedShips": 16,
+        "researchedTechnologies": 1,
+        "activeConstructions": 0,
+        "slotFillRatio": 0.6075949367088608,
+        "maxResourceZeroStreakDays": 0,
+        "treasuryMin": -200,
+        "aiStrategicDecisions": 162,
+        "aiOperationalDecisions": 1951,
+        "aiTacticalDecisions": 1557352,
+        "aiBuildPlansStarted": 16,
+        "aiColonizationLaunches": 0,
+        "aiFleetBuilds": 0,
+        "coloniesFounded": 0,
+        "aiOperations": 646654
+      },
+      "elapsedMs": 67974.5857
+    }
+  ]
+}

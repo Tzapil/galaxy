@@ -36,7 +36,8 @@ function belowCopyLimit(data, world, body, buildingType) {
     const def = data.buildings[buildingType];
     if (def === undefined)
         return false;
-    return countBuildingTypeOnBody(world, body, buildingType) < maxCopiesForBuilding(def.id, world.bodies.slots[body] ?? 0);
+    return (countBuildingTypeOnBody(world, body, buildingType) <
+        maxCopiesForBuilding(def.id, world.bodies.slots[body] ?? 0));
 }
 function countBuildingTypeOnBody(world, body, buildingType) {
     let count = 0;

@@ -261,7 +261,15 @@ export function createDefaultStageOneData() {
         startPackage: undefined,
         hulls: [],
         hullIndex: new Map(),
+        modules: [],
+        moduleIndex: new Map(),
+        techBranches: [],
+        techBranchIndex: new Map(),
         techs: [],
+        techIndex: new Map(),
+        doctrines: [],
+        doctrineIndex: new Map(),
+        doctrineScoring: defaultDoctrineScoring(),
         personalities,
         personalityIndex: indexById(personalities),
         sliceResourceIndices: [
@@ -359,21 +367,97 @@ export function createStageTwoDataFromGameData(input) {
     const buildingIndex = indexById(buildings);
     const hulls = input.hulls.hulls.map((hull) => ({
         id: hull.id,
+        name: hull.name,
+        tier: hull.tier,
         shipClass: hull.class,
+        phase: hull.phase,
+        slots: {
+            weapon: hull.slots.weapon,
+            defense: hull.slots.defense,
+            propulsion: hull.slots.propulsion,
+            utility: hull.slots.utility
+        },
+        baseMass: hull.baseMass,
+        structure: hull.structure,
+        crewCapacity: hull.crewCapacity,
         buildRecipe: convertBagFromRecord(hull.buildRecipe, resourceIndex),
         buildDays: hull.buildDays,
-        baseFuel: hull.baseFuel
+        baseFuel: hull.baseFuel,
+        tech: hull.tech
     }));
     const hullIndex = indexById(hulls);
+    const modules = input.modules.modules.map((module) => ({
+        id: module.id,
+        name: module.name,
+        family: module.family,
+        slot: module.slot,
+        tier: module.tier,
+        phase: module.phase,
+        powerDraw: module.powerDraw,
+        mass: module.mass,
+        thrust: module.thrust ?? 0,
+        crew: module.crew,
+        cost: convertBagFromRecord(module.cost, resourceIndex),
+        tech: module.tech,
+        bands: (module.bands ?? []).slice().sort(compareBands),
+        damage: module.damage ?? 0,
+        vsShield: module.vsShield ?? 1,
+        vsArmor: module.vsArmor ?? 1,
+        interceptable: module.interceptable === true,
+        armorRating: module.armorRating ?? 0,
+        structureBonus: module.structureBonus ?? 0,
+        shieldHp: module.shieldHp ?? 0,
+        shieldRegen: module.shieldRegen ?? 0,
+        intercept: module.intercept ?? 0,
+        cargo: module.cargo ?? 0,
+        scan: module.scan ?? 0,
+        fuelCap: module.fuelCap ?? 0,
+        troops: module.troops ?? 0,
+        mining: module.mining ?? 0,
+        colonists: module.colonists ?? 0,
+        buildPower: module.buildPower ?? 0,
+        crewCapacityBonus: module.crewCapacityBonus ?? 0,
+        consumedOnUse: module.consumedOnUse === true
+    }));
+    const moduleIndex = indexById(modules);
+    const techBranches = input.techs.branches.map((branch) => ({
+        id: branch.id,
+        name: branch.name,
+        primaryData: branch.primaryData
+    }));
+    const techBranchIndex = indexById(techBranches);
     const techs = input.techs.techs.map((tech) => ({
         id: tech.id,
+        name: tech.name,
+        branch: tech.branch,
+        tier: tech.tier,
         phase: tech.phase,
         repeatable: tech.repeatable === true,
         requires: (tech.requires ?? []).slice().sort(),
         physicsCost: tech.cost?.physics ?? 0,
         engineeringCost: tech.cost?.engineering ?? 0,
-        bioCost: tech.cost?.bio ?? 0
+        bioCost: tech.cost?.bio ?? 0,
+        basePhysicsCost: tech.baseCost?.physics ?? 0,
+        baseEngineeringCost: tech.baseCost?.engineering ?? 0,
+        baseBioCost: tech.baseCost?.bio ?? 0,
+        costGrowth: tech.costGrowth ?? 1,
+        effects: convertTechEffects(tech.effects ?? []),
+        effectPerLevel: convertTechEffects(tech.effectPerLevel ?? [])
     }));
+    const techIndex = indexById(techs);
+    const doctrines = input.doctrines.doctrines.map((doctrine) => ({
+        id: doctrine.id,
+        name: doctrine.name,
+        role: doctrine.role,
+        hulls: doctrine.hulls.slice().sort(),
+        preferredBand: doctrine.preferredBand,
+        weights: doctrineWeightsFrom(doctrine.weights),
+        require: doctrineRequirementsFrom(doctrine.require),
+        withdrawAt: doctrine.withdrawAt,
+        pursueAbove: doctrine.pursueAbove
+    }));
+    const doctrineIndex = indexById(doctrines);
+    const doctrineScoring = doctrineScoringFrom(input.doctrines);
     const personalities = personalitiesFrom(input.personalities);
     const graphInput = {
         resources,
@@ -409,7 +493,15 @@ export function createStageTwoDataFromGameData(input) {
         startPackage: startPackageFrom(input.startPackage, buildingIndex, resourceIndex, featureIndex, hullIndex),
         hulls,
         hullIndex,
+        modules,
+        moduleIndex,
+        techBranches,
+        techBranchIndex,
         techs,
+        techIndex,
+        doctrines,
+        doctrineIndex,
+        doctrineScoring,
         personalities,
         personalityIndex: indexById(personalities),
         sliceResourceIndices: preferredSliceResources(resourceIndex),
@@ -643,6 +735,69 @@ function hullIndexOf(index, id) {
     if (value === undefined)
         throw new RangeError(`Unknown hull id "${id}".`);
     return value;
+}
+function convertTechEffects(effects) {
+    return effects.map((effect) => ({
+        type: effect.type,
+        id: effect.id ?? "",
+        target: effect.target ?? "",
+        stat: effect.stat ?? "",
+        value: effect.value ?? 0
+    }));
+}
+function compareBands(a, b) {
+    return bandOrder(a) - bandOrder(b);
+}
+function bandOrder(band) {
+    if (band === "long")
+        return 0;
+    if (band === "medium")
+        return 1;
+    return 2;
+}
+function doctrineWeightsFrom(weights) {
+    return {
+        dps: weights.dps ?? 0,
+        ehp: weights.ehp ?? 0,
+        speed: weights.speed ?? 0,
+        cargo: weights.cargo ?? 0,
+        scan: weights.scan ?? 0,
+        mining: weights.mining ?? 0,
+        colonists: weights.colonists ?? 0,
+        troops: weights.troops ?? 0,
+        intercept: weights.intercept ?? 0
+    };
+}
+function doctrineRequirementsFrom(require) {
+    return {
+        minSpeed: require.minSpeed ?? 0,
+        minCargo: require.minCargo ?? 0,
+        minScan: require.minScan ?? 0,
+        minMining: require.minMining ?? 0,
+        minColonists: require.minColonists ?? 0,
+        minTroops: require.minTroops ?? 0
+    };
+}
+function doctrineScoringFrom(input) {
+    return {
+        offBandPenalty: input.scoring.offBandPenalty ?? 0.35,
+        shieldEhpFactor: input.scoring.shieldEhpFactor ?? 1.3,
+        armorSoftening: input.scoring.armorSoftening ?? 90,
+        expectedBattleRounds: input.scoring.expectedBattleRounds ?? 6,
+        defaultEnemyProfile: {
+            shieldFraction: input.scoring.defaultEnemyProfile?.shieldFraction ?? 0.4,
+            armorRating: input.scoring.defaultEnemyProfile?.armorRating ?? 45
+        }
+    };
+}
+function defaultDoctrineScoring() {
+    return {
+        offBandPenalty: 0.35,
+        shieldEhpFactor: 1.3,
+        armorSoftening: 90,
+        expectedBattleRounds: 6,
+        defaultEnemyProfile: { shieldFraction: 0.4, armorRating: 45 }
+    };
 }
 function preferredSliceResources(resourceIndex) {
     const ids = [

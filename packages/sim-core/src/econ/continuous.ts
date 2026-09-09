@@ -15,6 +15,7 @@ export function processContinuousBuildings(data: StageOneData, world: StageOneWo
     const process = data.continuous[processIndex];
     if (process === undefined) throw new RangeError("Continuous process index is invalid.");
     const body = buildings.body[building] ?? 0;
+    const faction = world.bodies.owner[body] ?? -1;
     const stockpile = world.bodies.stockpile[body] ?? 0;
     const missing = world.stockpiles.canReserveAll(stockpile, process.inputsPerTick);
     if (missing >= 0) {
@@ -29,7 +30,11 @@ export function processContinuousBuildings(data: StageOneData, world: StageOneWo
     for (let i = 0; i < process.outputsPerTick.length; i += 1) {
       const output = process.outputsPerTick[i];
       if (output === undefined) throw new RangeError("Continuous output is inconsistent.");
-      world.stockpiles.addClamped(stockpile, output.resource, output.amount);
+      const multiplier =
+        output.resource === data.energyResource && faction >= 0
+          ? world.techModifiers.globalMultiplier(faction, "powerOutput")
+          : 1;
+      world.stockpiles.addClamped(stockpile, output.resource, output.amount * multiplier);
     }
     buildings.state[building] = BuildingState.Working;
     buildings.stateResource[building] = -1;

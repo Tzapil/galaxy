@@ -27,7 +27,14 @@ export function applyBuildPlan(
     if (item === undefined || queued >= maxQueuedPerFaction) continue;
     for (let count = 0; count < item.count && queued < maxQueuedPerFaction; count += 1) {
       if (!belowCopyLimit(data, world, item.body, item.buildingType)) continue;
-      const result = startBuildingConstruction(data, world, queue, item.body, item.buildingType, tick);
+      const result = startBuildingConstruction(
+        data,
+        world,
+        queue,
+        item.body,
+        item.buildingType,
+        tick
+      );
       if (!result.ok) continue;
       started += 1;
       queued += 1;
@@ -64,7 +71,10 @@ function belowCopyLimit(
 ): boolean {
   const def = data.buildings[buildingType];
   if (def === undefined) return false;
-  return countBuildingTypeOnBody(world, body, buildingType) < maxCopiesForBuilding(def.id, world.bodies.slots[body] ?? 0);
+  return (
+    countBuildingTypeOnBody(world, body, buildingType) <
+    maxCopiesForBuilding(def.id, world.bodies.slots[body] ?? 0)
+  );
 }
 
 function countBuildingTypeOnBody(world: StageOneWorld, body: number, buildingType: number): number {

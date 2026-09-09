@@ -20,7 +20,10 @@ export {
   startBuildingConstruction
 } from "./build/construction.js";
 export type { ConstructionResult } from "./build/construction.js";
-export { calculateCapitalDemand, calculateCapitalDemandForFaction } from "./build/capital-demand.js";
+export {
+  calculateCapitalDemand,
+  calculateCapitalDemandForFaction
+} from "./build/capital-demand.js";
 export type { PlannedConstruction } from "./build/capital-demand.js";
 export { canDemolishByFlow, demolishBuilding } from "./build/demolish.js";
 export type { DemolitionCheck } from "./build/demolish.js";
@@ -49,6 +52,12 @@ export {
 export type { AiScheduledRun } from "./ai/scheduler.js";
 export { chooseUtilityOption, personalityWeightsForFaction } from "./ai/utility.js";
 export type { UtilityAxis, UtilityChoice, UtilityOption } from "./ai/utility.js";
+export {
+  chooseResearchTopic,
+  isResearchCandidate,
+  personalityWeightForTech
+} from "./ai/research-choice.js";
+export type { ResearchChoice } from "./ai/research-choice.js";
 export {
   findBottleneck,
   reserveDays,
@@ -209,7 +218,12 @@ export type {
   StageOneBuildingDef,
   StageOneContinuousProcess,
   StageOneData,
+  StageOneDoctrine,
+  StageOneDoctrineRequirements,
+  StageOneDoctrineScoring,
+  StageOneDoctrineWeights,
   StageOneHull,
+  StageOneModule,
   StageOnePersonality,
   StageOnePersonalityWeights,
   StageOnePopulationNeeds,
@@ -220,6 +234,14 @@ export type {
   StageOneStartPackage,
   StageOneStartShip,
   StageOneTech,
+  StageOneTechBranch,
+  StageOneTechDataKind,
+  StageOneTechEffect,
+  StageOneTechEffectType,
+  ShipClass,
+  ShipSlotBudget,
+  ShipSlotType,
+  WeaponBand,
   StageGameDataInput
 } from "./stage-one/data.js";
 export { BodyType } from "./world/bodies.js";
@@ -231,6 +253,115 @@ export { buildStageTwoWorld } from "./world/build-stage-two-world.js";
 export { ShipRole, ShipState } from "./ships/ships.js";
 export { assignIdleHaulers, handleShipArrival, launchBestLocalJob } from "./ships/move.js";
 export { LaunchResult } from "./ships/move.js";
+export { collectAndAdvanceResearch } from "./tech/research.js";
+export type { ResearchStepResult } from "./tech/research.js";
+export {
+  assertStageFiveHullData,
+  emptySlotBudget,
+  hullById,
+  setSlotBudgetValue,
+  SHIP_SLOT_TYPES,
+  slotBudgetValue
+} from "./ships/hull.js";
+export {
+  assertStageFiveModuleData,
+  hullBundleCost,
+  moduleBundleCost,
+  moduleById
+} from "./ships/module.js";
+export {
+  armorReduction,
+  calculateDesignStats,
+  computeEffectiveHitPoints
+} from "./ships/design-stats.js";
+export type { ShipDesign, ShipDesignStats } from "./ships/design-stats.js";
+export { isShipDesignValid, validateShipDesign } from "./ships/validity.js";
+export type {
+  ShipDesignBudget,
+  ShipDesignBudgetFailure,
+  ShipDesignValidity,
+  ShipDesignValidityOptions
+} from "./ships/validity.js";
+export {
+  meetsDoctrineRequirements,
+  scoreDesign,
+  scoreStats,
+  speedScore,
+  threatFactor
+} from "./ships/autodesign/score.js";
+export type { EnemyShipProfile } from "./ships/autodesign/score.js";
+export { applyMove, singleMoves } from "./ships/autodesign/moves.js";
+export type { AutoDesignMove } from "./ships/autodesign/moves.js";
+export { cheapestReactor, designShip } from "./ships/autodesign/greedy.js";
+export type { AutoDesignOptions, AutoDesignResult } from "./ships/autodesign/greedy.js";
+export {
+  availableHullsForDesign,
+  availableModulesForDesign,
+  bestDesign,
+  designIsUseful
+} from "./ships/autodesign/best-hull.js";
+export type { BestDesignOptions, BestDesignResult } from "./ships/autodesign/best-hull.js";
+export {
+  blueprintVersionDistribution,
+  MAX_BLUEPRINT_MODULES,
+  obsoleteFleetFraction
+} from "./ships/blueprint.js";
+export type { BlueprintVersionMetric } from "./ships/blueprint.js";
+export {
+  addKitOrderContracts,
+  blueprintComponentRequirements,
+  KitOrderState
+} from "./ships/kit-order.js";
+export {
+  advanceShipyards,
+  hasOwnedShipyard,
+  queueShipBuild,
+  refreshFactionBlueprints,
+  ShipyardOrderState
+} from "./ships/shipyard.js";
+export type { ShipyardQueueResult } from "./ships/shipyard.js";
+export {
+  canRefitShip,
+  refitCost,
+  refitShipAtShipyard,
+  REFIT_COST_FRACTION
+} from "./ships/refit.js";
+export type { RefitCheck } from "./ships/refit.js";
+export {
+  prereqClosure,
+  startProducibleResources,
+  TechGraph,
+  TechGraphError
+} from "./tech/graph.js";
+export type { TechGraphValidation } from "./tech/graph.js";
+export {
+  clampRepeatableLevel,
+  MAX_REPEATABLE_TECH_LEVEL,
+  repeatableCostAtLevel,
+  repeatableEffectMultiplier,
+  techBaseCost,
+  totalCost
+} from "./tech/repeatable.js";
+export type { TechDataCost } from "./tech/repeatable.js";
+export { FactionTechState } from "./tech/state.js";
+export type { TechStateColumn } from "./tech/state.js";
+export {
+  moduleCost,
+  refreshFactionBuildingWorkers,
+  TechModifierCache,
+  validateAllModifiers
+} from "./tech/modifiers.js";
+export type { TechModifierCacheStats } from "./tech/modifiers.js";
+export {
+  emptyAppliedTechEffects,
+  hasAbility,
+  isBuildingUnlocked,
+  isHullUnlocked,
+  isModuleUnlocked,
+  isTechUnlockedById,
+  summarizeAppliedTechEffects
+} from "./tech/unlock.js";
+export type { AppliedTechEffects } from "./tech/unlock.js";
 export {
   applyDailyTreasury,
   fleetUpkeep,

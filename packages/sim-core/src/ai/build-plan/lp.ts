@@ -50,7 +50,7 @@ export function solveLinearProgram(program: LinearProgram): LinearProgramSolutio
   const values = new Array<number>(variables).fill(0);
   for (let col = 0; col < variables; col += 1) {
     const row = basicRowFor(tableau, width, constraints, col);
-    values[col] = row >= 0 ? tableau[row * width + width - 1] ?? 0 : 0;
+    values[col] = row >= 0 ? (tableau[row * width + width - 1] ?? 0) : 0;
   }
   return {
     feasible: true,

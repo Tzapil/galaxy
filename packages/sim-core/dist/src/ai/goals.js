@@ -16,7 +16,7 @@ export function createStrategicGoal(data, world, faction, tick, weights, current
         deadlineTick: tick + 365,
         subject: hull,
         resource,
-        targetAmount: Math.max(4, Math.round(20 * weights.military * Math.sqrt(colonyFactor))),
+        targetAmount: Math.max(4, Math.round(20 * weights.military * Math.sqrt(colonyFactor)))
     };
 }
 //# sourceMappingURL=goals.js.map

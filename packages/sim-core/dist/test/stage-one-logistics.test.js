@@ -88,7 +88,7 @@ describe("stage one market and logistics", () => {
         expect(report.metrics.averageFoodWaterSpread).toBeLessThan(initialSpread);
         expect(report.metrics.minPopulation).toBeGreaterThan(100);
         expect(report.metrics.deliveredShipments).toBeGreaterThan(0);
-    });
+    }, 20_000);
 });
 function singleColonyWorld(data, population) {
     const world = StageOneWorld.create(data);

@@ -54,7 +54,14 @@ export function findBottleneck(
     if (deficitPerDay <= 0.0001) continue;
     const stockDays = reserveDays(supply.stockpile[resource] ?? 0, demandPerDay);
     if (stockDays > STOCK_RESERVE_HORIZON_DAYS) continue;
-    const score = bottleneckScore(data, resource, demandPerDay, supplyPerDay, deficitPerDay);
+    const score = bottleneckScore(
+      data,
+      resource,
+      demandPerDay,
+      supplyPerDay,
+      deficitPerDay,
+      stockDays
+    );
     if (score > bestScore + 1e-9) {
       bestScore = score;
       best = {
@@ -206,14 +213,22 @@ function bottleneckScore(
   resource: number,
   demandPerDay: number,
   supplyPerDay: number,
-  deficitPerDay: number
+  deficitPerDay: number,
+  stockDays: number
 ): number {
   const tier = data.resources[resource]?.tier ?? 1;
   const value = Math.max(0.1, data.baseValue[resource] ?? 1);
   const id = data.resources[resource]?.id ?? "";
   let priority = 1;
+  let scoringDeficit = deficitPerDay;
   if (isVital(data, resource)) {
     priority = 5000;
+    if (stockDays < 30) {
+      scoringDeficit = Math.max(
+        scoringDeficit,
+        demandPerDay * ((30 - Math.max(0, stockDays)) / 30) * 0.5
+      );
+    }
   } else if (id === "fuel") {
     priority = 1400;
   } else if (resource === data.energyResource) {
@@ -222,10 +237,7 @@ function bottleneckScore(
     priority = 800;
   }
   return (
-    (deficitPerDay / (supplyPerDay + 0.25)) *
-      (1 + tier * 0.35) *
-      Math.log2(value + 2) *
-      priority +
+    (scoringDeficit / (supplyPerDay + 0.25)) * (1 + tier * 0.35) * Math.log2(value + 2) * priority +
     demandPerDay * 0.01
   );
 }

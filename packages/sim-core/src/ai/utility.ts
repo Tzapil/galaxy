@@ -24,7 +24,8 @@ export function personalityWeightsForFaction(
   const count = data.personalities.length;
   if (count === 0) return balancedWeights();
   const preferred =
-    (world.factions.characterExpansion[faction] ?? 1) > (world.factions.characterIndustry[faction] ?? 1)
+    (world.factions.characterExpansion[faction] ?? 1) >
+    (world.factions.characterIndustry[faction] ?? 1)
       ? "expansionist"
       : (world.factions.characterIndustry[faction] ?? 1) > 1.05
         ? "industrialist"

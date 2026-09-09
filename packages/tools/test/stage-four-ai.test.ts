@@ -108,7 +108,9 @@ describe("Stage 4 faction AI", () => {
     const polymers = resourceIndexOf(data.resourceIndex, "polymers");
     const gas = resourceIndexOf(data.resourceIndex, "gas");
 
-    const result = explodeDemand(data, [{ kind: "hull", hull: cruiser, count: 20, horizonDays: 365 }]);
+    const result = explodeDemand(data, [
+      { kind: "hull", hull: cruiser, count: 20, horizonDays: 365 }
+    ]);
 
     expect(result.requiredPerDay[hullFrames]).toBeGreaterThan(0);
     expect(result.requiredPerDay[composites]).toBeGreaterThan(0);
@@ -122,14 +124,24 @@ describe("Stage 4 faction AI", () => {
     const waterPlant = buildingIndexOf(data.buildingIndex, "water_plant");
     const body = sim.world.factions.capitalBody[0] ?? 0;
     const queue = new EventQueue();
-    const construction = sim.world.buildings.addUnderConstruction(data, sim.world.bodies, body, waterPlant, 1);
+    const construction = sim.world.buildings.addUnderConstruction(
+      data,
+      sim.world.bodies,
+      body,
+      waterPlant,
+      1
+    );
     sim.world.buildings.stateResource[construction] = resourceIndexOf(data.resourceIndex, "metal");
 
     const sources = collectFactionDemandSources(data, sim.world, 0);
     const fuel = resourceIndexOf(data.resourceIndex, "fuel");
     const hullFrames = resourceIndexOf(data.resourceIndex, "hull_frames");
     const metal = resourceIndexOf(data.resourceIndex, "metal");
-    const shares = demandByColonyShare(sim.world, 0, calculateFleetDemandPerDay(data, sim.world, 0));
+    const shares = demandByColonyShare(
+      sim.world,
+      0,
+      calculateFleetDemandPerDay(data, sim.world, 0)
+    );
     const energyOnly = explodeDemand(data, [
       { kind: "resource", resource: data.energyResource, amountPerDay: 10 }
     ]);
@@ -187,11 +199,17 @@ describe("Stage 4 faction AI", () => {
     expect(first).toEqual(second);
     expect(ids).toContain("hull_yard");
     expect(ids).toContain("shipyard");
-    expect(solveLinearProgram({
-      objective: [3, 2],
-      constraints: [[3, 3], [10, 20], [1, 1]],
-      limits: [12, 60, 4]
-    }).values[0]).toBeGreaterThan(0);
+    expect(
+      solveLinearProgram({
+        objective: [3, 2],
+        constraints: [
+          [3, 3],
+          [10, 20],
+          [1, 1]
+        ],
+        limits: [12, 60, 4]
+      }).values[0]
+    ).toBeGreaterThan(0);
   });
 
   it("covers the six Stage 4 build guards", () => {
@@ -250,7 +268,9 @@ describe("Stage 4 faction AI", () => {
 
     expect(buildColonizerIfNeeded(data, world, faction, 1, rareEarth)).toBe(true);
     const ship = findShip(world, ShipRole.Colonizer);
-    expect(launchIdleColonizer(data, world, new RoutePlanner(), new EventQueue(), faction, targetBody, 2)).toBe(true);
+    expect(
+      launchIdleColonizer(data, world, new RoutePlanner(), new EventQueue(), faction, targetBody, 2)
+    ).toBe(true);
     expect(world.ships.state[ship]).toBe(ShipState.InTransit);
     expect(handleColonizerArrival(data, world, ship, 12)).toBe(true);
     expect(world.bodies.owner[targetBody]).toBe(faction);

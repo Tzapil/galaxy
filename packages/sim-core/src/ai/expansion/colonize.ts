@@ -110,7 +110,8 @@ export function handleColonizerArrival(
     targetBody >= 0 && faction >= 0
       ? foundColony(data, world, faction, targetBody, tick)
       : { ok: false, body: targetBody, buildings: 0, reason: "alreadyOwned" };
-  world.ships.currentSystem[ship] = world.ships.toSystem[ship] ?? world.ships.currentSystem[ship] ?? 0;
+  world.ships.currentSystem[ship] =
+    world.ships.toSystem[ship] ?? world.ships.currentSystem[ship] ?? 0;
   world.ships.sourceBody[ship] = -1;
   world.ships.targetBody[ship] = -1;
   world.ships.cargoResource[ship] = -1;

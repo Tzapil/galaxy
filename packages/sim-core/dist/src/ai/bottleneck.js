@@ -27,7 +27,7 @@ export function findBottleneck(data, world, faction, _goal) {
         const stockDays = reserveDays(supply.stockpile[resource] ?? 0, demandPerDay);
         if (stockDays > STOCK_RESERVE_HORIZON_DAYS)
             continue;
-        const score = bottleneckScore(data, resource, demandPerDay, supplyPerDay, deficitPerDay);
+        const score = bottleneckScore(data, resource, demandPerDay, supplyPerDay, deficitPerDay, stockDays);
         if (score > bestScore + 1e-9) {
             bestScore = score;
             best = {
@@ -149,13 +149,17 @@ function bodyCanSupplyResource(data, world, body, resource) {
     const def = data.buildings[buildingType];
     return def !== undefined && world.bodies.hasFeatureMask(body, def.requiredFeatureMask);
 }
-function bottleneckScore(data, resource, demandPerDay, supplyPerDay, deficitPerDay) {
+function bottleneckScore(data, resource, demandPerDay, supplyPerDay, deficitPerDay, stockDays) {
     const tier = data.resources[resource]?.tier ?? 1;
     const value = Math.max(0.1, data.baseValue[resource] ?? 1);
     const id = data.resources[resource]?.id ?? "";
     let priority = 1;
+    let scoringDeficit = deficitPerDay;
     if (isVital(data, resource)) {
         priority = 5000;
+        if (stockDays < 30) {
+            scoringDeficit = Math.max(scoringDeficit, demandPerDay * ((30 - Math.max(0, stockDays)) / 30) * 0.5);
+        }
     }
     else if (id === "fuel") {
         priority = 1400;
@@ -166,10 +170,7 @@ function bottleneckScore(data, resource, demandPerDay, supplyPerDay, deficitPerD
     else if (id === "ice" || id === "biomass" || id === "gas" || id === "polymers") {
         priority = 800;
     }
-    return ((deficitPerDay / (supplyPerDay + 0.25)) *
-        (1 + tier * 0.35) *
-        Math.log2(value + 2) *
-        priority +
+    return ((scoringDeficit / (supplyPerDay + 0.25)) * (1 + tier * 0.35) * Math.log2(value + 2) * priority +
         demandPerDay * 0.01);
 }
 function isVital(data, resource) {

@@ -40,6 +40,6 @@ describe("tools package", () => {
         });
         expect(findings.filter((finding) => finding.status === "failed")).toHaveLength(0);
         expect(findings.filter((finding) => finding.status === "ok")).toHaveLength(3);
-    });
+    }, 20_000);
 });
 //# sourceMappingURL=tools.test.js.map

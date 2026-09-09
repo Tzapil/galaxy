@@ -142,11 +142,7 @@ export function chooseProducer(
   return best;
 }
 
-function recipeUnitCost(
-  data: StageOneData,
-  recipe: StageOneBatchRecipe,
-  resource: number
-): number {
+function recipeUnitCost(data: StageOneData, recipe: StageOneBatchRecipe, resource: number): number {
   let inputValue = 0;
   for (let i = 0; i < recipe.inputs.length; i += 1) {
     const input = recipe.inputs[i];

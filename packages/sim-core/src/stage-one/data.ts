@@ -7,6 +7,17 @@ export interface ResourceAmount {
   readonly amount: number;
 }
 
+export type ShipClass = "civilian" | "warship" | "support";
+export type ShipSlotType = "weapon" | "defense" | "propulsion" | "utility";
+export type WeaponBand = "long" | "medium" | "short";
+
+export interface ShipSlotBudget {
+  readonly weapon: number;
+  readonly defense: number;
+  readonly propulsion: number;
+  readonly utility: number;
+}
+
 export interface StageOneResource {
   readonly id: string;
   readonly name: string;
@@ -64,20 +75,90 @@ export interface StageOneSink {
 
 export interface StageOneHull {
   readonly id: string;
-  readonly shipClass: "civilian" | "warship" | "support";
+  readonly name: string;
+  readonly tier: number;
+  readonly shipClass: ShipClass;
+  readonly phase: number;
+  readonly slots: ShipSlotBudget;
+  readonly baseMass: number;
+  readonly structure: number;
+  readonly crewCapacity: number;
   readonly buildRecipe: readonly ResourceAmount[];
   readonly buildDays: number;
   readonly baseFuel: number;
+  readonly tech: string;
+}
+
+export interface StageOneModule {
+  readonly id: string;
+  readonly name: string;
+  readonly family: string;
+  readonly slot: ShipSlotType;
+  readonly tier: number;
+  readonly phase: number;
+  readonly powerDraw: number;
+  readonly mass: number;
+  readonly thrust: number;
+  readonly crew: number;
+  readonly cost: readonly ResourceAmount[];
+  readonly tech: string;
+  readonly bands: readonly WeaponBand[];
+  readonly damage: number;
+  readonly vsShield: number;
+  readonly vsArmor: number;
+  readonly interceptable: boolean;
+  readonly armorRating: number;
+  readonly structureBonus: number;
+  readonly shieldHp: number;
+  readonly shieldRegen: number;
+  readonly intercept: number;
+  readonly cargo: number;
+  readonly scan: number;
+  readonly fuelCap: number;
+  readonly troops: number;
+  readonly mining: number;
+  readonly colonists: number;
+  readonly buildPower: number;
+  readonly crewCapacityBonus: number;
+  readonly consumedOnUse: boolean;
+}
+
+export type StageOneTechEffectType =
+  "unlockModule" | "unlockHull" | "unlockBuilding" | "modifier" | "ability";
+
+export interface StageOneTechEffect {
+  readonly type: StageOneTechEffectType;
+  readonly id: string;
+  readonly target: string;
+  readonly stat: string;
+  readonly value: number;
+}
+
+export type StageOneTechDataKind = "physics" | "engineering" | "bio" | "mixed";
+
+export interface StageOneTechBranch {
+  readonly id: string;
+  readonly name: string;
+  readonly primaryData: StageOneTechDataKind;
 }
 
 export interface StageOneTech {
   readonly id: string;
+  readonly name: string;
+  readonly branch: string;
+  readonly tier: number;
   readonly phase: number;
   readonly repeatable: boolean;
   readonly requires: readonly string[];
   readonly physicsCost: number;
   readonly engineeringCost: number;
   readonly bioCost: number;
+  readonly basePhysicsCost: number;
+  readonly baseEngineeringCost: number;
+  readonly baseBioCost: number;
+  readonly costGrowth: number;
+  readonly effects: readonly StageOneTechEffect[];
+  readonly effectPerLevel: readonly StageOneTechEffect[];
 }
 
 export interface StageOnePersonalityWeights {
@@ -94,6 +175,50 @@ export interface StageOnePersonality {
   readonly id: string;
   readonly label: string;
   readonly weights: StageOnePersonalityWeights;
+}
+
+export interface StageOneDoctrineWeights {
+  readonly dps: number;
+  readonly ehp: number;
+  readonly speed: number;
+  readonly cargo: number;
+  readonly scan: number;
+  readonly mining: number;
+  readonly colonists: number;
+  readonly troops: number;
+  readonly intercept: number;
+}
+
+export interface StageOneDoctrineRequirements {
+  readonly minSpeed: number;
+  readonly minCargo: number;
+  readonly minScan: number;
+  readonly minMining: number;
+  readonly minColonists: number;
+  readonly minTroops: number;
+}
+
+export interface StageOneDoctrine {
+  readonly id: string;
+  readonly name: string;
+  readonly role: ShipClass;
+  readonly hulls: readonly string[];
+  readonly preferredBand: WeaponBand;
+  readonly weights: StageOneDoctrineWeights;
+  readonly require: StageOneDoctrineRequirements;
+  readonly withdrawAt: number;
+  readonly pursueAbove: number;
+}
+
+export interface StageOneDoctrineScoring {
+  readonly offBandPenalty: number;
+  readonly shieldEhpFactor: number;
+  readonly armorSoftening: number;
+  readonly expectedBattleRounds: number;
+  readonly defaultEnemyProfile: {
+    readonly shieldFraction: number;
+    readonly armorRating: number;
+  };
 }
 
 export interface StageOneStartBody {
@@ -150,7 +275,15 @@ export interface StageOneData {
   readonly startPackage: StageOneStartPackage | undefined;
   readonly hulls: readonly StageOneHull[];
   readonly hullIndex: ReadonlyMap<string, number>;
+  readonly modules: readonly StageOneModule[];
+  readonly moduleIndex: ReadonlyMap<string, number>;
+  readonly techBranches: readonly StageOneTechBranch[];
+  readonly techBranchIndex: ReadonlyMap<string, number>;
   readonly techs: readonly StageOneTech[];
+  readonly techIndex: ReadonlyMap<string, number>;
+  readonly doctrines: readonly StageOneDoctrine[];
+  readonly doctrineIndex: ReadonlyMap<string, number>;
+  readonly doctrineScoring: StageOneDoctrineScoring;
   readonly personalities: readonly StageOnePersonality[];
   readonly personalityIndex: ReadonlyMap<string, number>;
   readonly sliceResourceIndices: readonly number[];
@@ -167,7 +300,12 @@ export interface StageGameDataInput {
   readonly buildings: { readonly buildings: readonly RawGameBuilding[] };
   readonly startPackage: RawGameStartPackage;
   readonly hulls: { readonly hulls: readonly RawGameHull[] };
-  readonly techs: { readonly techs: readonly RawGameTech[] };
+  readonly modules: { readonly modules: readonly RawGameModule[] };
+  readonly doctrines: RawGameDoctrinesFile;
+  readonly techs: {
+    readonly branches: readonly RawGameTechBranch[];
+    readonly techs: readonly RawGameTech[];
+  };
   readonly galaxyPresets: RawGalaxyPresetsFile;
   readonly personalities: RawGamePersonalitiesFile;
 }
@@ -289,14 +427,73 @@ interface RawGameStartPackage {
 
 interface RawGameHull {
   readonly id: string;
-  readonly class: "civilian" | "warship" | "support";
+  readonly name: string;
+  readonly tier: number;
+  readonly class: ShipClass;
+  readonly phase: number;
+  readonly slots: ShipSlotBudget;
+  readonly baseMass: number;
+  readonly structure: number;
+  readonly crewCapacity: number;
   readonly buildRecipe: Record<string, number>;
   readonly buildDays: number;
   readonly baseFuel: number;
+  readonly tech: string;
+}
+
+interface RawGameModule {
+  readonly id: string;
+  readonly name: string;
+  readonly family: string;
+  readonly slot: ShipSlotType;
+  readonly tier: number;
+  readonly phase: number;
+  readonly powerDraw: number;
+  readonly mass: number;
+  readonly thrust?: number;
+  readonly crew: number;
+  readonly cost: Record<string, number>;
+  readonly tech: string;
+  readonly bands?: readonly WeaponBand[];
+  readonly damage?: number;
+  readonly vsShield?: number;
+  readonly vsArmor?: number;
+  readonly interceptable?: boolean;
+  readonly armorRating?: number;
+  readonly structureBonus?: number;
+  readonly shieldHp?: number;
+  readonly shieldRegen?: number;
+  readonly intercept?: number;
+  readonly cargo?: number;
+  readonly scan?: number;
+  readonly fuelCap?: number;
+  readonly troops?: number;
+  readonly mining?: number;
+  readonly colonists?: number;
+  readonly buildPower?: number;
+  readonly crewCapacityBonus?: number;
+  readonly consumedOnUse?: boolean;
+}
+
+interface RawGameTechBranch {
+  readonly id: string;
+  readonly name: string;
+  readonly primaryData: StageOneTechDataKind;
+}
+
+interface RawGameTechEffect {
+  readonly type: StageOneTechEffectType;
+  readonly id?: string;
+  readonly target?: string;
+  readonly stat?: string;
+  readonly value?: number;
 }
 
 interface RawGameTech {
   readonly id: string;
+  readonly name: string;
+  readonly branch: string;
+  readonly tier: number;
   readonly phase: number;
   readonly repeatable?: boolean;
   readonly requires?: readonly string[];
@@ -305,6 +502,14 @@ interface RawGameTech {
     readonly engineering?: number;
     readonly bio?: number;
   };
+  readonly baseCost?: {
+    readonly physics?: number;
+    readonly engineering?: number;
+    readonly bio?: number;
+  };
+  readonly costGrowth?: number;
+  readonly effects?: readonly RawGameTechEffect[];
+  readonly effectPerLevel?: readonly RawGameTechEffect[];
 }
 
 interface RawGamePersonalityWeights {
@@ -325,6 +530,32 @@ interface RawGamePersonality {
 
 interface RawGamePersonalitiesFile {
   readonly personalities: readonly RawGamePersonality[];
+}
+
+interface RawGameDoctrine {
+  readonly id: string;
+  readonly name: string;
+  readonly role: ShipClass;
+  readonly hulls: readonly string[];
+  readonly preferredBand: WeaponBand;
+  readonly weights: Partial<Record<keyof StageOneDoctrineWeights, number>>;
+  readonly require: Partial<Record<keyof StageOneDoctrineRequirements, number>>;
+  readonly withdrawAt: number;
+  readonly pursueAbove: number;
+}
+
+interface RawGameDoctrinesFile {
+  readonly scoring: {
+    readonly offBandPenalty?: number;
+    readonly shieldEhpFactor?: number;
+    readonly armorSoftening?: number;
+    readonly expectedBattleRounds?: number;
+    readonly defaultEnemyProfile?: {
+      readonly shieldFraction?: number;
+      readonly armorRating?: number;
+    };
+  };
+  readonly doctrines: readonly RawGameDoctrine[];
 }
 
 interface RawGalaxyPresetsFile {
@@ -640,7 +871,15 @@ export function createDefaultStageOneData(): StageOneData {
     startPackage: undefined,
     hulls: [],
     hullIndex: new Map<string, number>(),
+    modules: [],
+    moduleIndex: new Map<string, number>(),
+    techBranches: [],
+    techBranchIndex: new Map<string, number>(),
     techs: [],
+    techIndex: new Map<string, number>(),
+    doctrines: [],
+    doctrineIndex: new Map<string, number>(),
+    doctrineScoring: defaultDoctrineScoring(),
     personalities,
     personalityIndex: indexById(personalities),
     sliceResourceIndices: [
@@ -752,22 +991,100 @@ export function createStageTwoDataFromGameData(input: StageGameDataInput): Stage
 
   const hulls = input.hulls.hulls.map((hull) => ({
     id: hull.id,
+    name: hull.name,
+    tier: hull.tier,
     shipClass: hull.class,
+    phase: hull.phase,
+    slots: {
+      weapon: hull.slots.weapon,
+      defense: hull.slots.defense,
+      propulsion: hull.slots.propulsion,
+      utility: hull.slots.utility
+    },
+    baseMass: hull.baseMass,
+    structure: hull.structure,
+    crewCapacity: hull.crewCapacity,
     buildRecipe: convertBagFromRecord(hull.buildRecipe, resourceIndex),
     buildDays: hull.buildDays,
-    baseFuel: hull.baseFuel
+    baseFuel: hull.baseFuel,
+    tech: hull.tech
   }));
   const hullIndex = indexById(hulls);
 
+  const modules = input.modules.modules.map((module) => ({
+    id: module.id,
+    name: module.name,
+    family: module.family,
+    slot: module.slot,
+    tier: module.tier,
+    phase: module.phase,
+    powerDraw: module.powerDraw,
+    mass: module.mass,
+    thrust: module.thrust ?? 0,
+    crew: module.crew,
+    cost: convertBagFromRecord(module.cost, resourceIndex),
+    tech: module.tech,
+    bands: (module.bands ?? []).slice().sort(compareBands),
+    damage: module.damage ?? 0,
+    vsShield: module.vsShield ?? 1,
+    vsArmor: module.vsArmor ?? 1,
+    interceptable: module.interceptable === true,
+    armorRating: module.armorRating ?? 0,
+    structureBonus: module.structureBonus ?? 0,
+    shieldHp: module.shieldHp ?? 0,
+    shieldRegen: module.shieldRegen ?? 0,
+    intercept: module.intercept ?? 0,
+    cargo: module.cargo ?? 0,
+    scan: module.scan ?? 0,
+    fuelCap: module.fuelCap ?? 0,
+    troops: module.troops ?? 0,
+    mining: module.mining ?? 0,
+    colonists: module.colonists ?? 0,
+    buildPower: module.buildPower ?? 0,
+    crewCapacityBonus: module.crewCapacityBonus ?? 0,
+    consumedOnUse: module.consumedOnUse === true
+  }));
+  const moduleIndex = indexById(modules);
+
+  const techBranches = input.techs.branches.map((branch) => ({
+    id: branch.id,
+    name: branch.name,
+    primaryData: branch.primaryData
+  }));
+  const techBranchIndex = indexById(techBranches);
+
   const techs = input.techs.techs.map((tech) => ({
     id: tech.id,
+    name: tech.name,
+    branch: tech.branch,
+    tier: tech.tier,
     phase: tech.phase,
     repeatable: tech.repeatable === true,
     requires: (tech.requires ?? []).slice().sort(),
     physicsCost: tech.cost?.physics ?? 0,
     engineeringCost: tech.cost?.engineering ?? 0,
-    bioCost: tech.cost?.bio ?? 0
+    bioCost: tech.cost?.bio ?? 0,
+    basePhysicsCost: tech.baseCost?.physics ?? 0,
+    baseEngineeringCost: tech.baseCost?.engineering ?? 0,
+    baseBioCost: tech.baseCost?.bio ?? 0,
+    costGrowth: tech.costGrowth ?? 1,
+    effects: convertTechEffects(tech.effects ?? []),
+    effectPerLevel: convertTechEffects(tech.effectPerLevel ?? [])
   }));
+  const techIndex = indexById(techs);
+  const doctrines = input.doctrines.doctrines.map((doctrine) => ({
+    id: doctrine.id,
+    name: doctrine.name,
+    role: doctrine.role,
+    hulls: doctrine.hulls.slice().sort(),
+    preferredBand: doctrine.preferredBand,
+    weights: doctrineWeightsFrom(doctrine.weights),
+    require: doctrineRequirementsFrom(doctrine.require),
+    withdrawAt: doctrine.withdrawAt,
+    pursueAbove: doctrine.pursueAbove
+  }));
+  const doctrineIndex = indexById(doctrines);
+  const doctrineScoring = doctrineScoringFrom(input.doctrines);
   const personalities = personalitiesFrom(input.personalities);
 
   const graphInput = {
@@ -811,7 +1128,15 @@ export function createStageTwoDataFromGameData(input: StageGameDataInput): Stage
     ),
     hulls,
     hullIndex,
+    modules,
+    moduleIndex,
+    techBranches,
+    techBranchIndex,
     techs,
+    techIndex,
+    doctrines,
+    doctrineIndex,
+    doctrineScoring,
     personalities,
     personalityIndex: indexById(personalities),
     sliceResourceIndices: preferredSliceResources(resourceIndex),
@@ -1075,6 +1400,78 @@ function hullIndexOf(index: ReadonlyMap<string, number>, id: string): number {
   const value = index.get(id);
   if (value === undefined) throw new RangeError(`Unknown hull id "${id}".`);
   return value;
+}
+
+function convertTechEffects(effects: readonly RawGameTechEffect[]): readonly StageOneTechEffect[] {
+  return effects.map((effect) => ({
+    type: effect.type,
+    id: effect.id ?? "",
+    target: effect.target ?? "",
+    stat: effect.stat ?? "",
+    value: effect.value ?? 0
+  }));
+}
+
+function compareBands(a: WeaponBand, b: WeaponBand): number {
+  return bandOrder(a) - bandOrder(b);
+}
+
+function bandOrder(band: WeaponBand): number {
+  if (band === "long") return 0;
+  if (band === "medium") return 1;
+  return 2;
+}
+
+function doctrineWeightsFrom(
+  weights: Partial<Record<keyof StageOneDoctrineWeights, number>>
+): StageOneDoctrineWeights {
+  return {
+    dps: weights.dps ?? 0,
+    ehp: weights.ehp ?? 0,
+    speed: weights.speed ?? 0,
+    cargo: weights.cargo ?? 0,
+    scan: weights.scan ?? 0,
+    mining: weights.mining ?? 0,
+    colonists: weights.colonists ?? 0,
+    troops: weights.troops ?? 0,
+    intercept: weights.intercept ?? 0
+  };
+}
+
+function doctrineRequirementsFrom(
+  require: Partial<Record<keyof StageOneDoctrineRequirements, number>>
+): StageOneDoctrineRequirements {
+  return {
+    minSpeed: require.minSpeed ?? 0,
+    minCargo: require.minCargo ?? 0,
+    minScan: require.minScan ?? 0,
+    minMining: require.minMining ?? 0,
+    minColonists: require.minColonists ?? 0,
+    minTroops: require.minTroops ?? 0
+  };
+}
+
+function doctrineScoringFrom(input: RawGameDoctrinesFile): StageOneDoctrineScoring {
+  return {
+    offBandPenalty: input.scoring.offBandPenalty ?? 0.35,
+    shieldEhpFactor: input.scoring.shieldEhpFactor ?? 1.3,
+    armorSoftening: input.scoring.armorSoftening ?? 90,
+    expectedBattleRounds: input.scoring.expectedBattleRounds ?? 6,
+    defaultEnemyProfile: {
+      shieldFraction: input.scoring.defaultEnemyProfile?.shieldFraction ?? 0.4,
+      armorRating: input.scoring.defaultEnemyProfile?.armorRating ?? 45
+    }
+  };
+}
+
+function defaultDoctrineScoring(): StageOneDoctrineScoring {
+  return {
+    offBandPenalty: 0.35,
+    shieldEhpFactor: 1.3,
+    armorSoftening: 90,
+    expectedBattleRounds: 6,
+    defaultEnemyProfile: { shieldFraction: 0.4, armorRating: 45 }
+  };
 }
 
 function preferredSliceResources(resourceIndex: ReadonlyMap<string, number>): readonly number[] {

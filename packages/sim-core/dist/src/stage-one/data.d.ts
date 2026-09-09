@@ -5,6 +5,15 @@ export interface ResourceAmount {
     readonly resource: number;
     readonly amount: number;
 }
+export type ShipClass = "civilian" | "warship" | "support";
+export type ShipSlotType = "weapon" | "defense" | "propulsion" | "utility";
+export type WeaponBand = "long" | "medium" | "short";
+export interface ShipSlotBudget {
+    readonly weapon: number;
+    readonly defense: number;
+    readonly propulsion: number;
+    readonly utility: number;
+}
 export interface StageOneResource {
     readonly id: string;
     readonly name: string;
@@ -56,19 +65,83 @@ export interface StageOneSink {
 }
 export interface StageOneHull {
     readonly id: string;
-    readonly shipClass: "civilian" | "warship" | "support";
+    readonly name: string;
+    readonly tier: number;
+    readonly shipClass: ShipClass;
+    readonly phase: number;
+    readonly slots: ShipSlotBudget;
+    readonly baseMass: number;
+    readonly structure: number;
+    readonly crewCapacity: number;
     readonly buildRecipe: readonly ResourceAmount[];
     readonly buildDays: number;
     readonly baseFuel: number;
+    readonly tech: string;
+}
+export interface StageOneModule {
+    readonly id: string;
+    readonly name: string;
+    readonly family: string;
+    readonly slot: ShipSlotType;
+    readonly tier: number;
+    readonly phase: number;
+    readonly powerDraw: number;
+    readonly mass: number;
+    readonly thrust: number;
+    readonly crew: number;
+    readonly cost: readonly ResourceAmount[];
+    readonly tech: string;
+    readonly bands: readonly WeaponBand[];
+    readonly damage: number;
+    readonly vsShield: number;
+    readonly vsArmor: number;
+    readonly interceptable: boolean;
+    readonly armorRating: number;
+    readonly structureBonus: number;
+    readonly shieldHp: number;
+    readonly shieldRegen: number;
+    readonly intercept: number;
+    readonly cargo: number;
+    readonly scan: number;
+    readonly fuelCap: number;
+    readonly troops: number;
+    readonly mining: number;
+    readonly colonists: number;
+    readonly buildPower: number;
+    readonly crewCapacityBonus: number;
+    readonly consumedOnUse: boolean;
+}
+export type StageOneTechEffectType = "unlockModule" | "unlockHull" | "unlockBuilding" | "modifier" | "ability";
+export interface StageOneTechEffect {
+    readonly type: StageOneTechEffectType;
+    readonly id: string;
+    readonly target: string;
+    readonly stat: string;
+    readonly value: number;
+}
+export type StageOneTechDataKind = "physics" | "engineering" | "bio" | "mixed";
+export interface StageOneTechBranch {
+    readonly id: string;
+    readonly name: string;
+    readonly primaryData: StageOneTechDataKind;
 }
 export interface StageOneTech {
     readonly id: string;
+    readonly name: string;
+    readonly branch: string;
+    readonly tier: number;
     readonly phase: number;
     readonly repeatable: boolean;
     readonly requires: readonly string[];
     readonly physicsCost: number;
     readonly engineeringCost: number;
     readonly bioCost: number;
+    readonly basePhysicsCost: number;
+    readonly baseEngineeringCost: number;
+    readonly baseBioCost: number;
+    readonly costGrowth: number;
+    readonly effects: readonly StageOneTechEffect[];
+    readonly effectPerLevel: readonly StageOneTechEffect[];
 }
 export interface StageOnePersonalityWeights {
     readonly growth: number;
@@ -83,6 +156,46 @@ export interface StageOnePersonality {
     readonly id: string;
     readonly label: string;
     readonly weights: StageOnePersonalityWeights;
+}
+export interface StageOneDoctrineWeights {
+    readonly dps: number;
+    readonly ehp: number;
+    readonly speed: number;
+    readonly cargo: number;
+    readonly scan: number;
+    readonly mining: number;
+    readonly colonists: number;
+    readonly troops: number;
+    readonly intercept: number;
+}
+export interface StageOneDoctrineRequirements {
+    readonly minSpeed: number;
+    readonly minCargo: number;
+    readonly minScan: number;
+    readonly minMining: number;
+    readonly minColonists: number;
+    readonly minTroops: number;
+}
+export interface StageOneDoctrine {
+    readonly id: string;
+    readonly name: string;
+    readonly role: ShipClass;
+    readonly hulls: readonly string[];
+    readonly preferredBand: WeaponBand;
+    readonly weights: StageOneDoctrineWeights;
+    readonly require: StageOneDoctrineRequirements;
+    readonly withdrawAt: number;
+    readonly pursueAbove: number;
+}
+export interface StageOneDoctrineScoring {
+    readonly offBandPenalty: number;
+    readonly shieldEhpFactor: number;
+    readonly armorSoftening: number;
+    readonly expectedBattleRounds: number;
+    readonly defaultEnemyProfile: {
+        readonly shieldFraction: number;
+        readonly armorRating: number;
+    };
 }
 export interface StageOneStartBody {
     readonly id: string;
@@ -134,7 +247,15 @@ export interface StageOneData {
     readonly startPackage: StageOneStartPackage | undefined;
     readonly hulls: readonly StageOneHull[];
     readonly hullIndex: ReadonlyMap<string, number>;
+    readonly modules: readonly StageOneModule[];
+    readonly moduleIndex: ReadonlyMap<string, number>;
+    readonly techBranches: readonly StageOneTechBranch[];
+    readonly techBranchIndex: ReadonlyMap<string, number>;
     readonly techs: readonly StageOneTech[];
+    readonly techIndex: ReadonlyMap<string, number>;
+    readonly doctrines: readonly StageOneDoctrine[];
+    readonly doctrineIndex: ReadonlyMap<string, number>;
+    readonly doctrineScoring: StageOneDoctrineScoring;
     readonly personalities: readonly StageOnePersonality[];
     readonly personalityIndex: ReadonlyMap<string, number>;
     readonly sliceResourceIndices: readonly number[];
@@ -156,7 +277,12 @@ export interface StageGameDataInput {
     readonly hulls: {
         readonly hulls: readonly RawGameHull[];
     };
+    readonly modules: {
+        readonly modules: readonly RawGameModule[];
+    };
+    readonly doctrines: RawGameDoctrinesFile;
     readonly techs: {
+        readonly branches: readonly RawGameTechBranch[];
         readonly techs: readonly RawGameTech[];
     };
     readonly galaxyPresets: RawGalaxyPresetsFile;
@@ -239,13 +365,69 @@ interface RawGameStartPackage {
 }
 interface RawGameHull {
     readonly id: string;
-    readonly class: "civilian" | "warship" | "support";
+    readonly name: string;
+    readonly tier: number;
+    readonly class: ShipClass;
+    readonly phase: number;
+    readonly slots: ShipSlotBudget;
+    readonly baseMass: number;
+    readonly structure: number;
+    readonly crewCapacity: number;
     readonly buildRecipe: Record<string, number>;
     readonly buildDays: number;
     readonly baseFuel: number;
+    readonly tech: string;
+}
+interface RawGameModule {
+    readonly id: string;
+    readonly name: string;
+    readonly family: string;
+    readonly slot: ShipSlotType;
+    readonly tier: number;
+    readonly phase: number;
+    readonly powerDraw: number;
+    readonly mass: number;
+    readonly thrust?: number;
+    readonly crew: number;
+    readonly cost: Record<string, number>;
+    readonly tech: string;
+    readonly bands?: readonly WeaponBand[];
+    readonly damage?: number;
+    readonly vsShield?: number;
+    readonly vsArmor?: number;
+    readonly interceptable?: boolean;
+    readonly armorRating?: number;
+    readonly structureBonus?: number;
+    readonly shieldHp?: number;
+    readonly shieldRegen?: number;
+    readonly intercept?: number;
+    readonly cargo?: number;
+    readonly scan?: number;
+    readonly fuelCap?: number;
+    readonly troops?: number;
+    readonly mining?: number;
+    readonly colonists?: number;
+    readonly buildPower?: number;
+    readonly crewCapacityBonus?: number;
+    readonly consumedOnUse?: boolean;
+}
+interface RawGameTechBranch {
+    readonly id: string;
+    readonly name: string;
+    readonly primaryData: StageOneTechDataKind;
+}
+interface RawGameTechEffect {
+    readonly type: StageOneTechEffectType;
+    readonly id?: string;
+    readonly target?: string;
+    readonly stat?: string;
+    readonly value?: number;
 }
 interface RawGameTech {
     readonly id: string;
+    readonly name: string;
+    readonly branch: string;
+    readonly tier: number;
     readonly phase: number;
     readonly repeatable?: boolean;
     readonly requires?: readonly string[];
@@ -254,6 +436,14 @@ interface RawGameTech {
         readonly engineering?: number;
         readonly bio?: number;
     };
+    readonly baseCost?: {
+        readonly physics?: number;
+        readonly engineering?: number;
+        readonly bio?: number;
+    };
+    readonly costGrowth?: number;
+    readonly effects?: readonly RawGameTechEffect[];
+    readonly effectPerLevel?: readonly RawGameTechEffect[];
 }
 interface RawGamePersonalityWeights {
     readonly growth: number;
@@ -271,6 +461,30 @@ interface RawGamePersonality {
 }
 interface RawGamePersonalitiesFile {
     readonly personalities: readonly RawGamePersonality[];
+}
+interface RawGameDoctrine {
+    readonly id: string;
+    readonly name: string;
+    readonly role: ShipClass;
+    readonly hulls: readonly string[];
+    readonly preferredBand: WeaponBand;
+    readonly weights: Partial<Record<keyof StageOneDoctrineWeights, number>>;
+    readonly require: Partial<Record<keyof StageOneDoctrineRequirements, number>>;
+    readonly withdrawAt: number;
+    readonly pursueAbove: number;
+}
+interface RawGameDoctrinesFile {
+    readonly scoring: {
+        readonly offBandPenalty?: number;
+        readonly shieldEhpFactor?: number;
+        readonly armorSoftening?: number;
+        readonly expectedBattleRounds?: number;
+        readonly defaultEnemyProfile?: {
+            readonly shieldFraction?: number;
+            readonly armorRating?: number;
+        };
+    };
+    readonly doctrines: readonly RawGameDoctrine[];
 }
 interface RawGalaxyPresetsFile {
     readonly presets: readonly RawGalaxyPreset[];

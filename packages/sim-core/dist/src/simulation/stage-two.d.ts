@@ -103,6 +103,9 @@ export declare class StageTwoSimulation {
     private refreshContracts;
     private addShortageContracts;
     private addConstructionMaterialContracts;
+    private addResearchConversionInputContracts;
+    private addScienceInputContracts;
+    private addProducerInputContracts;
     private updateTreasuryMinimum;
     private resourceIsStabilityCritical;
     private factionHasBuilding;

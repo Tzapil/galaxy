@@ -21,7 +21,15 @@ export const enum StageOneLogKind {
   AiBuildPlan = 17,
   AiColonization = 18,
   AiFleetScale = 19,
-  AiNoop = 20
+  AiNoop = 20,
+  ResearchChosen = 21,
+  BlueprintCreated = 22,
+  KitOrderCreated = 23,
+  ShipyardOrderQueued = 24,
+  ShipyardBuildStarted = 25,
+  ShipyardBuildComplete = 26,
+  RefitStarted = 27,
+  RefitComplete = 28
 }
 
 const DEFAULT_STAGE_ONE_EVENT_LOG_LIMIT = 4096;

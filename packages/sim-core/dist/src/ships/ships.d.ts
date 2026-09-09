@@ -12,7 +12,7 @@ export declare const enum ShipState {
     InTransit = 1,
     Disbanded = 2
 }
-export type ShipColumn = "faction" | "role" | "state" | "currentSystem" | "fromSystem" | "toSystem" | "sourceBody" | "targetBody" | "departTick" | "arriveTick" | "cargoResource" | "cargoAmount" | "cargoCapacity" | "fuelTank" | "fuelCapacity" | "fuelPerJump" | "stockpile";
+export type ShipColumn = "faction" | "role" | "state" | "currentSystem" | "fromSystem" | "toSystem" | "sourceBody" | "targetBody" | "departTick" | "arriveTick" | "cargoResource" | "cargoAmount" | "cargoCapacity" | "fuelTank" | "fuelCapacity" | "fuelPerJump" | "blueprint" | "stockpile";
 export declare class Ships {
     readonly arena: SoAArena<ShipColumn>;
     faction: Uint16Array;
@@ -31,13 +31,15 @@ export declare class Ships {
     fuelTank: Float64Array;
     fuelCapacity: Float64Array;
     fuelPerJump: Float64Array;
+    blueprint: Int32Array;
     stockpile: Uint32Array;
     constructor(arena: SoAArena<ShipColumn>);
     static create(initialCapacity?: number): Ships;
     static fromSnapshot(snapshot: ArenaSnapshot): Ships;
     get length(): number;
     addHauler(faction: number, currentSystem: number, stockpile: number, cargoCapacity: number, fuelCapacity: number, fuelPerJump: number): number;
-    addShip(faction: number, currentSystem: number, stockpile: number, role: ShipRole, cargoCapacity: number, fuelCapacity: number, fuelPerJump: number): number;
+    addShip(faction: number, currentSystem: number, stockpile: number, role: ShipRole, cargoCapacity: number, fuelCapacity: number, fuelPerJump: number, blueprint?: number): number;
     private refreshColumns;
+    private copyLegacyColumn;
 }
 //# sourceMappingURL=ships.d.ts.map

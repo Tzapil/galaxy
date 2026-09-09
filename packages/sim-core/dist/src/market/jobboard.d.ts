@@ -14,6 +14,8 @@ export declare class JobBoard {
     readonly travelTicks: Float64Array;
     readonly score: Float64Array;
     readonly reserved: Uint8Array;
+    readonly kitOrder: Int32Array;
+    readonly compound: Uint8Array;
     count: number;
     constructor(capacity?: number);
     clear(): void;
@@ -23,6 +25,8 @@ export declare class JobBoard {
     bestUnreservedForFaction(faction: number): number;
     update(data: StageOneData, world: StageOneWorld, routes: RoutePlanner, contracts?: GovernmentContracts): void;
     private scanPair;
+    private scanKitOrders;
+    private scanKitOrderResource;
     private pushSorted;
     private bubbleUp;
     private compareRows;

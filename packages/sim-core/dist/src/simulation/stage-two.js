@@ -24,7 +24,10 @@ import { readStateSnapshot } from "../snapshot/read.js";
 import { writeStateSnapshot } from "../snapshot/write.js";
 import { handleShipArrival, assignIdleHaulers } from "../ships/move.js";
 import { ShipRole, ShipState } from "../ships/ships.js";
+import { addKitOrderContracts } from "../ships/kit-order.js";
+import { advanceShipyards } from "../ships/shipyard.js";
 import { resourceIndexOf } from "../stage-one/data.js";
+import { repeatableCostAtLevel } from "../tech/repeatable.js";
 import { buildStageOneRenderSnapshot } from "../stage-one/render-snapshot.js";
 import { GovernmentContracts } from "../treasury/contracts.js";
 import { applyDailyTreasury } from "../treasury/treasury.js";
@@ -101,6 +104,7 @@ export class StageTwoSimulation {
         consumePopulationWithLocalRedistribution(this.data, this.world);
         updatePopulationGrowth(this.data, this.world.bodies, this.world.stockpiles, this.world.supply);
         collectAndAdvanceResearch(this.data, this.world, this.tick);
+        advanceShipyards(this.data, this.world, this.tick);
         const treasury = applyDailyTreasury(this.data, this.world, this.tick);
         this.disbandedShips += treasury.disbandedShips;
         this.updateTreasuryMinimum();
@@ -427,7 +431,9 @@ export class StageTwoSimulation {
                 body = this.world.bodies.nextInFaction[body] ?? -1;
             }
         }
+        this.addResearchConversionInputContracts();
         this.addConstructionMaterialContracts();
+        addKitOrderContracts(this.data, this.world, this.contracts);
     }
     addShortageContracts(faction, body) {
         for (let resource = 0; resource < this.data.resources.length; resource += 1) {
@@ -443,7 +449,7 @@ export class StageTwoSimulation {
                 faction,
                 targetBody: body,
                 resource,
-                creditsPerUnit: (this.data.baseValue[resource] ?? 1) * contractMultiplierForResource(this.data, resource)
+                creditsPerUnit: contractCreditsPerUnit(this.data, resource)
             });
         }
     }
@@ -468,6 +474,81 @@ export class StageTwoSimulation {
             });
         }
     }
+    addResearchConversionInputContracts() {
+        for (let faction = 0; faction < this.world.factions.length; faction += 1) {
+            const current = this.world.techState.currentTech[faction] ?? -1;
+            const tech = this.data.techs[current];
+            if (tech === undefined)
+                continue;
+            const capital = this.world.factions.capitalBody[faction] ?? -1;
+            if (capital < 0)
+                continue;
+            const cost = repeatableCostAtLevel(tech, (this.world.techState.level(current, faction) ?? 0) + 1);
+            this.addScienceInputContracts(faction, capital, "data_physics", cost.physics - (this.world.techState.progressPhysics[faction] ?? 0));
+            this.addScienceInputContracts(faction, capital, "data_engineering", cost.engineering - (this.world.techState.progressEngineering[faction] ?? 0));
+            this.addScienceInputContracts(faction, capital, "data_bio", cost.bio - (this.world.techState.progressBio[faction] ?? 0));
+        }
+    }
+    addScienceInputContracts(faction, capital, outputResourceId, remainingOutput) {
+        if (remainingOutput <= 0.001)
+            return;
+        const outputResource = this.data.resourceIndex.get(outputResourceId) ?? -1;
+        if (outputResource < 0)
+            return;
+        let building = this.world.bodies.firstBuilding[capital] ?? -1;
+        while (building >= 0) {
+            const state = this.world.buildings.state[building] ?? BuildingState.UnderConstruction;
+            if (state !== BuildingState.Demolished && state !== BuildingState.UnderConstruction) {
+                const recipe = this.data.batchRecipes[this.world.buildings.batchRecipe[building] ?? -1];
+                if (recipe !== undefined && recipeOutputsResource(recipe, outputResource)) {
+                    for (let i = 0; i < recipe.inputs.length; i += 1) {
+                        const input = recipe.inputs[i];
+                        if (input === undefined)
+                            throw new RangeError("Recipe input is inconsistent.");
+                        if (input.resource === this.data.energyResource)
+                            continue;
+                        if (this.data.transportable[input.resource] !== 1)
+                            continue;
+                        this.contracts.add({
+                            faction,
+                            targetBody: capital,
+                            resource: input.resource,
+                            creditsPerUnit: (this.data.baseValue[input.resource] ?? 1) * 6
+                        });
+                        this.addProducerInputContracts(faction, capital, input.resource);
+                    }
+                }
+            }
+            building = this.world.buildings.nextInBody[building] ?? -1;
+        }
+    }
+    addProducerInputContracts(faction, body, outputResource) {
+        let building = this.world.bodies.firstBuilding[body] ?? -1;
+        while (building >= 0) {
+            const state = this.world.buildings.state[building] ?? BuildingState.UnderConstruction;
+            if (state !== BuildingState.Demolished && state !== BuildingState.UnderConstruction) {
+                const recipe = this.data.batchRecipes[this.world.buildings.batchRecipe[building] ?? -1];
+                if (recipe !== undefined && recipeOutputsResource(recipe, outputResource)) {
+                    for (let i = 0; i < recipe.inputs.length; i += 1) {
+                        const input = recipe.inputs[i];
+                        if (input === undefined)
+                            throw new RangeError("Recipe input is inconsistent.");
+                        if (input.resource === this.data.energyResource)
+                            continue;
+                        if (this.data.transportable[input.resource] !== 1)
+                            continue;
+                        this.contracts.add({
+                            faction,
+                            targetBody: body,
+                            resource: input.resource,
+                            creditsPerUnit: (this.data.baseValue[input.resource] ?? 1) * 4
+                        });
+                    }
+                }
+            }
+            building = this.world.buildings.nextInBody[building] ?? -1;
+        }
+    }
     updateTreasuryMinimum() {
         for (let faction = 0; faction < this.world.factions.length; faction += 1) {
             this.treasuryMin = Math.min(this.treasuryMin, this.world.factions.treasury[faction] ?? 0);
@@ -479,11 +560,7 @@ export class StageTwoSimulation {
         if (resource === this.data.energyResource)
             return true;
         const id = this.data.resources[resource]?.id;
-        if (id === "fuel" ||
-            id === "ice" ||
-            id === "biomass" ||
-            id === "gas" ||
-            id === "polymers") {
+        if (id === "fuel" || id === "ice" || id === "biomass" || id === "gas" || id === "polymers") {
             return true;
         }
         return ((this.data.populationNeeds.perThousandPopPerDay[resource] ?? 0) > 0 &&
@@ -629,11 +706,19 @@ export class StageTwoSimulation {
         return max;
     }
 }
-function contractMultiplierForResource(data, resource) {
+function contractCreditsPerUnit(data, resource) {
+    const baseValue = data.baseValue[resource] ?? 1;
     if ((data.populationNeeds.perThousandPopPerDay[resource] ?? 0) > 0 &&
         data.populationNeeds.comfortOnly[resource] !== 1) {
-        return 4;
+        return Math.max(baseValue * 4, 4);
     }
-    return 0.75;
+    return baseValue * 0.75;
+}
+function recipeOutputsResource(recipe, resource) {
+    for (let i = 0; i < recipe.outputs.length; i += 1) {
+        if ((recipe.outputs[i]?.resource ?? -1) === resource)
+            return true;
+    }
+    return false;
 }
 //# sourceMappingURL=stage-two.js.map

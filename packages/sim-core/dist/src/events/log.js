@@ -21,6 +21,14 @@ export var StageOneLogKind;
     StageOneLogKind[StageOneLogKind["AiColonization"] = 18] = "AiColonization";
     StageOneLogKind[StageOneLogKind["AiFleetScale"] = 19] = "AiFleetScale";
     StageOneLogKind[StageOneLogKind["AiNoop"] = 20] = "AiNoop";
+    StageOneLogKind[StageOneLogKind["ResearchChosen"] = 21] = "ResearchChosen";
+    StageOneLogKind[StageOneLogKind["BlueprintCreated"] = 22] = "BlueprintCreated";
+    StageOneLogKind[StageOneLogKind["KitOrderCreated"] = 23] = "KitOrderCreated";
+    StageOneLogKind[StageOneLogKind["ShipyardOrderQueued"] = 24] = "ShipyardOrderQueued";
+    StageOneLogKind[StageOneLogKind["ShipyardBuildStarted"] = 25] = "ShipyardBuildStarted";
+    StageOneLogKind[StageOneLogKind["ShipyardBuildComplete"] = 26] = "ShipyardBuildComplete";
+    StageOneLogKind[StageOneLogKind["RefitStarted"] = 27] = "RefitStarted";
+    StageOneLogKind[StageOneLogKind["RefitComplete"] = 28] = "RefitComplete";
 })(StageOneLogKind || (StageOneLogKind = {}));
 const DEFAULT_STAGE_ONE_EVENT_LOG_LIMIT = 4096;
 export class StageOneEventLog {

@@ -1,7 +1,7 @@
 import type { StageOneData } from "../stage-one/data.js";
 import type { StageOneWorld } from "../world/state.js";
 
-const SYSTEM_RESERVE_DAYS = 21;
+const SYSTEM_RESERVE_DAYS = 14;
 
 export function consumePopulationWithLocalRedistribution(
   data: StageOneData,
@@ -43,7 +43,11 @@ function drawFromSameSystem(
   const system = world.bodies.system[targetBody] ?? -1;
   if (faction < 0 || system < 0) return 0;
 
-  let remaining = amount;
+  const totalShortage = sameSystemShortage(data, world, faction, system, resource, targetDailyRate);
+  const totalAvailable = sameSystemAvailable(data, world, targetBody, resource, targetDailyRate);
+  const fairShare =
+    totalShortage > 0 ? Math.min(amount, (totalAvailable * amount) / totalShortage) : amount;
+  let remaining = fairShare;
   let removed = 0;
   let sourceBody = world.factions.firstColony[faction] ?? -1;
   while (sourceBody >= 0 && remaining > 0) {
@@ -63,6 +67,56 @@ function drawFromSameSystem(
   }
 
   return removed;
+}
+
+function sameSystemShortage(
+  data: StageOneData,
+  world: StageOneWorld,
+  faction: number,
+  system: number,
+  resource: number,
+  fallbackRate: number
+): number {
+  let shortage = 0;
+  let body = world.factions.firstColony[faction] ?? -1;
+  while (body >= 0) {
+    if ((world.bodies.system[body] ?? -1) === system) {
+      const population = world.bodies.population[body] ?? 0;
+      const rate = dailyNeedRate(data, world, body, resource, fallbackRate);
+      const demand = population * rate;
+      if (demand > 0) {
+        const stockpile = world.bodies.stockpile[body] ?? 0;
+        shortage += Math.max(0, demand - world.stockpiles.get(stockpile, resource));
+      }
+    }
+    body = world.bodies.nextInFaction[body] ?? -1;
+  }
+  return shortage;
+}
+
+function sameSystemAvailable(
+  data: StageOneData,
+  world: StageOneWorld,
+  targetBody: number,
+  resource: number,
+  fallbackRate: number
+): number {
+  const faction = world.bodies.owner[targetBody] ?? -1;
+  const system = world.bodies.system[targetBody] ?? -1;
+  if (faction < 0 || system < 0) return 0;
+  let available = 0;
+  let sourceBody = world.factions.firstColony[faction] ?? -1;
+  while (sourceBody >= 0) {
+    if (sourceBody !== targetBody && (world.bodies.system[sourceBody] ?? -1) === system) {
+      const sourceStockpile = world.bodies.stockpile[sourceBody] ?? 0;
+      const sourcePopulation = world.bodies.population[sourceBody] ?? 0;
+      const sourceRate = dailyNeedRate(data, world, sourceBody, resource, fallbackRate);
+      const reserve = sourcePopulation * sourceRate * SYSTEM_RESERVE_DAYS;
+      available += Math.max(0, world.stockpiles.get(sourceStockpile, resource) - reserve);
+    }
+    sourceBody = world.bodies.nextInFaction[sourceBody] ?? -1;
+  }
+  return available;
 }
 
 function dailyNeedRate(

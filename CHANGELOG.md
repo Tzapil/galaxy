@@ -52,3 +52,8 @@
 ## Golden baseline update
 
 - Reason: Stage 4 faction AI, MRP planning, AI event log capacity
+
+## Golden baseline update
+
+- Reason: Stage 5 tech graph, local science logistics, ship blueprints, shipyard systems, and
+  final reserve behavior.
