@@ -52,12 +52,17 @@ export {
 export type { AiScheduledRun } from "./ai/scheduler.js";
 export { chooseUtilityOption, personalityWeightsForFaction } from "./ai/utility.js";
 export type { UtilityAxis, UtilityChoice, UtilityOption } from "./ai/utility.js";
+export { formatAiDecisionReason } from "./ai/decision-log.js";
+export type { AiDecisionReasonEvent } from "./ai/decision-log.js";
 export {
   chooseResearchTopic,
   isResearchCandidate,
-  personalityWeightForTech
+  isResearchPathReachable,
+  personalityWeightForTech,
+  researchPathCost,
+  researchRelevanceForBottleneck
 } from "./ai/research-choice.js";
-export type { ResearchChoice } from "./ai/research-choice.js";
+export type { ResearchChoice, ResearchPathCost } from "./ai/research-choice.js";
 export {
   findBottleneck,
   reserveDays,
@@ -104,6 +109,9 @@ export { bestColonyTarget, scoreColonyTarget } from "./ai/expansion/colony-score
 export type { ColonyScore } from "./ai/expansion/colony-score.js";
 export {
   buildColonizerIfNeeded,
+  COLONIZER_CREDIT_COST,
+  COLONIZER_HULL_FRAMES,
+  COLONIZER_LIFE_SUPPORT,
   handleColonizerArrival,
   launchIdleColonizer,
   runColonization

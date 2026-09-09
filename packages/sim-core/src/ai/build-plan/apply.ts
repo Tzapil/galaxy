@@ -1,10 +1,13 @@
 import { startBuildingConstruction } from "../../build/construction.js";
+import { demolishBuilding } from "../../build/demolish.js";
 import { BuildingState } from "../../econ/buildings.js";
+import { validatePlacement } from "../../econ/placement.js";
 import type { EventQueue } from "../../events/queue.js";
 import type { StageOneData } from "../../stage-one/data.js";
 import type { StageOneWorld } from "../../world/state.js";
 import { logBuildPlan } from "../decision-log.js";
 
+import { guardDemolishByFlow } from "./guards.js";
 import type { BuildPlan } from "./plan.js";
 
 export interface AppliedBuildPlan {
@@ -27,6 +30,7 @@ export function applyBuildPlan(
     if (item === undefined || queued >= maxQueuedPerFaction) continue;
     for (let count = 0; count < item.count && queued < maxQueuedPerFaction; count += 1) {
       if (!belowCopyLimit(data, world, item.body, item.buildingType)) continue;
+      if (!ensureSlotsForBuilding(data, world, item.body, item.buildingType, tick)) continue;
       const result = startBuildingConstruction(
         data,
         world,
@@ -51,6 +55,58 @@ export function applyBuildPlan(
     }
   }
   return { started, queued };
+}
+
+function ensureSlotsForBuilding(
+  data: StageOneData,
+  world: StageOneWorld,
+  body: number,
+  buildingType: number,
+  tick: number
+): boolean {
+  const placement = validatePlacement(data, world, body, buildingType);
+  if (placement.ok) return true;
+  if (placement.reason !== "noFreeSlots") return true;
+  const def = data.buildings[buildingType];
+  if (def === undefined) return false;
+  while ((world.bodies.usedSlots[body] ?? 0) + def.slots > (world.bodies.slots[body] ?? 0)) {
+    const candidate = bestDemolitionCandidate(data, world, body, buildingType);
+    if (candidate < 0) return false;
+    if (!demolishBuilding(data, world, candidate, tick)) return false;
+  }
+  return true;
+}
+
+function bestDemolitionCandidate(
+  data: StageOneData,
+  world: StageOneWorld,
+  body: number,
+  incomingBuildingType: number
+): number {
+  let bestBuilding = -1;
+  let bestScore = Number.NEGATIVE_INFINITY;
+  let building = world.bodies.firstBuilding[body] ?? -1;
+  while (building >= 0) {
+    const type = world.buildings.type[building] ?? -1;
+    const def = data.buildings[type];
+    if (
+      type !== incomingBuildingType &&
+      def?.powerSource !== true &&
+      world.buildings.state[building] !== BuildingState.UnderConstruction
+    ) {
+      const check = guardDemolishByFlow(data, world, building);
+      if (check.ok) {
+        const score =
+          check.minCoverageAfter + check.minBufferYears * 0.05 + (def?.slots ?? 0) * 0.01;
+        if (score > bestScore + 1e-9) {
+          bestScore = score;
+          bestBuilding = building;
+        }
+      }
+    }
+    building = world.buildings.nextInBody[building] ?? -1;
+  }
+  return bestBuilding;
 }
 
 export function activeConstructionForFaction(world: StageOneWorld, faction: number): number {

@@ -3,6 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import {
   AiOperationalTaskKind,
   AiScheduler,
+  BuildingState,
   BodyType,
   EventQueue,
   NeedBranch,
@@ -12,6 +13,7 @@ import {
   StageOneLogKind,
   StageOneWorld,
   StageTwoSimulation,
+  applyBuildPlan,
   buildColonizerIfNeeded,
   buildingIndexOf,
   calculateFleetDemandPerDay,
@@ -20,6 +22,7 @@ import {
   demandByColonyShare,
   explodeDemand,
   findBottleneck,
+  formatAiDecisionReason,
   guardAlternativeProducer,
   guardDemolishByFlow,
   guardHousingCap,
@@ -252,6 +255,98 @@ describe("Stage 4 faction AI", () => {
     expect(guardDemolishByFlow(data, unpoweredWorld, foodPlant).ok).toBe(false);
   });
 
+  it("wires stock horizon and vital-vs-comfort guards through build planning", () => {
+    const sim = StageTwoSimulation.create(20260904, data);
+    const faction = 0;
+    const body = sim.world.factions.capitalBody[faction] ?? 0;
+    const water = resourceIndexOf(data.resourceIndex, "water");
+    const food = resourceIndexOf(data.resourceIndex, "food");
+    const medicine = resourceIndexOf(data.resourceIndex, "medicine");
+    const consumerGoods = resourceIndexOf(data.resourceIndex, "consumer_goods");
+    const waterPlant = buildingIndexOf(data.buildingIndex, "water_plant");
+    const foodPlant = buildingIndexOf(data.buildingIndex, "food_plant");
+    const consumerPlant = buildingIndexOf(data.buildingIndex, "consumer_plant");
+
+    setFactionStock(sim.world, faction, water, 10_000);
+    const stockedPlan = createBuildPlan(data, sim.world, {
+      kind: AiOperationalTaskKind.BuildProducer,
+      faction,
+      resource: water,
+      body,
+      buildingType: waterPlant,
+      score: 1
+    });
+    expect(guardStockHorizon(sim.world, faction, water, 1)).toBe(false);
+    expect(stockedPlan.items).toHaveLength(0);
+
+    setFactionStock(sim.world, faction, water, 0);
+    setFactionStock(sim.world, faction, food, 0);
+    setFactionStock(sim.world, faction, medicine, 0);
+    const comfortPlan = createBuildPlan(data, sim.world, {
+      kind: AiOperationalTaskKind.BuildProducer,
+      faction,
+      resource: consumerGoods,
+      body,
+      buildingType: consumerPlant,
+      score: 5
+    });
+    const vitalPlan = createBuildPlan(data, sim.world, {
+      kind: AiOperationalTaskKind.BuildProducer,
+      faction,
+      resource: food,
+      body,
+      buildingType: foodPlant,
+      score: 5
+    });
+
+    expect(guardVitalVsComfort(data, consumerGoods)).toBe(NeedBranch.Comfort);
+    expect(comfortPlan.items).toHaveLength(0);
+    expect(vitalPlan.items.length).toBeGreaterThan(0);
+  });
+
+  it("frees slots for build plans only through flow-approved demolition", () => {
+    const world = StageOneWorld.create(data);
+    const system = world.systems.add(0, 0, 0, -1);
+    const body = world.addBody(system, BodyType.Planet, 1, 0.8, 3, -1, 100);
+    const faction = world.addFaction("Demolition", system, body, 1_000, 1, 1);
+    const solar = buildingIndexOf(data.buildingIndex, "solar_array");
+    const foodPlant = buildingIndexOf(data.buildingIndex, "food_plant");
+    const waterPlant = buildingIndexOf(data.buildingIndex, "water_plant");
+    const water = resourceIndexOf(data.resourceIndex, "water");
+    const foodA = world.buildings.addBuilt(data, world.bodies, body, foodPlant, world.stockpiles);
+    const foodB = world.buildings.addBuilt(data, world.bodies, body, foodPlant, world.stockpiles);
+    world.buildings.addBuilt(data, world.bodies, body, solar, world.stockpiles);
+    const stockpile = world.bodies.stockpile[body] ?? 0;
+    for (const item of data.buildings[waterPlant]?.buildCost ?? []) {
+      world.stockpiles.setCapacity(stockpile, item.resource, item.amount + 100);
+      world.stockpiles.set(stockpile, item.resource, item.amount + 10);
+    }
+
+    expect(
+      guardDemolishByFlow(data, world, foodA).ok || guardDemolishByFlow(data, world, foodB).ok
+    ).toBe(true);
+
+    const applied = applyBuildPlan(
+      data,
+      world,
+      new EventQueue(),
+      10,
+      {
+        faction,
+        items: [{ body, buildingType: waterPlant, count: 1, resource: water, score: 1 }],
+        operations: 1
+      },
+      1
+    );
+
+    expect(applied.started).toBe(1);
+    expect(
+      world.buildings.state[foodA] === BuildingState.Demolished ||
+        world.buildings.state[foodB] === BuildingState.Demolished
+    ).toBe(true);
+    expect(hasEvent(world, StageOneLogKind.BuildingDemolished)).toBe(true);
+  });
+
   it("launches a disposable colonizer and founds a colony on arrival", () => {
     const world = StageOneWorld.create(data);
     const home = world.systems.add(0, 0, 0, -1);
@@ -288,6 +383,16 @@ describe("Stage 4 faction AI", () => {
       aiEvents += 1;
       expect(Number.isFinite(sim.world.eventLog.amount[row] ?? 0)).toBe(true);
       expect(sim.world.eventLog.resource[row] ?? -1).toBeGreaterThanOrEqual(-1);
+      expect(
+        formatAiDecisionReason(data, {
+          kind,
+          system: sim.world.eventLog.system[row] ?? -1,
+          body: sim.world.eventLog.body[row] ?? -1,
+          subject: sim.world.eventLog.subject[row] ?? -1,
+          resource: sim.world.eventLog.resource[row] ?? -1,
+          amount: sim.world.eventLog.amount[row] ?? 0
+        }).length
+      ).toBeGreaterThan(24);
     }
 
     expect(report.metrics.totalPopulation).toBeGreaterThan(500);
@@ -305,4 +410,27 @@ function findShip(world: StageOneWorld, role: ShipRole): number {
     if (world.ships.role[ship] === role) return ship;
   }
   return -1;
+}
+
+function setFactionStock(
+  world: StageOneWorld,
+  faction: number,
+  resource: number,
+  amount: number
+): void {
+  let body = world.factions.firstColony[faction] ?? -1;
+  while (body >= 0) {
+    const stockpile = world.bodies.stockpile[body] ?? 0;
+    world.stockpiles.setCapacity(stockpile, resource, Math.max(amount, 10_000));
+    world.stockpiles.set(stockpile, resource, amount);
+    body = world.bodies.nextInFaction[body] ?? -1;
+  }
+}
+
+function hasEvent(world: StageOneWorld, kind: StageOneLogKind): boolean {
+  for (let i = 0; i < world.eventLog.length; i += 1) {
+    const row = world.eventLog.recentRow(i);
+    if (world.eventLog.kind[row] === kind) return true;
+  }
+  return false;
 }

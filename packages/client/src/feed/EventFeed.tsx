@@ -1,4 +1,9 @@
-import { createDefaultStageOneData, StageOneLogKind, type RenderEvent } from "@galaxy-sim/sim-core";
+import {
+  createDefaultStageOneData,
+  formatAiDecisionReason,
+  StageOneLogKind,
+  type RenderEvent
+} from "@galaxy-sim/sim-core";
 import type { ReactElement } from "react";
 
 const data = createDefaultStageOneData();
@@ -30,6 +35,8 @@ export function EventFeed({ events, onFocusSystem }: EventFeedProps): ReactEleme
 }
 
 function eventText(event: RenderEvent): string {
+  const aiReason = formatAiDecisionReason(data, event);
+  if (aiReason.length > 0) return aiReason;
   const resource =
     event.resource >= 0 ? (data.resources[event.resource]?.id ?? `res${event.resource}`) : "";
   const building =

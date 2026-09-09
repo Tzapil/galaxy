@@ -1,11 +1,22 @@
+import { BuildingState } from "../../econ/buildings.js";
 import { validatePlacement } from "../../econ/placement.js";
 import type { StageOneData } from "../../stage-one/data.js";
 import type { StageOneWorld } from "../../world/state.js";
 import { AiOperationalTaskKind, type AiOperationalTask } from "../bottleneck.js";
 import { chooseProducer } from "../mrp/explode.js";
 
-import { guardAlternativeProducer, guardHousingCap, guardPowerAvailable } from "./guards.js";
+import {
+  guardAlternativeProducer,
+  guardDemolishByFlow,
+  guardHousingCap,
+  guardPowerAvailable,
+  guardStockHorizon,
+  guardVitalVsComfort,
+  NeedBranch
+} from "./guards.js";
 import { solveLinearProgram } from "./lp.js";
+
+const COMFORT_VITAL_RESERVE_DAYS = 30;
 
 export interface BuildPlanItem {
   readonly body: number;
@@ -28,6 +39,15 @@ export function createBuildPlan(
 ): BuildPlan {
   if (task.kind !== AiOperationalTaskKind.BuildProducer || task.body < 0 || task.buildingType < 0) {
     return { faction: task.faction, items: [], operations: 0 };
+  }
+  if (!guardStockHorizon(world, task.faction, task.resource, task.score)) {
+    return { faction: task.faction, items: [], operations: 1 };
+  }
+  if (
+    guardVitalVsComfort(data, task.resource) === NeedBranch.Comfort &&
+    minVitalReserveDays(data, world, task.faction) < COMFORT_VITAL_RESERVE_DAYS
+  ) {
+    return { faction: task.faction, items: [], operations: 1 };
   }
   const candidates: BuildPlanItem[] = [];
   const producer = guardAlternativeProducer(
@@ -194,7 +214,11 @@ function canQueueBuilding(
     return false;
   }
   const placement = validatePlacement(data, world, body, buildingType);
-  return placement.ok || (placement.reason === "noPowerSource" && plannedPower);
+  return (
+    placement.ok ||
+    (placement.reason === "noPowerSource" && plannedPower) ||
+    (placement.reason === "noFreeSlots" && hasDemolishableSpace(data, world, body, buildingType))
+  );
 }
 
 function powerPrerequisite(
@@ -265,7 +289,11 @@ function canBodyEventuallyPlace(
 ): boolean {
   if (body < 0 || buildingType < 0) return false;
   const placement = validatePlacement(data, world, body, buildingType);
-  return placement.ok || placement.reason === "noPowerSource";
+  return (
+    placement.ok ||
+    placement.reason === "noPowerSource" ||
+    (placement.reason === "noFreeSlots" && hasDemolishableSpace(data, world, body, buildingType))
+  );
 }
 
 function containsPower(data: StageOneData, items: readonly BuildPlanItem[], body: number): boolean {
@@ -311,6 +339,65 @@ function factionHasBuilding(world: StageOneWorld, faction: number, buildingType:
 
 function freeSlots(world: StageOneWorld, body: number): number {
   return Math.max(0, (world.bodies.slots[body] ?? 0) - (world.bodies.usedSlots[body] ?? 0));
+}
+
+function hasDemolishableSpace(
+  data: StageOneData,
+  world: StageOneWorld,
+  body: number,
+  buildingType: number
+): boolean {
+  const slotsNeeded = Math.max(
+    0,
+    (data.buildings[buildingType]?.slots ?? 0) - freeSlots(world, body)
+  );
+  if (slotsNeeded <= 0) return true;
+  let slots = 0;
+  let building = world.bodies.firstBuilding[body] ?? -1;
+  while (building >= 0) {
+    const type = world.buildings.type[building] ?? -1;
+    const def = data.buildings[type];
+    if (
+      type !== buildingType &&
+      def?.powerSource !== true &&
+      world.buildings.state[building] !== BuildingState.UnderConstruction &&
+      guardDemolishByFlow(data, world, building).ok
+    ) {
+      slots += world.buildings.slots[building] ?? def?.slots ?? 0;
+      if (slots >= slotsNeeded) return true;
+    }
+    building = world.buildings.nextInBody[building] ?? -1;
+  }
+  return false;
+}
+
+function minVitalReserveDays(data: StageOneData, world: StageOneWorld, faction: number): number {
+  let min = Number.POSITIVE_INFINITY;
+  for (let resource = 0; resource < data.resources.length; resource += 1) {
+    if ((data.populationNeeds.perThousandPopPerDay[resource] ?? 0) <= 0) continue;
+    if (data.populationNeeds.comfortOnly[resource] === 1) continue;
+    const demand = factionDailyNeed(data, world, faction, resource);
+    if (demand <= 0) continue;
+    min = Math.min(min, factionStock(world, faction, resource) / demand);
+  }
+  return Number.isFinite(min) ? min : 0;
+}
+
+function factionDailyNeed(
+  data: StageOneData,
+  world: StageOneWorld,
+  faction: number,
+  resource: number
+): number {
+  let demand = 0;
+  let body = world.factions.firstColony[faction] ?? -1;
+  while (body >= 0) {
+    demand +=
+      (world.bodies.population[body] ?? 0) *
+      (data.populationNeeds.perThousandPopPerDay[resource] ?? 0);
+    body = world.bodies.nextInFaction[body] ?? -1;
+  }
+  return demand;
 }
 
 function workforceHeadroom(world: StageOneWorld, body: number): number {

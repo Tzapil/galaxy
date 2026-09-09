@@ -32,7 +32,7 @@ export function collectFactionDemandSources(
   addArrayTargets(recipeDemandPerDay, targets);
   addArrayTargets(populationDemandPerDay, targets);
   addArrayTargets(capitalDemandPerDay, targets);
-  addArrayTargets(fleetDemandPerDay, targets);
+  addFleetTargetsByColonyShare(world, faction, fleetDemandPerDay, targets);
   addFleetProgramTargets(data, targets);
 
   return {
@@ -118,6 +118,20 @@ function addFleetProgramTargets(data: StageOneData, targets: MrpTarget[]): void 
   const hull = cruiser ?? fallback;
   if (hull === undefined) return;
   targets.push({ kind: "hull", hull, count: 20, horizonDays: 365 });
+}
+
+function addFleetTargetsByColonyShare(
+  world: StageOneWorld,
+  faction: number,
+  demand: Float64Array,
+  targets: MrpTarget[]
+): void {
+  let shares = 0;
+  for (const share of demandByColonyShare(world, faction, demand)) {
+    addArrayTargets(share, targets);
+    shares += 1;
+  }
+  if (shares === 0) addArrayTargets(demand, targets);
 }
 
 function addArrayTargets(demand: Float64Array, targets: MrpTarget[]): void {

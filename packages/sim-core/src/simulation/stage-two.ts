@@ -9,7 +9,13 @@ import { createStrategicGoal } from "../ai/goals.js";
 import { applyBuildPlan } from "../ai/build-plan/apply.js";
 import { createBuildPlan } from "../ai/build-plan/plan.js";
 import { logBottleneck, logStrategicGoal } from "../ai/decision-log.js";
-import { handleColonizerArrival, runColonization } from "../ai/expansion/colonize.js";
+import {
+  COLONIZER_CREDIT_COST,
+  COLONIZER_HULL_FRAMES,
+  COLONIZER_LIFE_SUPPORT,
+  handleColonizerArrival,
+  runColonization
+} from "../ai/expansion/colonize.js";
 import { scaleCivilianFleet } from "../ai/expansion/fleet-scale.js";
 import { personalityWeightsForFaction } from "../ai/utility.js";
 import {
@@ -168,7 +174,7 @@ export class StageTwoSimulation {
     bootProduction(this.data, this.world, this.queue, this.tick);
     consumePopulationWithLocalRedistribution(this.data, this.world);
     updatePopulationGrowth(this.data, this.world.bodies, this.world.stockpiles, this.world.supply);
-    collectAndAdvanceResearch(this.data, this.world, this.tick);
+    collectAndAdvanceResearch(this.data, this.world, this.tick, this.rootRng);
     advanceShipyards(this.data, this.world, this.tick);
     const treasury = applyDailyTreasury(this.data, this.world, this.tick);
     this.disbandedShips += treasury.disbandedShips;
@@ -497,7 +503,8 @@ export class StageTwoSimulation {
   }
 
   private canStartAiExpansion(faction: number): boolean {
-    if ((this.world.factions.treasury[faction] ?? 0) < 20_000) return false;
+    if ((this.world.factions.treasury[faction] ?? 0) < COLONIZER_CREDIT_COST) return false;
+    if (!this.capitalHasColonizerKit(faction)) return false;
     if (this.maxTrackedZeroStreak() > 0) return false;
     if (this.minVitalReserveDays(faction) < 14) return false;
     const population = this.factionPopulation(faction);
@@ -774,6 +781,19 @@ export class StageTwoSimulation {
       body = this.world.bodies.nextInFaction[body] ?? -1;
     }
     return stock;
+  }
+
+  private capitalHasColonizerKit(faction: number): boolean {
+    const capital = this.world.factions.capitalBody[faction] ?? -1;
+    if (capital < 0) return false;
+    const stockpile = this.world.bodies.stockpile[capital] ?? -1;
+    const hullFrames = resourceIndexOf(this.data.resourceIndex, "hull_frames");
+    const lifeSupport = resourceIndexOf(this.data.resourceIndex, "life_support");
+    return (
+      stockpile >= 0 &&
+      this.world.stockpiles.hasAtLeast(stockpile, hullFrames, COLONIZER_HULL_FRAMES) &&
+      this.world.stockpiles.hasAtLeast(stockpile, lifeSupport, COLONIZER_LIFE_SUPPORT)
+    );
   }
 
   private factionPopulation(faction: number): number {

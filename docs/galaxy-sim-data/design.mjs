@@ -258,17 +258,36 @@ function designShip(hullId, doc, pool, costCap = Infinity, enemy = DEFAULT_ENEMY
 }
 
 function bestDesign(doc, era, costCap = Infinity, enemy = DEFAULT_ENEMY) {
+  const budget = Number.isFinite(costCap) ? Math.max(0, costCap) : Infinity;
   let best = null;
   for (const h of hullsIn(era)) {
     if (!doc.hulls.includes(h.id)) continue;
-    const d = designShip(h.id, doc, availableIn(era), costCap, enemy);
+    const d = designShip(h.id, doc, availableIn(era), budget, enemy);
     if (!d) continue;
     const s = stats(d);
     if (!meetsRequirements(d, doc, s)) continue;
     const sc = score(d, doc, s, enemy);
-    if (!best || sc > best.sc) best = { d, s, sc, cost: designCost(d) };
+    const cost = designCost(d);
+    if (cost > budget) continue;
+    const affordableCount = Number.isFinite(budget) ? Math.floor(budget / Math.max(1, cost)) : 1;
+    if (affordableCount <= 0) continue;
+    const scorePerCredit = cost > 0 ? sc / cost : 0;
+    const budgetedScore = Number.isFinite(budget)
+      ? (sc * affordableCount) / Math.max(1, budget)
+      : sc;
+    const candidate = { d, s, sc, cost, scorePerCredit, affordableCount, budgetedScore };
+    if (betterBudgetDesign(candidate, best)) best = candidate;
   }
   return best;
+}
+
+function betterBudgetDesign(candidate, best) {
+  if (!best) return true;
+  if (candidate.budgetedScore > best.budgetedScore + 1e-9) return true;
+  if (candidate.budgetedScore < best.budgetedScore - 1e-9) return false;
+  if (candidate.scorePerCredit > best.scorePerCredit + 1e-9) return true;
+  if (candidate.scorePerCredit < best.scorePerCredit - 1e-9) return false;
+  return candidate.sc > best.sc + 1e-9;
 }
 
 // ------------------------------------------------------------------ вывод проекта
@@ -540,11 +559,11 @@ console.log(line);
 console.log('ПРОВЕРКА 6: ОТДАЧА НА КРЕДИТ ПО КОРПУСАМ');
 console.log(line);
 {
-  // bestDesign выбирает проект по АБСОЛЮТНОЙ оценке, поэтому больший корпус побеждает
-  // всегда, и малые корпуса не выбираются никогда. Но фракция тратит бюджет, а не слоты:
-  // при равных деньгах важна отдача на кредит. Эта таблица показывает разницу.
+  const budget = 14000;
+  // B9: bestDesign now chooses by budgeted score, with score/credit as a tie-break.
   for (const docId of ['brawler', 'line_battle', 'escort']) {
     const doc = DOCTRINES.find((d) => d.id === docId);
+    const chosen = bestDesign(doc, 'endgame', budget);
     console.log(`\n[${doc.name}]`);
     console.log('   корпус'.padEnd(26) + 'оценка'.padStart(10) + 'стоимость'.padStart(12) + 'оценка/1000 кр.'.padStart(17));
     const rows = [];
@@ -561,11 +580,13 @@ console.log(line);
     for (const r of rows) {
       console.log('   ' + r.name.padEnd(23) + r.sc.toFixed(0).padStart(10) + r.c.toFixed(0).padStart(12) + r.eff.toFixed(0).padStart(17));
     }
+    if (chosen) {
+      console.log(`   budget ${budget}: choose ${HULL.get(chosen.d.hull).name} x${chosen.affordableCount}, budgeted ${chosen.budgetedScore.toFixed(3)}, score/credit ${(chosen.scorePerCredit * 1000).toFixed(0)}/1000`);
+    }
   }
   console.log('');
-  console.log('Верхняя строка каждой доктрины — самый выгодный корпус на единицу бюджета,');
-  console.log('а проектировщик выбирает по абсолютной оценке, то есть всегда самый крупный.');
-  console.log('Настоящий ИИ должен учитывать бюджет: это разница между одним линкором и роем канонерок.');
+  console.log('B9 closed: the chooser uses budgeted score instead of raw absolute score.');
+  console.log('The table remains a score-per-credit diagnostic; the chosen line is the actual budget-aware result.');
 }
 
 console.log('');

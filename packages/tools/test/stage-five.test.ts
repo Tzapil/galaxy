@@ -6,6 +6,7 @@ import {
   JobBoard,
   KitOrderState,
   MAX_REPEATABLE_TECH_LEVEL,
+  Rng,
   RoutePlanner,
   ShipRole,
   ShipyardOrderState,
@@ -20,17 +21,23 @@ import {
   blueprintComponentRequirements,
   canRefitShip,
   calculateDesignStats,
+  chooseResearchTopic,
   collectAndAdvanceResearch,
   computeEffectiveHitPoints,
   isModuleUnlocked,
+  isResearchPathReachable,
   queueShipBuild,
   refitCost,
   refitShipAtShipyard,
   repeatableCostAtLevel,
+  researchPathCost,
+  researchRelevanceForBottleneck,
   resourceIndexOf,
   scoreDesign,
   speedScore,
+  StageTwoSimulation,
   startProducibleResources,
+  totalCost,
   validateAllModifiers,
   validateShipDesign,
   type BestDesignResult,
@@ -52,7 +59,7 @@ describe("Stage 5 research and ship design", () => {
     const graph = TechGraph.create(data);
     const producible = startProducibleResources(data, graph);
 
-    expect(data.techs.length).toBeGreaterThanOrEqual(87);
+    expect(data.techs.length).toBe(94);
     expect(data.techBranches).toHaveLength(13);
     expect(data.techs.filter((tech) => tech.repeatable)).toHaveLength(13);
     expect(graph.validation.cycles).toEqual([]);
@@ -67,6 +74,52 @@ describe("Stage 5 research and ship design", () => {
     expect(() => assertStageFiveHullData(data)).not.toThrow();
     expect(() => assertStageFiveModuleData(data)).not.toThrow();
     expect(() => validateAllModifiers(data)).not.toThrow();
+  });
+
+  it("prices research by prerequisite path and filters unreachable science branches", () => {
+    const world = oneFactionWorld(data);
+    const faction = 0;
+    const shields3 = techIndex("shields_3");
+    const directCost = repeatableCostAtLevel(data.techs[shields3] as StageOneTech, 1);
+    const path = researchPathCost(data, world, faction, shields3);
+
+    expect(path.total).toBeGreaterThan(totalCost(directCost));
+    const pathIds = path.path.map((tech) => data.techs[tech]?.id);
+    expect(pathIds).toEqual(
+      expect.arrayContaining([
+        "materials_alloys",
+        "microelectronics",
+        "superconduction",
+        "shields_1",
+        "shields_2",
+        "shields_3"
+      ])
+    );
+    expect(pathIds[pathIds.length - 1]).toBe("shields_3");
+    expect(isResearchPathReachable(data, world, faction, shields3)).toBe(false);
+    expect(chooseResearchTopic(data, world, faction, 1)).toBeUndefined();
+  });
+
+  it("draws research noise from a derived stream and keeps the root RNG stable", () => {
+    const sim = StageTwoSimulation.create(20260904, data);
+    const rng = Rng.fromSeed(12345);
+    const before = rng.serialize();
+    const choice = chooseResearchTopic(data, sim.world, 0, 100, rng);
+
+    expect(choice).toBeDefined();
+    expect(choice?.reason).toContain("cost_path=");
+    expect(choice?.prereqPath.length).toBeGreaterThan(0);
+    expect(rng.serialize()).toEqual(before);
+  });
+
+  it("scores shield bottlenecks toward defensive shield research", () => {
+    const shields = resourceIndexOf(data.resourceIndex, "shields");
+    const shieldTech = data.techs[techIndex("shields_1")] as StageOneTech;
+    const alloyTech = data.techs[techIndex("materials_alloys")] as StageOneTech;
+
+    expect(researchRelevanceForBottleneck(data, shieldTech, shields)).toBeGreaterThan(
+      researchRelevanceForBottleneck(data, alloyTech, shields)
+    );
   });
 
   it("tracks unlocks per faction and caps repeatable levels", () => {

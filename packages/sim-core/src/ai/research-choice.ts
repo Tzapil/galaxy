@@ -1,18 +1,34 @@
 import { findBottleneck } from "./bottleneck.js";
 import { personalityWeightsForFaction } from "./utility.js";
+import { BuildingState } from "../econ/buildings.js";
 import type { Rng } from "../rng.js";
 import type { StageOneData, StageOneTech, StageOneTechEffect } from "../stage-one/data.js";
-import { MAX_REPEATABLE_TECH_LEVEL, repeatableCostAtLevel, totalCost } from "../tech/repeatable.js";
+import {
+  MAX_REPEATABLE_TECH_LEVEL,
+  repeatableCostAtLevel,
+  totalCost,
+  type TechDataCost
+} from "../tech/repeatable.js";
 import type { StageOneWorld } from "../world/state.js";
 
 export interface ResearchChoice {
   readonly tech: number;
+  readonly targetTech: number;
   readonly score: number;
   readonly relevance: number;
   readonly personalityWeight: number;
   readonly cost: number;
+  readonly immediateCost: number;
   readonly bottleneckResource: number;
+  readonly prereqPath: readonly number[];
   readonly reason: string;
+}
+
+export interface ResearchPathCost {
+  readonly tech: number;
+  readonly path: readonly number[];
+  readonly cost: TechDataCost;
+  readonly total: number;
 }
 
 export function chooseResearchTopic(
@@ -25,25 +41,44 @@ export function chooseResearchTopic(
   let best: ResearchChoice | undefined;
   const bottleneck = findBottleneck(data, world, faction);
   const bottleneckResource = bottleneck?.resource ?? -1;
-  for (let tech = 0; tech < data.techs.length; tech += 1) {
-    const definition = data.techs[tech];
+  const researchRng = rng?.derive("research");
+  for (let targetTech = 0; targetTech < data.techs.length; targetTech += 1) {
+    const definition = data.techs[targetTech];
     if (definition === undefined) throw new RangeError("Technology table is inconsistent.");
-    if (!isResearchCandidate(data, world, faction, tech, definition)) continue;
+    if (!isResearchTarget(data, world, faction, targetTech, definition)) continue;
+    const pathCost = researchPathCost(data, world, faction, targetTech);
+    if (!researchPathCanBePaid(data, world, faction, pathCost.cost)) continue;
+    const tech = firstResearchableStep(data, world, faction, targetTech, pathCost.path);
+    if (tech < 0) continue;
+    const stepDefinition = data.techs[tech];
+    if (stepDefinition === undefined) throw new RangeError("Technology table is inconsistent.");
     const relevance = relevanceByMrp(data, definition, bottleneckResource);
     const personalityWeight = personalityWeightForTech(data, world, faction, definition);
     const level = world.techState.level(tech, faction);
-    const cost = Math.max(1, totalCost(repeatableCostAtLevel(definition, level + 1)));
-    const noise =
-      rng === undefined ? deterministicNoise(faction, tech, tick) : rng.nextFloat() * 0.0001;
+    const immediateCost = Math.max(1, totalCost(repeatableCostAtLevel(stepDefinition, level + 1)));
+    const cost = Math.max(1, pathCost.total);
+    const noise = researchNoise(researchRng, faction, targetTech, tick);
     const score = (relevance * personalityWeight) / cost + noise;
     const choice = {
       tech,
+      targetTech,
       score,
       relevance,
       personalityWeight,
       cost,
+      immediateCost,
       bottleneckResource,
-      reason: reasonFor(data, definition, bottleneckResource, relevance, personalityWeight)
+      prereqPath: pathCost.path,
+      reason: reasonFor(
+        data,
+        stepDefinition,
+        definition,
+        bottleneckResource,
+        relevance,
+        personalityWeight,
+        cost,
+        pathCost.path
+      )
     };
     if (isBetter(choice, best)) best = choice;
   }
@@ -92,6 +127,143 @@ export function isResearchCandidate(
     if (!world.techState.hasResearched(faction, prereq)) return false;
   }
   return true;
+}
+
+export function researchPathCost(
+  data: StageOneData,
+  world: StageOneWorld,
+  faction: number,
+  tech: number
+): ResearchPathCost {
+  const path: number[] = [];
+  const seen = new Uint8Array(data.techs.length);
+  const cost = { physics: 0, engineering: 0, bio: 0 };
+  collectUnresearchedPath(data, world, faction, tech, seen, path);
+  for (let i = 0; i < path.length; i += 1) {
+    const node = path[i] ?? -1;
+    const definition = data.techs[node];
+    if (definition === undefined) throw new RangeError("Technology table is inconsistent.");
+    const nodeCost = repeatableCostAtLevel(definition, world.techState.level(node, faction) + 1);
+    cost.physics += nodeCost.physics;
+    cost.engineering += nodeCost.engineering;
+    cost.bio += nodeCost.bio;
+  }
+  return { tech, path, cost, total: totalCost(cost) };
+}
+
+export function isResearchPathReachable(
+  data: StageOneData,
+  world: StageOneWorld,
+  faction: number,
+  tech: number
+): boolean {
+  const definition = data.techs[tech];
+  if (definition === undefined) return false;
+  if (!isResearchTarget(data, world, faction, tech, definition)) return false;
+  const pathCost = researchPathCost(data, world, faction, tech);
+  if (firstResearchableStep(data, world, faction, tech, pathCost.path) < 0) return false;
+  return researchPathCanBePaid(data, world, faction, pathCost.cost);
+}
+
+export function researchRelevanceForBottleneck(
+  data: StageOneData,
+  tech: StageOneTech,
+  bottleneckResource: number
+): number {
+  return relevanceByMrp(data, tech, bottleneckResource);
+}
+
+function isResearchTarget(
+  data: StageOneData,
+  world: StageOneWorld,
+  faction: number,
+  tech: number,
+  definition = data.techs[tech]
+): boolean {
+  if (definition === undefined) return false;
+  if (definition.id === "start") return false;
+  const level = world.techState.level(tech, faction);
+  if (!definition.repeatable && level > 0) return false;
+  return !definition.repeatable || level < MAX_REPEATABLE_TECH_LEVEL;
+}
+
+function collectUnresearchedPath(
+  data: StageOneData,
+  world: StageOneWorld,
+  faction: number,
+  tech: number,
+  seen: Uint8Array,
+  path: number[]
+): void {
+  if (tech < 0 || tech >= data.techs.length || seen[tech] === 1) return;
+  seen[tech] = 1;
+  const prereqs = world.techGraph.prerequisites[tech] ?? [];
+  for (let i = 0; i < prereqs.length; i += 1) {
+    collectUnresearchedPath(data, world, faction, prereqs[i] ?? -1, seen, path);
+  }
+  const definition = data.techs[tech];
+  if (definition === undefined) throw new RangeError("Technology table is inconsistent.");
+  const level = world.techState.level(tech, faction);
+  if (!definition.repeatable && level > 0) return;
+  if (definition.repeatable && level >= MAX_REPEATABLE_TECH_LEVEL) return;
+  if (definition.id !== "start") path.push(tech);
+}
+
+function firstResearchableStep(
+  data: StageOneData,
+  world: StageOneWorld,
+  faction: number,
+  targetTech: number,
+  path: readonly number[] = researchPathCost(data, world, faction, targetTech).path
+): number {
+  for (let i = 0; i < path.length; i += 1) {
+    const tech = path[i] ?? -1;
+    if (isResearchCandidate(data, world, faction, tech)) return tech;
+  }
+  return -1;
+}
+
+function researchPathCanBePaid(
+  data: StageOneData,
+  world: StageOneWorld,
+  faction: number,
+  cost: TechDataCost
+): boolean {
+  if (cost.physics > 0 && !factionProducesResearchData(data, world, faction, "data_physics")) {
+    return false;
+  }
+  if (
+    cost.engineering > 0 &&
+    !factionProducesResearchData(data, world, faction, "data_engineering")
+  ) {
+    return false;
+  }
+  if (cost.bio > 0 && !factionProducesResearchData(data, world, faction, "data_bio")) return false;
+  return true;
+}
+
+function factionProducesResearchData(
+  data: StageOneData,
+  world: StageOneWorld,
+  faction: number,
+  resourceId: string
+): boolean {
+  const resource = data.resourceIndex.get(resourceId) ?? -1;
+  if (resource < 0) return false;
+  let body = world.factions.firstColony[faction] ?? -1;
+  while (body >= 0) {
+    let building = world.bodies.firstBuilding[body] ?? -1;
+    while (building >= 0) {
+      const state = world.buildings.state[building] ?? BuildingState.UnderConstruction;
+      if (state !== BuildingState.Demolished && state !== BuildingState.UnderConstruction) {
+        const recipe = data.batchRecipes[world.buildings.batchRecipe[building] ?? -1];
+        if (recipe !== undefined && recipeOutputsResource(data, recipe.id, resource)) return true;
+      }
+      building = world.buildings.nextInBody[building] ?? -1;
+    }
+    body = world.bodies.nextInFaction[body] ?? -1;
+  }
+  return false;
 }
 
 function relevanceByMrp(
@@ -190,6 +362,12 @@ function familyHelpsResource(family: string, resourceId: string): boolean {
     return true;
   if (resourceId === "alloys" && family === "armor") return true;
   if (resourceId === "electronics" && (family === "reactor" || family === "sensor")) return true;
+  if (resourceId === "reactors" && family === "reactor") return true;
+  if (resourceId === "thrusters" && family === "thruster") return true;
+  if (resourceId === "life_support" && family === "life_support") return true;
+  if (resourceId === "shields" && family === "shield") return true;
+  if (resourceId === "armor" && family === "armor") return true;
+  if (resourceId === "optics" && family === "sensor") return true;
   if (resourceId.includes("weapon") && isWeaponFamily(family)) return true;
   return false;
 }
@@ -205,20 +383,31 @@ function baseBranchRelevance(tech: StageOneTech): number {
 
 function reasonFor(
   data: StageOneData,
-  tech: StageOneTech,
+  stepTech: StageOneTech,
+  targetTech: StageOneTech,
   bottleneckResource: number,
   relevance: number,
-  personalityWeight: number
+  personalityWeight: number,
+  cost: number,
+  path: readonly number[]
 ): string {
   const resource =
     bottleneckResource >= 0 ? (data.resources[bottleneckResource]?.id ?? "unknown") : "none";
-  return `bottleneck=${resource}; relevance=${relevance.toFixed(3)}; personality=${personalityWeight.toFixed(3)}`;
+  const pathIds = path.map((tech) => data.techs[tech]?.id ?? "unknown").join(">");
+  return `research=${stepTech.id}; target=${targetTech.id}; bottleneck=${resource}; cost_path=${cost.toFixed(1)}; prereq_path=${pathIds}; relevance=${relevance.toFixed(3)}; personality=${personalityWeight.toFixed(3)}`;
 }
 
 function isBetter(candidate: ResearchChoice, best: ResearchChoice | undefined): boolean {
   if (best === undefined) return true;
   if (candidate.score > best.score + 1e-12) return true;
-  return Math.abs(candidate.score - best.score) <= 1e-12 && candidate.tech < best.tech;
+  if (Math.abs(candidate.score - best.score) > 1e-12) return false;
+  if (candidate.tech !== best.tech) return candidate.tech < best.tech;
+  return candidate.targetTech < best.targetTech;
+}
+
+function researchNoise(rng: Rng | undefined, faction: number, tech: number, tick: number): number {
+  if (rng === undefined) return deterministicNoise(faction, tech, tick);
+  return rng.derive(`${faction}:${tick}:${tech}`).nextFloat() * 0.0001;
 }
 
 function deterministicNoise(faction: number, tech: number, tick: number): number {

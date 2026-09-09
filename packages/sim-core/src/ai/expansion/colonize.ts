@@ -11,6 +11,10 @@ import { logColonization } from "../decision-log.js";
 
 import { bestColonyTarget } from "./colony-score.js";
 
+export const COLONIZER_CREDIT_COST = 400;
+export const COLONIZER_HULL_FRAMES = 6;
+export const COLONIZER_LIFE_SUPPORT = 8;
+
 export interface ColonizationStep {
   readonly built: boolean;
   readonly launched: boolean;
@@ -50,16 +54,17 @@ export function buildColonizerIfNeeded(
   const capitalBody = world.factions.capitalBody[faction] ?? -1;
   const capitalSystem = world.factions.capitalSystem[faction] ?? -1;
   if (capitalBody < 0 || capitalSystem < 0) return false;
-  if ((world.factions.treasury[faction] ?? 0) < 400) return false;
+  if ((world.factions.treasury[faction] ?? 0) < COLONIZER_CREDIT_COST) return false;
   const stockpile = world.bodies.stockpile[capitalBody] ?? 0;
   const hullFrames = data.resourceIndex.get("hull_frames") ?? -1;
   const lifeSupport = data.resourceIndex.get("life_support") ?? -1;
   if (hullFrames < 0 || lifeSupport < 0) return false;
-  if (!world.stockpiles.hasAtLeast(stockpile, hullFrames, 6)) return false;
-  if (!world.stockpiles.hasAtLeast(stockpile, lifeSupport, 8)) return false;
-  world.stockpiles.remove(stockpile, hullFrames, 6);
-  world.stockpiles.remove(stockpile, lifeSupport, 8);
-  world.factions.treasury[faction] = (world.factions.treasury[faction] ?? 0) - 400;
+  if (!world.stockpiles.hasAtLeast(stockpile, hullFrames, COLONIZER_HULL_FRAMES)) return false;
+  if (!world.stockpiles.hasAtLeast(stockpile, lifeSupport, COLONIZER_LIFE_SUPPORT)) return false;
+  world.stockpiles.remove(stockpile, hullFrames, COLONIZER_HULL_FRAMES);
+  world.stockpiles.remove(stockpile, lifeSupport, COLONIZER_LIFE_SUPPORT);
+  world.factions.treasury[faction] =
+    (world.factions.treasury[faction] ?? 0) - COLONIZER_CREDIT_COST;
   const ship = world.addShip(faction, capitalSystem, ShipRole.Colonizer, 900, 260, 8);
   logColonization(data, world, tick, faction, capitalBody, reasonResource, ship);
   return true;
