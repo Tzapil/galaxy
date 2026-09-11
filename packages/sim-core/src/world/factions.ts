@@ -118,6 +118,31 @@ export class Factions {
     return row;
   }
 
+  public revive(
+    faction: number,
+    label: string,
+    capitalSystem: number,
+    capitalBody: number,
+    treasury: number,
+    expansion: number,
+    industry: number
+  ): void {
+    if (faction < 0 || faction >= this.length) throw new RangeError("Unknown faction row.");
+    this.labels[faction] = label;
+    this.capitalSystem[faction] = capitalSystem;
+    this.capitalBody[faction] = capitalBody;
+    this.treasury[faction] = treasury;
+    this.dataPhysics[faction] = 0;
+    this.dataEngineering[faction] = 0;
+    this.dataBio[faction] = 0;
+    this.researchedCount[faction] = 0;
+    this.firstColony[faction] = -1;
+    this.colonyCount[faction] = 0;
+    this.characterExpansion[faction] = expansion;
+    this.characterIndustry[faction] = industry;
+    this.colonyTail[faction] = -1;
+  }
+
   public attachColony(faction: number, body: number, bodies: Bodies): void {
     const tail = this.colonyTail[faction] ?? -1;
     if (tail < 0) {
@@ -140,6 +165,19 @@ export class Factions {
         current = bodies.nextInFaction[current] ?? -1;
       }
       this.colonyTail[faction] = tail;
+    }
+  }
+
+  /** Rare capture path: rebuild linked colony indexes from authoritative body ownership. */
+  public rebuildColoniesFromOwners(bodies: Bodies): void {
+    this.ensureAuxCapacity(this.arena.capacity);
+    this.firstColony.fill(-1, 0, this.length);
+    this.colonyCount.fill(0, 0, this.length);
+    this.colonyTail.fill(-1, 0, this.length);
+    bodies.nextInFaction.fill(-1, 0, bodies.length);
+    for (let body = 0; body < bodies.length; body += 1) {
+      const owner = bodies.owner[body] ?? -1;
+      if (owner >= 0 && owner < this.length) this.attachColony(owner, body, bodies);
     }
   }
 

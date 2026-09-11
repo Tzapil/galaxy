@@ -1,12 +1,14 @@
 import { SoAArena } from "../soa/arena.js";
 import type { ArenaSnapshot, NumericArray } from "../soa/arena.js";
+import type { EntityRef } from "../entity/ids.js";
 
 export const enum ShipRole {
   Hauler = 1,
   Colonizer = 2,
   Warship = 3,
   Miner = 4,
-  Scout = 5
+  Scout = 5,
+  Troopship = 6
 }
 
 export const enum ShipState {
@@ -16,6 +18,7 @@ export const enum ShipState {
 }
 
 export type ShipColumn =
+  | "generation"
   | "faction"
   | "role"
   | "state"
@@ -36,6 +39,7 @@ export type ShipColumn =
   | "stockpile";
 
 export class Ships {
+  public generation: Uint32Array;
   public faction: Uint16Array;
   public role: Uint8Array;
   public state: Uint8Array;
@@ -56,6 +60,7 @@ export class Ships {
   public stockpile: Uint32Array;
 
   public constructor(public readonly arena: SoAArena<ShipColumn>) {
+    this.generation = new Uint32Array(0);
     this.faction = new Uint16Array(0);
     this.role = new Uint8Array(0);
     this.state = new Uint8Array(0);
@@ -82,6 +87,7 @@ export class Ships {
       new SoAArena<ShipColumn>(
         "ships",
         [
+          { name: "generation", kind: "u32" },
           { name: "faction", kind: "u16" },
           { name: "role", kind: "u8" },
           { name: "state", kind: "u8" },
@@ -107,11 +113,12 @@ export class Ships {
   }
 
   public static fromSnapshot(snapshot: ArenaSnapshot): Ships {
-    if (hasColumn(snapshot, "blueprint")) {
+    if (hasColumn(snapshot, "blueprint") && hasColumn(snapshot, "generation")) {
       return new Ships(SoAArena.fromSnapshot(snapshot) as SoAArena<ShipColumn>);
     }
     const ships = Ships.create(Math.max(1, snapshot.rowCount));
     for (let row = 0; row < snapshot.rowCount; row += 1) ships.arena.addRow();
+    ships.generation.fill(0, 0, snapshot.rowCount);
     ships.copyLegacyColumn(snapshot, "faction", ships.faction);
     ships.copyLegacyColumn(snapshot, "role", ships.role);
     ships.copyLegacyColumn(snapshot, "state", ships.state);
@@ -129,7 +136,11 @@ export class Ships {
     ships.copyLegacyColumn(snapshot, "fuelCapacity", ships.fuelCapacity);
     ships.copyLegacyColumn(snapshot, "fuelPerJump", ships.fuelPerJump);
     ships.copyLegacyColumn(snapshot, "stockpile", ships.stockpile);
-    ships.blueprint.fill(-1, 0, snapshot.rowCount);
+    if (hasColumn(snapshot, "blueprint")) {
+      ships.copyLegacyColumn(snapshot, "blueprint", ships.blueprint);
+    } else {
+      ships.blueprint.fill(-1, 0, snapshot.rowCount);
+    }
     return ships;
   }
 
@@ -169,6 +180,7 @@ export class Ships {
     const previousCapacity = this.arena.capacity;
     const row = this.arena.addRow();
     if (this.arena.capacity !== previousCapacity) this.refreshColumns();
+    this.generation[row] = 0;
     this.faction[row] = faction;
     this.role[row] = role;
     this.state[row] = ShipState.Idle;
@@ -190,7 +202,27 @@ export class Ships {
     return row;
   }
 
+  public ref(ship: number): EntityRef {
+    return { index: ship, generation: this.generation[ship] ?? 0 };
+  }
+
+  public isAlive(ref: EntityRef): boolean {
+    return (
+      ref.index >= 0 &&
+      ref.index < this.length &&
+      this.state[ref.index] !== ShipState.Disbanded &&
+      (this.generation[ref.index] ?? 0) === ref.generation
+    );
+  }
+
+  public markDisbanded(ship: number): void {
+    if (ship < 0 || ship >= this.length || this.state[ship] === ShipState.Disbanded) return;
+    this.state[ship] = ShipState.Disbanded;
+    this.generation[ship] = ((this.generation[ship] ?? 0) + 1) >>> 0;
+  }
+
   private refreshColumns(): void {
+    this.generation = this.arena.column("generation") as Uint32Array;
     this.faction = this.arena.column("faction") as Uint16Array;
     this.role = this.arena.column("role") as Uint8Array;
     this.state = this.arena.column("state") as Uint8Array;

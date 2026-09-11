@@ -1,4 +1,5 @@
 import { StageOneLogKind } from "../events/log.js";
+import { activeWarCount, recordWarCost } from "../diplo/war-exhaustion.js";
 import type { StageOneData } from "../stage-one/data.js";
 import { ShipRole, ShipState } from "../ships/ships.js";
 import type { StageOneWorld } from "../world/state.js";
@@ -26,6 +27,9 @@ export function applyDailyTreasury(
     const income = factionPopulation(world, faction) * TAX_PER_POP_PER_DAY;
     const cost = fleetUpkeep(world, faction);
     world.factions.treasury[faction] = (world.factions.treasury[faction] ?? 0) + income - cost;
+    if (cost > 0 && activeWarCount(world, faction) > 0) {
+      recordWarCost(world, faction, { shipsLost: 0, populationLost: 0, creditsSpent: cost });
+    }
     taxIncome += income;
     upkeep += cost;
   }
@@ -97,7 +101,7 @@ function bestShipToDisband(world: StageOneWorld, faction: number, allowCivilian:
 
 function disbandShip(world: StageOneWorld, ship: number, tick: number): void {
   const system = world.ships.currentSystem[ship] ?? world.ships.toSystem[ship] ?? -1;
-  world.ships.state[ship] = ShipState.Disbanded;
+  world.ships.markDisbanded(ship);
   world.ships.cargoResource[ship] = -1;
   world.ships.cargoAmount[ship] = 0;
   world.ships.sourceBody[ship] = -1;

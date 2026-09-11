@@ -281,7 +281,7 @@ function completeShipyardBuild(
   const design = world.blueprints.design(blueprint);
   const stats = calculateDesignStats(data, design, world.techModifiers, faction);
   const fuelCapacity = Math.max(hull.baseFuel, stats.fuelCap);
-  world.addShip(
+  const ship = world.addShip(
     faction,
     world.bodies.system[body] ?? 0,
     roleForHull(hull),
@@ -290,6 +290,7 @@ function completeShipyardBuild(
     fuelPerJumpForHull(fuelCapacity, hull),
     blueprint
   );
+  attachCompletedShipToRally(world, ship, blueprint);
   world.shipyardOrders.state[order] = ShipyardOrderState.Complete;
   world.eventLog.append(
     tick,
@@ -345,10 +346,32 @@ function sameBlueprintDesign(left: ShipDesign, right: ShipDesign): boolean {
 
 function roleForHull(hull: StageOneHull): ShipRole {
   if (hull.shipClass === "warship") return ShipRole.Warship;
+  if (hull.id.includes("troop")) return ShipRole.Troopship;
   if (hull.id.includes("prospector")) return ShipRole.Miner;
   if (hull.id.includes("shuttle")) return ShipRole.Scout;
   if (hull.id.includes("colony")) return ShipRole.Colonizer;
   return ShipRole.Hauler;
+}
+
+function attachCompletedShipToRally(
+  world: StageOneWorld,
+  ship: number,
+  blueprint: number
+): boolean {
+  const role = world.ships.role[ship] ?? ShipRole.Hauler;
+  if (role !== ShipRole.Warship && role !== ShipRole.Troopship) return false;
+  const faction = world.ships.faction[ship] ?? -1;
+  const system = world.ships.currentSystem[ship] ?? -1;
+  const doctrine = world.blueprints.doctrine[blueprint] ?? -1;
+  for (let fleet = 0; fleet < world.fleets.length; fleet += 1) {
+    const ref = world.fleets.ref(fleet);
+    if (!world.fleets.isAlive(ref)) continue;
+    if ((world.fleets.owner[fleet] ?? -2) !== faction) continue;
+    if ((world.fleets.doctrine[fleet] ?? -2) !== doctrine) continue;
+    if ((world.fleets.rallySystem[fleet] ?? -2) !== system) continue;
+    return world.fleets.addShip(ref, world.ships.ref(ship), world.ships);
+  }
+  return false;
 }
 
 function fuelPerJumpForHull(fuelCapacity: number, hull: StageOneHull): number {

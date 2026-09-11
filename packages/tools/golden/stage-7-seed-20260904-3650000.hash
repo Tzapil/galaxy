@@ -1,0 +1,89 @@
+{
+  "stage": 7,
+  "seed": 20260904,
+  "ticks": 3650000,
+  "checkpointEvery": 182500,
+  "finalHash": "7045fcb32e140c402626b33673540141",
+  "intermediateHashes": [
+    {
+      "tick": 182500,
+      "hash": "50b8cb1f374cdd24670da27d8b52e3c8"
+    },
+    {
+      "tick": 365000,
+      "hash": "d1fcb23c937498b2b17992404aa36414"
+    },
+    {
+      "tick": 547500,
+      "hash": "b4031b37774b2a4514b8585ef0ff0730"
+    },
+    {
+      "tick": 730000,
+      "hash": "59df0441c89600e069277f8e79039f39"
+    },
+    {
+      "tick": 912500,
+      "hash": "fdcd465a7d3c10a5bc11f7fdcb85d15a"
+    },
+    {
+      "tick": 1095000,
+      "hash": "e3ab1501c8ad2916d97c5b16c406a6ef"
+    },
+    {
+      "tick": 1277500,
+      "hash": "64cf1306ef15094a9834771e2b20a073"
+    },
+    {
+      "tick": 1460000,
+      "hash": "cd1eb2ba5c9f588008af047f12208c1f"
+    },
+    {
+      "tick": 1642500,
+      "hash": "b200cd6fb091d0b3545638fdc62c2800"
+    },
+    {
+      "tick": 1825000,
+      "hash": "bfdd20233153f1ed36be4e6ad8e1beb6"
+    },
+    {
+      "tick": 2007500,
+      "hash": "36c6243f5139e89fdfa6121cd48ad67c"
+    },
+    {
+      "tick": 2190000,
+      "hash": "f7d115abbf500c5ab76630dd0b5c5fdd"
+    },
+    {
+      "tick": 2372500,
+      "hash": "a778935c9219c3ea479c8036a0a289f7"
+    },
+    {
+      "tick": 2555000,
+      "hash": "b459e5e9af24a905037b36f6504fa464"
+    },
+    {
+      "tick": 2737500,
+      "hash": "708ac38686a669b9198edc0f43496478"
+    },
+    {
+      "tick": 2920000,
+      "hash": "b9c151f33af4e03efc0143a1a9e42075"
+    },
+    {
+      "tick": 3102500,
+      "hash": "5bf53737cb24cb2f34270f14526dde1c"
+    },
+    {
+      "tick": 3285000,
+      "hash": "a5170ba074bf5cf61c20dccbe11a9f6d"
+    },
+    {
+      "tick": 3467500,
+      "hash": "1553caeefa2e9458b2c35e52fa801eff"
+    },
+    {
+      "tick": 3650000,
+      "hash": "7045fcb32e140c402626b33673540141"
+    }
+  ]
+}

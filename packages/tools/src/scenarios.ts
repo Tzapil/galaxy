@@ -5,10 +5,12 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { StageOneSimulation, StageTwoSimulation, StageZeroSimulation } from "@galaxy-sim/sim-core";
 
 import { detectPathologies } from "./pathology.js";
+import { runStageSixCampaign } from "./stage-six-bench.js";
+import { runStageSevenCampaign } from "./stage-seven-bench.js";
 import { loadStageTwoData } from "./stage-two-loader.js";
 
 interface ScenarioFile {
-  readonly stage?: 0 | 1 | 2;
+  readonly stage?: 0 | 1 | 2 | 6 | 7;
   readonly seed: number;
   readonly ticks: number;
   readonly description: string;
@@ -20,7 +22,10 @@ const scenariosDir = resolve(here, "../scenarios");
 
 export async function checkScenarios(): Promise<boolean> {
   const files = (await readdir(scenariosDir)).filter((file) => file.endsWith(".json")).sort();
-  const stageTwoData = files.some((file) => file.includes("stage-two"))
+  const stageTwoData = files.some(
+    (file) =>
+      file.includes("stage-two") || file.includes("stage-six") || file.includes("stage-seven")
+  )
     ? await loadStageTwoData()
     : undefined;
   let ok = true;
@@ -34,18 +39,51 @@ export async function checkScenarios(): Promise<boolean> {
         ? stageZeroFindings(scenario)
         : stage === 1
           ? stageOneFindings(scenario)
-          : stageTwoFindings(scenario, requireStageTwoData(stageTwoData));
+          : stage === 2
+            ? stageTwoFindings(scenario, requireStageTwoData(stageTwoData))
+            : stage === 6
+              ? stageSixFindings(scenario, requireStageTwoData(stageTwoData))
+              : stageSevenFindings(scenario, requireStageTwoData(stageTwoData));
     const failed = findings.some((finding) => finding.status === "failed");
     const enabled = findings.some((finding) => finding.status !== "not_available");
     const status = failed ? "failed" : enabled ? "ok" : "not_available";
     if (status !== scenario.expectedPathologyStatus) {
       console.error(`${file}: expected ${scenario.expectedPathologyStatus}, got ${status}`);
+      for (const finding of findings.filter((item) => item.status === "failed")) {
+        console.error(`  ${finding.check}: ${finding.message}`);
+      }
       ok = false;
     } else {
       console.log(`${file}: ${scenario.description} -> ${status}`);
     }
   }
   return ok;
+}
+
+function stageSevenFindings(
+  scenario: ScenarioFile,
+  data: Parameters<typeof StageTwoSimulation.create>[1]
+): ReturnType<typeof detectPathologies> {
+  const report = runStageSevenCampaign(scenario.seed, scenario.ticks / 365, data);
+  return detectPathologies({
+    seed: scenario.seed,
+    tick: scenario.ticks,
+    stage: 7,
+    metrics: report.metrics
+  });
+}
+
+function stageSixFindings(
+  scenario: ScenarioFile,
+  data: Parameters<typeof StageTwoSimulation.create>[1]
+): ReturnType<typeof detectPathologies> {
+  const report = runStageSixCampaign(scenario.seed, scenario.ticks / 365, data);
+  return detectPathologies({
+    seed: scenario.seed,
+    tick: scenario.ticks,
+    stage: 6,
+    metrics: report.metrics
+  });
 }
 
 function stageZeroFindings(scenario: ScenarioFile): ReturnType<typeof detectPathologies> {

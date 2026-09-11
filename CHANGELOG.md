@@ -57,3 +57,36 @@
 
 - Reason: Stage 5 tech graph, local science logistics, ship blueprints, shipyard systems, and
   final reserve behavior.
+
+## Stage 6 war
+
+- Added persistent fleets, deterministic fleet orders and atomic ship-tank fuel charging,
+  stateful daily battles, simultaneous fire, range control, layered damage, interception,
+  withdrawal, reinforcement, and replayable combat logs.
+- Added selective gate blockades with economic routing effects and utility-based responses,
+  delayed/noisy intelligence feeding ship design, and orbital superiority, siege, produced
+  troops, garrisons, invasion damage, and explicit conquest history.
+- Added Stage 6 pathology checks, an economic-war regression scenario, and the 50-seed,
+  1000-year war stand report. The blockade chain reproduced in 50/50 seeds; the fair-budget
+  duel matrix retained all four cyclic counter-design edges and stayed within the combat budget.
+
+## Golden baseline update
+
+- Reason: Stage 6 deterministic fleet, war, battle, intel, blockade, and colony-history arenas
+
+## Stage 7 diplomacy and long-term dynamics
+
+- Added persistent bilateral relations, five negotiated treaty types, real-credit foreign trade,
+  passage-aware routing, MRP-derived war goals, utility declarations, war exhaustion, and peace
+  terms covering systems, reparations, and trade concessions.
+- Added multi-axis power concentration and utility-driven anti-hegemon coalitions, eight-factor
+  regional tension, five-year secessions, administrative capacity, regional capitals, and
+  repression with bounded delayed backlash.
+- Added a Stage 7 headless/bench stand, long-horizon regression scenario, four new pathology
+  checks, epoch reports, and a 10,000-year golden with 500-year checkpoints. The 50-seed stand
+  completed with no pathology failures; live faction counts varied in every run and late
+  administrative hegemony remained achievable.
+
+## Golden baseline update
+
+- Reason: Stage 7 diplomacy, cohesion, secession, bounded long-horizon state, and combat-cost integration

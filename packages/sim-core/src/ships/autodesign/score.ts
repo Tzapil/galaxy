@@ -6,6 +6,10 @@ import { armorReduction, calculateDesignStats } from "../design-stats.js";
 export interface EnemyShipProfile {
   readonly shieldFraction: number;
   readonly armorRating: number;
+  readonly kineticFraction?: number;
+  readonly laserFraction?: number;
+  readonly missileFraction?: number;
+  readonly plasmaFraction?: number;
 }
 
 const DPS_SCALE = 1;
@@ -67,6 +71,9 @@ export function scoreStats(
   score += weights.colonists * stats.colonists * COLONISTS_SCALE;
   score += weights.troops * stats.troops * TROOPS_SCALE;
   score += weights.intercept * stats.intercept * INTERCEPT_SCALE;
+  // Stage 6.5: observed weapons make defenses adaptive instead of decorative.
+  score += weights.ehp * (enemy.laserFraction ?? 0) * stats.armorRating * 2;
+  score += weights.intercept * (enemy.missileFraction ?? 0) * stats.intercept * 2;
   return score - requirementPenalty(stats, doctrine);
 }
 

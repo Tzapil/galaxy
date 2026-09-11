@@ -29,7 +29,7 @@ describe("tools package", () => {
 
   it("reports stage-gated pathology checks explicitly", () => {
     const findings = detectPathologies({ seed: 1, tick: 0, stage: 0 });
-    expect(findings).toHaveLength(6);
+    expect(findings).toHaveLength(17);
     expect(findings.every((finding) => finding.status === "not_available")).toBe(true);
   });
 

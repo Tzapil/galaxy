@@ -122,7 +122,7 @@ export function handleColonizerArrival(
   world.ships.cargoResource[ship] = -1;
   world.ships.cargoAmount[ship] = 0;
   if (result.ok) {
-    world.ships.state[ship] = ShipState.Disbanded;
+    world.ships.markDisbanded(ship);
     logColonization(data, world, tick, faction, targetBody, -1, result.buildings ?? 0);
     return true;
   }

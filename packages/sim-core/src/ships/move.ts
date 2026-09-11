@@ -57,7 +57,15 @@ export function launchBestLocalJob(
   const targetBody = jobs.targetBody[job] ?? 0;
   const sourceSystem = jobs.sourceSystem[job] ?? 0;
   const targetSystem = jobs.targetSystem[job] ?? 0;
-  const route = routes.find(world.systems, world.gates, sourceSystem, targetSystem);
+  const route = routes.find(
+    world.systems,
+    world.gates,
+    sourceSystem,
+    targetSystem,
+    faction,
+    world.navigation,
+    tick
+  );
   if (!route.reachable) {
     jobs.unreserve(job);
     return LaunchResult.NoJob;
@@ -136,7 +144,15 @@ function repositionToBestSource(
   if (sourceSystem === currentSystem) return LaunchResult.NoJob;
   const portBody = findFactionBodyInSystem(world, faction, currentSystem);
   if (portBody < 0) return LaunchResult.NoJob;
-  const route = routes.find(world.systems, world.gates, currentSystem, sourceSystem);
+  const route = routes.find(
+    world.systems,
+    world.gates,
+    currentSystem,
+    sourceSystem,
+    faction,
+    world.navigation,
+    tick
+  );
   if (!route.reachable) return LaunchResult.NoJob;
   refuelShipAtBody(data, world, ship, portBody);
   const fuelNeed = fuelNeededForJumps(world, ship, route.jumps);

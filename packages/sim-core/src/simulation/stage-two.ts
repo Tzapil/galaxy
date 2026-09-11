@@ -1,6 +1,11 @@
 import { type AiScheduledRun, AiLayer, AiScheduler } from "../ai/scheduler.js";
+import { createBattle, reinforceBattle } from "../combat/battle.js";
+import { BlockadeReaction, chooseBlockadeReaction } from "../combat/blockade.js";
+import { CombatRoundScratch, resolveBattleRound } from "../combat/round.js";
+import { defenseTaskForThreat, fleetTroopStrength } from "../combat/invasion.js";
 import {
   findBottleneck,
+  findLogisticsBottleneck,
   toOperationalTask,
   AiOperationalTaskKind,
   type AiOperationalTask
@@ -42,6 +47,9 @@ import type { SnapshotState } from "../snapshot/types.js";
 import { writeStateSnapshot } from "../snapshot/write.js";
 import { handleShipArrival, assignIdleHaulers } from "../ships/move.js";
 import { ShipRole, ShipState } from "../ships/ships.js";
+import { FleetState, fleetCombatStrength } from "../fleet/fleet.js";
+import { FleetOrder, handleFleetArrival, issueFleetOrder, launchFleet } from "../fleet/orders.js";
+import { observeBattle } from "../intel/observe.js";
 import { addKitOrderContracts } from "../ships/kit-order.js";
 import { advanceShipyards } from "../ships/shipyard.js";
 import { type StageOneBatchRecipe, type StageOneData, resourceIndexOf } from "../stage-one/data.js";
@@ -49,6 +57,7 @@ import { repeatableCostAtLevel } from "../tech/repeatable.js";
 import { buildStageOneRenderSnapshot } from "../stage-one/render-snapshot.js";
 import { GovernmentContracts } from "../treasury/contracts.js";
 import { applyDailyTreasury } from "../treasury/treasury.js";
+import { considerWarFromBottleneck, runDiplomacyDay } from "../diplo/tick.js";
 import { completeConstruction, advanceWaitingConstructions } from "../build/construction.js";
 import { buildStageTwoWorld } from "../world/build-stage-two-world.js";
 import { StageOneWorld } from "../world/state.js";
@@ -106,7 +115,8 @@ export class StageTwoSimulation {
   private readonly contracts = new GovernmentContracts(256);
   private readonly aiScheduler = new AiScheduler();
   private readonly aiRuns: AiScheduledRun[] = [];
-  private readonly lastBottleneckResource: Int32Array;
+  private readonly combatScratch = new CombatRoundScratch(2048);
+  private lastBottleneckResource: Int32Array;
   private readonly zeroStreakDays: Uint16Array;
   private readonly maxZeroStreakDays: Uint16Array;
   private completedBatches = 0;
@@ -180,6 +190,7 @@ export class StageTwoSimulation {
     this.disbandedShips += treasury.disbandedShips;
     this.updateTreasuryMinimum();
     this.updateZeroStreaks();
+    runDiplomacyDay(this.data, this.world, this.tick, this.rootRng);
     instrumentation?.end(InstrumentSubsystem.Continuous, continuousStarted);
 
     const eventStarted = instrumentation?.begin(InstrumentSubsystem.Events) ?? 0;
@@ -187,6 +198,8 @@ export class StageTwoSimulation {
     this.applyEvents(drained, instrumentation);
     advanceWaitingConstructions(this.data, this.world, this.queue, this.tick);
     instrumentation?.end(InstrumentSubsystem.Events, eventStarted);
+
+    this.runMilitary();
 
     if (this.tick % 10 === 0) this.refreshLogistics();
     if (this.tick > 0 && this.tick % 30 === 0) {
@@ -333,6 +346,8 @@ export class StageTwoSimulation {
       } else if (kind === EventKind.ConstructionComplete) {
         completeConstruction(this.data, this.world, this.queue, payload, this.tick);
         this.constructedBuildings += 1;
+      } else if (kind === EventKind.FleetArrival) {
+        handleFleetArrival(this.world, payload, this.tick);
       }
       if (instrumentation?.enabled === true) {
         instrumentation.end(InstrumentSubsystem.AiTactical, tacticalStarted);
@@ -342,6 +357,7 @@ export class StageTwoSimulation {
   }
 
   private runAi(instrumentation?: Instrumentation): void {
+    this.ensureFactionScratch();
     this.aiScheduler.collectDue(this.tick, this.world.factions.length, this.aiRuns);
     const strategicStarted = instrumentation?.begin(InstrumentSubsystem.AiStrategic) ?? 0;
     for (let i = 0; i < this.aiRuns.length; i += 1) {
@@ -359,10 +375,13 @@ export class StageTwoSimulation {
   }
 
   private runStrategicAi(faction: number): void {
+    if (this.world.factionDynamics.alive[faction] !== 1) return;
     const weights = personalityWeightsForFaction(this.data, this.world, faction);
     const prior = this.lastBottleneckResource[faction] ?? -1;
     const goal = createStrategicGoal(this.data, this.world, faction, this.tick, weights, prior);
-    const bottleneck = findBottleneck(this.data, this.world, faction, goal);
+    const bottleneck =
+      findLogisticsBottleneck(this.data, this.world, this.routes, faction) ??
+      findBottleneck(this.data, this.world, faction, goal);
     const resource = bottleneck?.resource ?? goal.resource;
     this.lastBottleneckResource[faction] = resource;
     this.aiOperations += bottleneck?.operations ?? 0;
@@ -378,10 +397,20 @@ export class StageTwoSimulation {
     if (bottleneck !== undefined) {
       logBottleneck(this.data, this.world, this.tick, faction, resource, bottleneck.deficitPerDay);
     }
+    considerWarFromBottleneck(
+      this.data,
+      this.world,
+      this.routes,
+      faction,
+      bottleneck,
+      this.tick,
+      this.rootRng
+    );
     this.aiStrategicDecisions += 1;
   }
 
   private runOperationalAi(faction: number): void {
+    if (this.world.factionDynamics.alive[faction] !== 1) return;
     const weights = personalityWeightsForFaction(this.data, this.world, faction);
     const goal = createStrategicGoal(
       this.data,
@@ -391,7 +420,9 @@ export class StageTwoSimulation {
       weights,
       this.lastBottleneckResource[faction] ?? -1
     );
-    const bottleneck = findBottleneck(this.data, this.world, faction, goal);
+    const bottleneck =
+      findLogisticsBottleneck(this.data, this.world, this.routes, faction) ??
+      findBottleneck(this.data, this.world, faction, goal);
     if (bottleneck !== undefined) {
       this.aiOperations += bottleneck.operations;
       if ((this.lastBottleneckResource[faction] ?? -1) !== bottleneck.resource) {
@@ -437,7 +468,305 @@ export class StageTwoSimulation {
     if (fleet.built) this.aiFleetBuilds += 1;
     this.runFleetIndustryNudge(faction);
     this.runExpansionNudge(faction);
+    this.organizeWarships(faction);
+    this.respondToBlockades(faction);
+    this.commandMilitaryFleets(faction);
+    this.runThreatDefense(faction);
     this.aiOperationalDecisions += 1;
+  }
+
+  private runMilitary(): void {
+    this.detectBattles();
+    for (let battle = 0; battle < this.world.battles.length; battle += 1) {
+      const ref = this.world.battles.ref(battle);
+      if (!this.world.battles.isActive(ref)) continue;
+      const result = resolveBattleRound(this.world, ref, this.tick, this.combatScratch);
+      this.aiOperations += result.operations;
+      if (result.active) continue;
+      observeBattle(this.world, ref, this.tick);
+    }
+  }
+
+  private detectBattles(): void {
+    this.reinforceBattles();
+    for (let a = 0; a < this.world.fleets.length; a += 1) {
+      const fleetA = this.world.fleets.ref(a);
+      if (!this.world.fleets.isAlive(fleetA) || this.world.fleets.state[a] !== FleetState.Active)
+        continue;
+      if (this.fleetIsEngaged(a)) continue;
+      for (let b = a + 1; b < this.world.fleets.length; b += 1) {
+        const fleetB = this.world.fleets.ref(b);
+        if (!this.world.fleets.isAlive(fleetB) || this.world.fleets.state[b] !== FleetState.Active)
+          continue;
+        if (this.fleetIsEngaged(b)) continue;
+        if (
+          (this.world.fleets.currentSystem[a] ?? -1) !== (this.world.fleets.currentSystem[b] ?? -2)
+        )
+          continue;
+        const ownerA = this.world.fleets.owner[a] ?? -1;
+        const ownerB = this.world.fleets.owner[b] ?? -1;
+        if (!this.world.wars.isHostile(ownerA, ownerB)) continue;
+        createBattle(this.world, fleetA, fleetB, this.tick);
+        break;
+      }
+    }
+  }
+
+  private reinforceBattles(): void {
+    for (let battle = 0; battle < this.world.battles.length; battle += 1) {
+      const battleRef = this.world.battles.ref(battle);
+      if (!this.world.battles.isActive(battleRef)) continue;
+      const system = this.world.battles.system[battle] ?? -1;
+      for (let fleet = 0; fleet < this.world.fleets.length; fleet += 1) {
+        const fleetRef = this.world.fleets.ref(fleet);
+        if (!this.world.fleets.isAlive(fleetRef)) continue;
+        if (this.world.fleets.state[fleet] !== FleetState.Active || this.fleetIsEngaged(fleet)) {
+          continue;
+        }
+        if ((this.world.fleets.currentSystem[fleet] ?? -2) !== system) continue;
+        reinforceBattle(this.world, battleRef, fleetRef, this.tick);
+      }
+    }
+  }
+
+  private fleetIsEngaged(fleet: number): boolean {
+    for (let battle = 0; battle < this.world.battles.length; battle += 1) {
+      if (!this.world.battles.isActive(this.world.battles.ref(battle))) continue;
+      if (
+        (this.world.battles.fleetA[battle] ?? -1) === fleet ||
+        (this.world.battles.fleetB[battle] ?? -1) === fleet
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private organizeWarships(faction: number): void {
+    for (let ship = 0; ship < this.world.ships.length; ship += 1) {
+      if ((this.world.ships.faction[ship] ?? -1) !== faction) continue;
+      if (
+        this.world.ships.role[ship] !== ShipRole.Warship &&
+        this.world.ships.role[ship] !== ShipRole.Troopship
+      ) {
+        continue;
+      }
+      if (this.world.ships.state[ship] === ShipState.Disbanded) continue;
+      const shipRef = this.world.ships.ref(ship);
+      if (this.world.fleets.fleetOfShip(shipRef, this.world.ships) >= 0) continue;
+      const system = this.world.ships.currentSystem[ship] ?? 0;
+      const blueprint = this.world.ships.blueprint[ship] ?? -1;
+      const doctrine =
+        blueprint >= 0
+          ? (this.world.blueprints.doctrine[blueprint] ?? 0)
+          : (this.data.doctrineIndex.get("line_battle") ?? 0);
+      let fleet = this.findRallyFleet(faction, system, doctrine);
+      if (fleet < 0) {
+        fleet = this.world.fleets.add(faction, doctrine, system, system, this.tick).index;
+      }
+      this.world.fleets.addShip(this.world.fleets.ref(fleet), shipRef, this.world.ships);
+    }
+  }
+
+  private findRallyFleet(faction: number, system: number, doctrine: number): number {
+    for (let fleet = 0; fleet < this.world.fleets.length; fleet += 1) {
+      if (!this.world.fleets.isAlive(this.world.fleets.ref(fleet))) continue;
+      if ((this.world.fleets.owner[fleet] ?? -1) !== faction) continue;
+      if ((this.world.fleets.rallySystem[fleet] ?? -1) !== system) continue;
+      if ((this.world.fleets.doctrine[fleet] ?? -1) !== doctrine) continue;
+      return fleet;
+    }
+    return -1;
+  }
+
+  private commandMilitaryFleets(faction: number): void {
+    const enemy = this.firstEnemy(faction);
+    if (enemy < 0) return;
+    const target = this.world.factions.capitalSystem[enemy] ?? -1;
+    for (let fleet = 0; fleet < this.world.fleets.length; fleet += 1) {
+      const ref = this.world.fleets.ref(fleet);
+      if (!this.world.fleets.isAlive(ref) || (this.world.fleets.owner[fleet] ?? -1) !== faction)
+        continue;
+      if (this.world.fleets.state[fleet] !== FleetState.Active || this.fleetIsEngaged(fleet))
+        continue;
+      const order = this.world.fleets.order[fleet] ?? FleetOrder.None;
+      if (
+        order === FleetOrder.Blockade ||
+        order === FleetOrder.Escort ||
+        order === FleetOrder.Withdraw ||
+        order === FleetOrder.Hold
+      ) {
+        continue;
+      }
+      if ((this.world.fleets.currentSystem[fleet] ?? -2) === target) {
+        issueFleetOrder(this.world, ref, FleetOrder.Hold, target);
+      } else {
+        launchFleet(this.world, this.routes, this.queue, ref, target, this.tick);
+      }
+    }
+  }
+
+  private firstEnemy(faction: number): number {
+    for (let war = 0; war < this.world.wars.length; war += 1) {
+      if (this.world.wars.state[war] !== 1) continue;
+      const attacker = this.world.wars.attacker[war] ?? -1;
+      const defender = this.world.wars.defender[war] ?? -1;
+      if (attacker === faction) return defender;
+      if (defender === faction) return attacker;
+    }
+    return -1;
+  }
+
+  private runThreatDefense(faction: number): void {
+    let body = this.world.factions.firstColony[faction] ?? -1;
+    while (body >= 0) {
+      const system = this.world.bodies.system[body] ?? -1;
+      let orbitalThreat = 0;
+      let invasionThreat = 0;
+      for (let fleet = 0; fleet < this.world.fleets.length; fleet += 1) {
+        const ref = this.world.fleets.ref(fleet);
+        if (!this.world.fleets.isAlive(ref)) continue;
+        const owner = this.world.fleets.owner[fleet] ?? -1;
+        if (!this.world.wars.isHostile(faction, owner)) continue;
+        if ((this.world.fleets.currentSystem[fleet] ?? -2) !== system) continue;
+        orbitalThreat += fleetCombatStrength(this.world, ref);
+        invasionThreat += fleetTroopStrength(this.world, ref);
+      }
+      const task = defenseTaskForThreat(this.world, faction, body, orbitalThreat, invasionThreat);
+      if (task !== undefined) {
+        const plan = {
+          faction,
+          items: [
+            {
+              body: task.body,
+              buildingType: task.buildingType,
+              count: 1,
+              resource: task.resource,
+              score: task.score
+            }
+          ],
+          operations: 1
+        };
+        const applied = applyBuildPlan(this.data, this.world, this.queue, this.tick, plan);
+        this.aiBuildPlansStarted += applied.started;
+        this.aiOperations += 1;
+        if (applied.started > 0) return;
+      }
+      body = this.world.bodies.nextInFaction[body] ?? -1;
+    }
+  }
+
+  private respondToBlockades(faction: number): void {
+    for (let gate = 0; gate < this.world.gates.length; gate += 1) {
+      const blockader = this.world.gates.blockadedBy[gate] ?? -1;
+      if (blockader < 0 || !this.world.wars.isHostile(faction, blockader)) continue;
+      const reverse = this.reverseGate(gate);
+      if (reverse >= 0 && reverse < gate) continue;
+      const availableFleetStrength = this.factionFleetStrength(faction);
+      const blockadeFleetStrength = this.blockadeFleetStrength(blockader, gate);
+      const exposedCargoValue = this.exposedKitValue(faction);
+      const choice = chooseBlockadeReaction(
+        this.world,
+        faction,
+        gate,
+        {
+          blockadeFleetStrength,
+          availableFleetStrength,
+          exposedCargoValue,
+          escortCapacity: availableFleetStrength * 0.5,
+          detourCost: this.world.gates.travelTicks[gate] ?? 1,
+          replacementIndustryCost: Math.max(1, exposedCargoValue * 0.25)
+        },
+        this.tick
+      );
+      const fleet = this.strongestAvailableFleet(faction);
+      if (fleet < 0) return;
+      const ref = this.world.fleets.ref(fleet);
+      if (choice.reaction === BlockadeReaction.BreakWithFleet) {
+        const target = this.world.gates.from[gate] ?? -1;
+        if ((this.world.fleets.currentSystem[fleet] ?? -2) === target) {
+          issueFleetOrder(this.world, ref, FleetOrder.Hold, target);
+        } else {
+          launchFleet(this.world, this.routes, this.queue, ref, target, this.tick);
+        }
+      } else if (choice.reaction === BlockadeReaction.EscortConvoys) {
+        issueFleetOrder(this.world, ref, FleetOrder.Escort, this.world.gates.to[gate] ?? -1, {
+          index: gate,
+          generation: 0
+        });
+      }
+      return;
+    }
+  }
+
+  private strongestAvailableFleet(faction: number): number {
+    let best = -1;
+    let bestStrength = -1;
+    for (let fleet = 0; fleet < this.world.fleets.length; fleet += 1) {
+      const ref = this.world.fleets.ref(fleet);
+      if (!this.world.fleets.isAlive(ref)) continue;
+      if ((this.world.fleets.owner[fleet] ?? -1) !== faction) continue;
+      if (this.world.fleets.state[fleet] !== FleetState.Active || this.fleetIsEngaged(fleet)) {
+        continue;
+      }
+      const strength = fleetCombatStrength(this.world, ref);
+      if (strength > bestStrength) {
+        best = fleet;
+        bestStrength = strength;
+      }
+    }
+    return best;
+  }
+
+  private factionFleetStrength(faction: number): number {
+    let strength = 0;
+    for (let fleet = 0; fleet < this.world.fleets.length; fleet += 1) {
+      const ref = this.world.fleets.ref(fleet);
+      if (this.world.fleets.isAlive(ref) && (this.world.fleets.owner[fleet] ?? -1) === faction) {
+        strength += fleetCombatStrength(this.world, ref);
+      }
+    }
+    return strength;
+  }
+
+  private blockadeFleetStrength(faction: number, gate: number): number {
+    const from = this.world.gates.from[gate] ?? -1;
+    const to = this.world.gates.to[gate] ?? -1;
+    let strength = 0;
+    for (let fleet = 0; fleet < this.world.fleets.length; fleet += 1) {
+      const ref = this.world.fleets.ref(fleet);
+      if (!this.world.fleets.isAlive(ref)) continue;
+      if ((this.world.fleets.owner[fleet] ?? -1) !== faction) continue;
+      const system = this.world.fleets.currentSystem[fleet] ?? -1;
+      if (system === from || system === to) strength += fleetCombatStrength(this.world, ref);
+    }
+    return Math.max(1, strength);
+  }
+
+  private exposedKitValue(faction: number): number {
+    let value = 0;
+    for (let order = 0; order < this.world.kitOrders.length; order += 1) {
+      if ((this.world.kitOrders.faction[order] ?? -1) !== faction) continue;
+      for (let resource = 0; resource < this.data.resources.length; resource += 1) {
+        value +=
+          this.world.kitOrders.missing(order, resource) * (this.data.baseValue[resource] ?? 1);
+      }
+    }
+    return Math.max(1, value);
+  }
+
+  private reverseGate(gate: number): number {
+    const from = this.world.gates.from[gate] ?? -1;
+    const to = this.world.gates.to[gate] ?? -1;
+    for (let candidate = 0; candidate < this.world.gates.length; candidate += 1) {
+      if (
+        (this.world.gates.from[candidate] ?? -2) === to &&
+        (this.world.gates.to[candidate] ?? -3) === from
+      ) {
+        return candidate;
+      }
+    }
+    return -1;
   }
 
   private runFleetIndustryNudge(faction: number): void {
@@ -878,6 +1207,16 @@ export class StageTwoSimulation {
         max = Math.max(max, this.maxZeroStreakDays[resource] ?? 0);
     }
     return max;
+  }
+
+  private ensureFactionScratch(): void {
+    if (this.lastBottleneckResource.length >= this.world.factions.length) return;
+    let capacity = Math.max(1, this.lastBottleneckResource.length);
+    while (capacity < this.world.factions.length) capacity *= 2;
+    const next = new Int32Array(capacity);
+    next.fill(-1);
+    next.set(this.lastBottleneckResource);
+    this.lastBottleneckResource = next;
   }
 }
 

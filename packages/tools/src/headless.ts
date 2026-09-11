@@ -17,9 +17,10 @@ import {
 } from "@galaxy-sim/sim-core";
 
 import { loadStageTwoData } from "./stage-two-loader.js";
+import { runStageSevenCampaign, type StageSevenCampaignReport } from "./stage-seven-bench.js";
 
 interface HeadlessOptions {
-  readonly stage: 0 | 1 | 2 | 3;
+  readonly stage: 0 | 1 | 2 | 3 | 7;
   readonly seed: number;
   readonly ticks: number;
   readonly snapshotEvery: number;
@@ -39,9 +40,30 @@ const subsystemNames = [
 
 export async function runHeadless(
   options: HeadlessOptions
-): Promise<StageZeroRunReport | StageOneRunReport | StageTwoRunReport> {
+): Promise<StageZeroRunReport | StageOneRunReport | StageTwoRunReport | StageSevenCampaignReport> {
   const stageTwoData =
-    options.stage === 2 || options.stage === 3 ? await loadStageTwoData() : undefined;
+    options.stage === 2 || options.stage === 3 || options.stage === 7
+      ? await loadStageTwoData()
+      : undefined;
+  if (options.stage === 7) {
+    const started = hrtime.bigint();
+    const report = runStageSevenCampaign(
+      options.seed,
+      options.ticks / 365,
+      requireStageTwoData(stageTwoData)
+    );
+    const elapsedMs = Number(hrtime.bigint() - started) / 1_000_000;
+    printRunReport(options, report, elapsedMs, []);
+    if (options.reportPath !== undefined) {
+      await mkdir(dirname(resolve(options.reportPath)), { recursive: true });
+      await writeFile(
+        options.reportPath,
+        `${JSON.stringify({ options, report, elapsedMs }, null, 2)}\n`,
+        "utf8"
+      );
+    }
+    return report;
+  }
   const sim =
     options.stage === 0
       ? StageZeroSimulation.create(options.seed)
@@ -85,7 +107,7 @@ export async function runHeadless(
 
 function printRunReport(
   options: HeadlessOptions,
-  report: StageZeroRunReport | StageOneRunReport | StageTwoRunReport,
+  report: StageZeroRunReport | StageOneRunReport | StageTwoRunReport | StageSevenCampaignReport,
   elapsedMs: number,
   subsystemMs: readonly number[]
 ): void {
@@ -121,8 +143,8 @@ function printRunReport(
 
 function parseArgs(argv: readonly string[]): HeadlessOptions {
   const stage = numberArg(argv, "stage", 1);
-  if (stage !== 0 && stage !== 1 && stage !== 2 && stage !== 3)
-    throw new Error("--stage must be 0, 1, 2 or 3.");
+  if (stage !== 0 && stage !== 1 && stage !== 2 && stage !== 3 && stage !== 7)
+    throw new Error("--stage must be 0, 1, 2, 3 or 7.");
   return {
     stage,
     seed: numberArg(argv, "seed", 20260904),

@@ -11,9 +11,10 @@ import {
 } from "@galaxy-sim/sim-core";
 
 import { loadStageTwoData } from "./stage-two-loader.js";
+import { runStageSevenCampaign } from "./stage-seven-bench.js";
 
 interface GoldenScenario {
-  readonly stage: 0 | 1 | 2 | 3;
+  readonly stage: 0 | 1 | 2 | 3 | 7;
   readonly seed: number;
   readonly ticks: number;
   readonly checkpointEvery: number;
@@ -33,11 +34,14 @@ const scenarios: readonly GoldenScenario[] = [
   { stage: 1, seed: 7, ticks: 100_000, checkpointEvery: 10_000 },
   { stage: 1, seed: 424242, ticks: 100_000, checkpointEvery: 10_000 },
   { stage: 2, seed: 20260904, ticks: 100_000, checkpointEvery: 10_000 },
-  { stage: 3, seed: 20260904, ticks: 10_000, checkpointEvery: 1_000 }
+  { stage: 3, seed: 20260904, ticks: 10_000, checkpointEvery: 1_000 },
+  { stage: 7, seed: 20260904, ticks: 3_650_000, checkpointEvery: 182_500 }
 ];
 
 export async function checkGolden(): Promise<boolean> {
-  const stageTwoData = scenarios.some((scenario) => scenario.stage === 2 || scenario.stage === 3)
+  const stageTwoData = scenarios.some(
+    (scenario) => scenario.stage === 2 || scenario.stage === 3 || scenario.stage === 7
+  )
     ? await loadStageTwoData()
     : undefined;
   let ok = true;
@@ -67,7 +71,9 @@ export async function checkGolden(): Promise<boolean> {
 export async function updateGolden(reason: string): Promise<void> {
   if (reason.trim().length === 0) throw new Error('golden:update requires --reason "text".');
   await mkdir(goldenDir, { recursive: true });
-  const stageTwoData = scenarios.some((scenario) => scenario.stage === 2 || scenario.stage === 3)
+  const stageTwoData = scenarios.some(
+    (scenario) => scenario.stage === 2 || scenario.stage === 3 || scenario.stage === 7
+  )
     ? await loadStageTwoData()
     : undefined;
   for (const scenario of scenarios) {
@@ -90,6 +96,19 @@ function runScenario(
   scenario: GoldenScenario,
   stageTwoData: Awaited<ReturnType<typeof loadStageTwoData>> | undefined
 ): Omit<GoldenBaseline, keyof GoldenScenario> {
+  if (scenario.stage === 7) {
+    const data = requireStageTwoData(stageTwoData);
+    const report = runStageSevenCampaign(
+      scenario.seed,
+      scenario.ticks / 365,
+      data,
+      scenario.checkpointEvery / 365
+    );
+    return {
+      finalHash: report.finalHash,
+      intermediateHashes: report.intermediateHashes
+    };
+  }
   const sim =
     scenario.stage === 0
       ? StageZeroSimulation.create(scenario.seed)

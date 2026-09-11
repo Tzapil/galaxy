@@ -109,7 +109,20 @@ export class JobBoard {
   ): void {
     const sourceSystem = world.bodies.system[source] ?? 0;
     const targetSystem = world.bodies.system[target] ?? 0;
-    const route = routes.find(world.systems, world.gates, sourceSystem, targetSystem);
+    if (
+      world.battles.systemIsBlocked(sourceSystem) ||
+      world.battles.systemIsBlocked(targetSystem)
+    ) {
+      return;
+    }
+    const route = routes.find(
+      world.systems,
+      world.gates,
+      sourceSystem,
+      targetSystem,
+      faction,
+      world.navigation
+    );
     if (!route.reachable) return;
     for (let resource = 0; resource < data.resources.length; resource += 1) {
       if (data.transportable[resource] !== 1) continue;
@@ -198,11 +211,23 @@ export class JobBoard {
     fuel: number
   ): void {
     const targetSystem = world.bodies.system[target] ?? 0;
+    if (world.battles.systemIsBlocked(targetSystem)) return;
     let source = world.factions.firstColony[faction] ?? -1;
     while (source >= 0) {
       if (source !== target) {
         const sourceSystem = world.bodies.system[source] ?? 0;
-        const route = routes.find(world.systems, world.gates, sourceSystem, targetSystem);
+        if (world.battles.systemIsBlocked(sourceSystem)) {
+          source = world.bodies.nextInFaction[source] ?? -1;
+          continue;
+        }
+        const route = routes.find(
+          world.systems,
+          world.gates,
+          sourceSystem,
+          targetSystem,
+          faction,
+          world.navigation
+        );
         if (route.reachable) {
           const reserve = resource === fuel ? 40 : 0;
           const sourceStock = Math.max(

@@ -432,6 +432,7 @@ function buildingUsesResource(
 
 function roleForHull(id: string, shipClass: "civilian" | "warship" | "support"): ShipRole {
   if (shipClass === "warship") return ShipRole.Warship;
+  if (id.includes("troop")) return ShipRole.Troopship;
   if (id.includes("prospector")) return ShipRole.Miner;
   if (id.includes("shuttle")) return ShipRole.Scout;
   if (id.includes("colony")) return ShipRole.Colonizer;

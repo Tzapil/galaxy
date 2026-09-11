@@ -1,0 +1,7 @@
+{
+  "stage": 6,
+  "seed": 20260904,
+  "ticks": 365000,
+  "description": "Stage 6 blockade cuts ship-component delivery, raises its price, and stalls the dependent shipyard",
+  "expectedPathologyStatus": "ok"
+}

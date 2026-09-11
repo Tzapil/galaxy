@@ -83,6 +83,18 @@ export class FactionTechState {
     return row;
   }
 
+  public resetFaction(faction: number, startTech: number): void {
+    if (faction < 0 || faction >= this.length) throw new RangeError("Unknown faction row.");
+    this.currentTech[faction] = -1;
+    this.progressPhysics[faction] = 0;
+    this.progressEngineering[faction] = 0;
+    this.progressBio[faction] = 0;
+    this.completedCount[faction] = 0;
+    this.cacheVersion[faction] = ((this.cacheVersion[faction] ?? 0) + 1) >>> 0;
+    for (const column of this.levels) column[faction] = 0;
+    if (startTech >= 0) this.markResearched(faction, startTech);
+  }
+
   public hasResearched(faction: number, tech: number): boolean {
     return this.level(tech, faction) > 0;
   }

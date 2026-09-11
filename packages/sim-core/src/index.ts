@@ -65,6 +65,7 @@ export {
 export type { ResearchChoice, ResearchPathCost } from "./ai/research-choice.js";
 export {
   findBottleneck,
+  findLogisticsBottleneck,
   reserveDays,
   STOCK_RESERVE_HORIZON_DAYS,
   toOperationalTask,
@@ -123,8 +124,8 @@ export { compactJournalEntries } from "./persist/port.js";
 export type { JournalEntry, PersistPort } from "./persist/port.js";
 export { consumePopulationWithLocalRedistribution } from "./pop/consume-stage-two.js";
 export { JobBoard } from "./market/jobboard.js";
-export { RoutePlanner } from "./nav/route.js";
-export type { RouteResult } from "./nav/route.js";
+export { gateIsBlockedFor, RoutePlanner } from "./nav/route.js";
+export type { HostilityView, RouteResult } from "./nav/route.js";
 export { Rng } from "./rng.js";
 export type { RngSnapshot } from "./rng.js";
 export {
@@ -253,12 +254,165 @@ export type {
   StageGameDataInput
 } from "./stage-one/data.js";
 export { BodyType } from "./world/bodies.js";
+export { ColonyHistory } from "./world/colonies.js";
 export { CapitalDistances, Regions } from "./world/regions.js";
 export { StageOneWorld } from "./world/state.js";
 export type { StageOneWorldCapacities } from "./world/state.js";
 export { slotRangeForBody, totalSlotsForBody, freeSlots } from "./world/slots.js";
 export { buildStageTwoWorld } from "./world/build-stage-two-world.js";
 export { ShipRole, ShipState } from "./ships/ships.js";
+export {
+  Fleets,
+  FleetState,
+  fleetAverageSpeed,
+  fleetCombatStrength,
+  fleetSpeed
+} from "./fleet/fleet.js";
+export type { FleetStatWorld } from "./fleet/fleet.js";
+export { FleetOrder, handleFleetArrival, issueFleetOrder, launchFleet } from "./fleet/orders.js";
+export type { FleetLaunchFailure, FleetLaunchResult } from "./fleet/orders.js";
+export { rallyShip } from "./fleet/rally.js";
+export type { RallyResult } from "./fleet/rally.js";
+export { Wars, WarState } from "./war/state.js";
+export { Relations, RelationStatus } from "./diplo/relations.js";
+export {
+  DiplomaticNavigation,
+  endTreatyAsBreach,
+  relationStatusForTreaty,
+  Treaties,
+  TreatyState,
+  TreatyType
+} from "./diplo/treaty.js";
+export { WarGoals } from "./diplo/war-goals.js";
+export { findCasusBelli, formatCasusBelliReason } from "./diplo/casus-belli.js";
+export type { CasusBelli } from "./diplo/casus-belli.js";
+export {
+  declareWarForCasusBelli,
+  evaluateWarDecision,
+  MAX_SIMULTANEOUS_WAR_FRONTS,
+  WAR_DECLARATION_THRESHOLD
+} from "./diplo/declare-war.js";
+export type { WarDecision, WarDecisionFactors, WarDeclarationResult } from "./diplo/declare-war.js";
+export { evaluateTreatyUtility, negotiateTreaty } from "./diplo/negotiate.js";
+export type { TreatyNegotiation, TreatyOffer, TreatyUtilityInput } from "./diplo/negotiate.js";
+export {
+  evaluatePeaceTerms,
+  MAX_WAR_DURATION_TICKS,
+  PEACE_EXHAUSTION_THRESHOLD,
+  seekPeace,
+  statusQuoTerms,
+  TRUCE_DURATION_TICKS
+} from "./diplo/peace.js";
+export type { PeaceEvaluation, PeaceResult, PeaceTerms } from "./diplo/peace.js";
+export {
+  activeWarCount,
+  advanceWarExhaustion,
+  MAX_WAR_EXHAUSTION,
+  recordWarCost,
+  WAR_EXHAUSTION_TENSION_WEIGHT
+} from "./diplo/war-exhaustion.js";
+export type { WarCost } from "./diplo/war-exhaustion.js";
+export {
+  assessThreat,
+  factionPowerShares,
+  hegemonWarMultiplier,
+  powerConcentrationIndex,
+  updateCoalitionTreaties
+} from "./diplo/coalition.js";
+export type { PowerShares, ThreatAssessment } from "./diplo/coalition.js";
+export { considerWarFromBottleneck, runDiplomacyDay } from "./diplo/tick.js";
+export type { DiplomacyDayResult } from "./diplo/tick.js";
+export { executeForeignTrade, quoteForeignTrade } from "./market/foreign-trade.js";
+export type { ForeignTradeQuote, ForeignTradeResult } from "./market/foreign-trade.js";
+export {
+  administrativeCapacity,
+  administrativeCapacityEra,
+  MAX_ADMINISTRATIVE_CAPACITY
+} from "./cohesion/admin-capacity.js";
+export type { AdministrativeCapacityBreakdown } from "./cohesion/admin-capacity.js";
+export { FactionDynamics, RegionCohesion } from "./cohesion/state.js";
+export { refreshRegionalCapital, regionalDistanceOrigin } from "./cohesion/regional-capital.js";
+export { advanceRepression, MAX_HIDDEN_HATRED } from "./cohesion/repression.js";
+export type { RepressionEffect } from "./cohesion/repression.js";
+export {
+  calculateRegionTension,
+  REGION_TENSION_THRESHOLD,
+  updateRegionTension
+} from "./cohesion/tension.js";
+export type { RegionTensionBreakdown } from "./cohesion/tension.js";
+export {
+  attemptRegionSecession,
+  formatSecessionReason,
+  retireFaction,
+  SECESSION_ANNUAL_CHANCE,
+  SECESSION_MIN_HIGH_TICKS
+} from "./cohesion/secession.js";
+export type { SecessionResult } from "./cohesion/secession.js";
+export {
+  bandName,
+  combatBand,
+  CombatBand,
+  moveBand,
+  resolveBandStep,
+  weaponCanFire
+} from "./combat/bands.js";
+export {
+  Battles,
+  BattleSide,
+  BattleState,
+  createBattle,
+  MAX_BATTLE_ROUNDS,
+  reinforceBattle
+} from "./combat/battle.js";
+export { CombatRoundScratch, resolveBattleRound } from "./combat/round.js";
+export type { BattleRoundResult } from "./combat/round.js";
+export { applyLayeredDamage, weaponDamageType, WeaponDamageType } from "./combat/damage.js";
+export type { DamageLayers, DamageResult } from "./combat/damage.js";
+export { interceptDamage, MAX_INTERCEPT_FRACTION } from "./combat/intercept.js";
+export type { InterceptResult } from "./combat/intercept.js";
+export { checkWithdrawal } from "./combat/withdraw.js";
+export type { WithdrawalCheck } from "./combat/withdraw.js";
+export { CombatLog, CombatLogKind } from "./combat/log.js";
+export type { CombatLogEntry } from "./combat/log.js";
+export {
+  BlockadeReaction,
+  chooseBlockadeReaction,
+  clearBlockade,
+  establishBlockade
+} from "./combat/blockade.js";
+export type { BlockadePressure, BlockadeReactionChoice } from "./combat/blockade.js";
+export {
+  establishOrbitalSuperiority,
+  hasOrbitalSuperiority,
+  orbitalDefenseStrength,
+  ORBITAL_DEFENSE_STRENGTH
+} from "./combat/orbital.js";
+export type { OrbitalSuperiorityResult } from "./combat/orbital.js";
+export { endSiege, startSiege } from "./combat/siege.js";
+export {
+  CAPTURE_POPULATION_SURVIVAL,
+  defenseTaskForThreat,
+  fleetTroopStrength,
+  GARRISON_STRENGTH,
+  garrisonStrength,
+  invadeColony
+} from "./combat/invasion.js";
+export type { InvasionFailure, InvasionResult } from "./combat/invasion.js";
+export { IntelMemory, IntelSource } from "./intel/memory.js";
+export type { ObservedFleetProfile } from "./intel/memory.js";
+export {
+  enemyProfileFromIntel,
+  estimateIntel,
+  estimatedEnemyCapability
+} from "./intel/estimate.js";
+export type { IntelEstimate } from "./intel/estimate.js";
+export {
+  fleetProfile,
+  observeBattle,
+  observeBorderFleet,
+  observeFleetAfterBattle,
+  scoutSystem
+} from "./intel/observe.js";
 export { assignIdleHaulers, handleShipArrival, launchBestLocalJob } from "./ships/move.js";
 export { LaunchResult } from "./ships/move.js";
 export { collectAndAdvanceResearch } from "./tech/research.js";

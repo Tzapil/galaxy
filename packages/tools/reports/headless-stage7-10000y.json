@@ -1,0 +1,256 @@
+{
+  "options": {
+    "stage": 7,
+    "seed": 20260904,
+    "ticks": 3650000,
+    "snapshotEvery": 0,
+    "reportPath": "reports/headless-stage7-10000y.json",
+    "preset": "balanced"
+  },
+  "report": {
+    "ticks": 3650000,
+    "finalHash": "7045fcb32e140c402626b33673540141",
+    "intermediateHashes": [],
+    "counters": {
+      "systems": 256,
+      "factions": 24,
+      "ships": 0,
+      "buildings": 0
+    },
+    "metrics": {
+      "totalPopulation": 30700,
+      "minPopulation": 100,
+      "averageFoodWaterSpread": 0,
+      "completedBatches": 0,
+      "deliveredShipments": 1,
+      "missedDeparturesFuel": 0,
+      "jobsAvailable": 0,
+      "idleHaulers": 0,
+      "idleNoPower": 0,
+      "idleMissingInput": 0,
+      "constructedBuildings": 1,
+      "disbandedShips": 0,
+      "researchedTechnologies": 9,
+      "activeConstructions": 0,
+      "slotFillRatio": 0,
+      "maxResourceZeroStreakDays": 0,
+      "treasuryMin": 1000000,
+      "aiStrategicDecisions": 0,
+      "aiOperationalDecisions": 0,
+      "aiTacticalDecisions": 0,
+      "aiBuildPlansStarted": 0,
+      "aiColonizationLaunches": 0,
+      "aiFleetBuilds": 0,
+      "coloniesFounded": 0,
+      "aiOperations": 0,
+      "aliveFactionsMin": 3,
+      "aliveFactionsMax": 23,
+      "aliveFactionDistinctCounts": 21,
+      "medianFactionAgeYears": 35,
+      "earlyConcentrationMax": 0.12500041114494584,
+      "middleConcentrationMax": 0.32758236469588176,
+      "lateConcentrationMax": 0.9109120956874377,
+      "lateHegemonyReached": true,
+      "secessionCount": 689,
+      "warCount": 4905,
+      "coalitionChanges": 3767,
+      "maxEventLogEntries": 4096,
+      "retainedStateBytesMin": 523132,
+      "retainedStateBytesMax": 702375,
+      "retainedStateStabilized": true,
+      "actualTicksPerSecond": 16796057.666157875,
+      "epochMetrics": [
+        {
+          "year": 0,
+          "aliveFactions": 8,
+          "powerConcentration": 0.12500041114494584,
+          "medianFactionAgeYears": 0,
+          "eventLogEntries": 0,
+          "retainedStateBytes": 523132,
+          "administrativeLeaderShare": 0.125
+        },
+        {
+          "year": 500,
+          "aliveFactions": 22,
+          "powerConcentration": 0.07712454331683993,
+          "medianFactionAgeYears": 245,
+          "eventLogEntries": 284,
+          "retainedStateBytes": 535089,
+          "administrativeLeaderShare": 0.1796875
+        },
+        {
+          "year": 1000,
+          "aliveFactions": 19,
+          "powerConcentration": 0.10431298829355429,
+          "medianFactionAgeYears": 270,
+          "eventLogEntries": 564,
+          "retainedStateBytes": 546849,
+          "administrativeLeaderShare": 0.2578125
+        },
+        {
+          "year": 1500,
+          "aliveFactions": 17,
+          "powerConcentration": 0.14024156959942566,
+          "medianFactionAgeYears": 395,
+          "eventLogEntries": 1970,
+          "retainedStateBytes": 613083,
+          "administrativeLeaderShare": 0.3203125
+        },
+        {
+          "year": 2000,
+          "aliveFactions": 11,
+          "powerConcentration": 0.18566662650240945,
+          "medianFactionAgeYears": 750,
+          "eventLogEntries": 3190,
+          "retainedStateBytes": 664323,
+          "administrativeLeaderShare": 0.3671875
+        },
+        {
+          "year": 2500,
+          "aliveFactions": 12,
+          "powerConcentration": 0.1953977350980266,
+          "medianFactionAgeYears": 205,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.38671875
+        },
+        {
+          "year": 3000,
+          "aliveFactions": 13,
+          "powerConcentration": 0.32758236469588176,
+          "medianFactionAgeYears": 345,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.55078125
+        },
+        {
+          "year": 3500,
+          "aliveFactions": 14,
+          "powerConcentration": 0.3703000242298865,
+          "medianFactionAgeYears": 95,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.59375
+        },
+        {
+          "year": 4000,
+          "aliveFactions": 5,
+          "powerConcentration": 0.6285561479426962,
+          "medianFactionAgeYears": 145,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.78125
+        },
+        {
+          "year": 4500,
+          "aliveFactions": 4,
+          "powerConcentration": 0.7986102410744194,
+          "medianFactionAgeYears": 140,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.890625
+        },
+        {
+          "year": 5000,
+          "aliveFactions": 9,
+          "powerConcentration": 0.5340639888041075,
+          "medianFactionAgeYears": 155,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.72265625
+        },
+        {
+          "year": 5500,
+          "aliveFactions": 13,
+          "powerConcentration": 0.28364386895939697,
+          "medianFactionAgeYears": 165,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.5078125
+        },
+        {
+          "year": 6000,
+          "aliveFactions": 11,
+          "powerConcentration": 0.6055574681118396,
+          "medianFactionAgeYears": 70,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.7734375
+        },
+        {
+          "year": 6500,
+          "aliveFactions": 4,
+          "powerConcentration": 0.7346112571466742,
+          "medianFactionAgeYears": 95,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.8515625
+        },
+        {
+          "year": 7000,
+          "aliveFactions": 8,
+          "powerConcentration": 0.5885886231122822,
+          "medianFactionAgeYears": 30,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.7578125
+        },
+        {
+          "year": 7500,
+          "aliveFactions": 7,
+          "powerConcentration": 0.6589506945400438,
+          "medianFactionAgeYears": 155,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.8046875
+        },
+        {
+          "year": 8000,
+          "aliveFactions": 5,
+          "powerConcentration": 0.8183938728184139,
+          "medianFactionAgeYears": 135,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.90234375
+        },
+        {
+          "year": 8500,
+          "aliveFactions": 12,
+          "powerConcentration": 0.5466249162426874,
+          "medianFactionAgeYears": 90,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.734375
+        },
+        {
+          "year": 9000,
+          "aliveFactions": 5,
+          "powerConcentration": 0.6088719208962047,
+          "medianFactionAgeYears": 90,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.765625
+        },
+        {
+          "year": 9500,
+          "aliveFactions": 4,
+          "powerConcentration": 0.5413928527835269,
+          "medianFactionAgeYears": 10,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.66015625
+        },
+        {
+          "year": 10000,
+          "aliveFactions": 11,
+          "powerConcentration": 0.5780249577390038,
+          "medianFactionAgeYears": 35,
+          "eventLogEntries": 4096,
+          "retainedStateBytes": 702375,
+          "administrativeLeaderShare": 0.75390625
+        }
+      ]
+    }
+  },
+  "elapsedMs": 282.2675
+}

@@ -1,4 +1,6 @@
 import { validatePlacement } from "../econ/placement.js";
+import type { RoutePlanner } from "../nav/route.js";
+import { KitOrderState } from "../ships/kit-order.js";
 import type { StageOneData } from "../stage-one/data.js";
 import type { StageOneWorld } from "../world/state.js";
 
@@ -75,6 +77,71 @@ export function findBottleneck(
     }
   }
 
+  return best;
+}
+
+/**
+ * Finds an unfillable component demand at its destination. This is route-aware
+ * MRP: disconnected stock is not counted as available supply, regardless of
+ * whether the disconnection comes from topology, a battle, or a blockade.
+ */
+export function findLogisticsBottleneck(
+  data: StageOneData,
+  world: StageOneWorld,
+  routes: RoutePlanner,
+  faction: number
+): AiBottleneck | undefined {
+  let best: AiBottleneck | undefined;
+  let bestScore = Number.NEGATIVE_INFINITY;
+  let operations = 0;
+  for (let order = 0; order < world.kitOrders.length; order += 1) {
+    if (world.kitOrders.state[order] !== KitOrderState.Active) continue;
+    if ((world.kitOrders.faction[order] ?? -1) !== faction) continue;
+    const target = world.kitOrders.targetBody[order] ?? -1;
+    if (target < 0) continue;
+    const targetSystem = world.bodies.system[target] ?? -1;
+    const targetBlocked = world.battles.systemIsBlocked(targetSystem);
+    for (let resource = 0; resource < data.resources.length; resource += 1) {
+      const missing = world.kitOrders.missing(order, resource);
+      if (missing <= 0.001) continue;
+      let reachableStock = 0;
+      let totalStock = 0;
+      let source = world.factions.firstColony[faction] ?? -1;
+      while (source >= 0) {
+        operations += 1;
+        const stock = world.stockpiles.get(world.bodies.stockpile[source] ?? 0, resource);
+        totalStock += stock;
+        const sourceSystem = world.bodies.system[source] ?? -1;
+        const route = routes.find(
+          world.systems,
+          world.gates,
+          sourceSystem,
+          targetSystem,
+          faction,
+          world.navigation
+        );
+        if (route.reachable && !targetBlocked && !world.battles.systemIsBlocked(sourceSystem)) {
+          reachableStock += stock;
+        }
+        source = world.bodies.nextInFaction[source] ?? -1;
+      }
+      if (totalStock <= 0.001) continue;
+      const deficit = missing - reachableStock;
+      if (deficit <= 0.001) continue;
+      const score = deficit * (data.baseValue[resource] ?? 1);
+      if (score > bestScore + 1e-9) {
+        bestScore = score;
+        best = {
+          resource,
+          demandPerDay: missing,
+          supplyPerDay: 0,
+          deficitPerDay: deficit,
+          stockDays: 0,
+          operations
+        };
+      }
+    }
+  }
   return best;
 }
 

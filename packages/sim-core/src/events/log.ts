@@ -29,7 +29,21 @@ export const enum StageOneLogKind {
   ShipyardBuildStarted = 25,
   ShipyardBuildComplete = 26,
   RefitStarted = 27,
-  RefitComplete = 28
+  RefitComplete = 28,
+  BlockadeStarted = 29,
+  BlockadeEnded = 30,
+  BlockadeResponse = 31,
+  BattleStarted = 32,
+  BattleEnded = 33,
+  ColonyCaptured = 34,
+  IntelUpdated = 35,
+  WarDeclared = 36,
+  TreatySigned = 37,
+  TreatyBroken = 38,
+  ForeignTrade = 39,
+  PeaceConcluded = 40,
+  CoalitionChanged = 41,
+  Secession = 42
 }
 
 const DEFAULT_STAGE_ONE_EVENT_LOG_LIMIT = 4096;

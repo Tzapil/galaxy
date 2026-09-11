@@ -8,6 +8,11 @@ export interface RouteResult {
   readonly nextSystem: number;
 }
 
+export interface HostilityView {
+  isHostile(a: number, b: number): boolean;
+  canTraverse?(traveler: number, systemOwner: number, tick: number): boolean;
+}
+
 export class RoutePlanner {
   private dist: Float64Array;
   private jumps: Uint16Array;
@@ -21,7 +26,15 @@ export class RoutePlanner {
     this.visited = new Uint8Array(initialCapacity);
   }
 
-  public find(systems: Systems, gates: Gates, from: number, to: number): RouteResult {
+  public find(
+    systems: Systems,
+    gates: Gates,
+    from: number,
+    to: number,
+    travelerFaction = -1,
+    hostilities?: HostilityView,
+    tick = 0
+  ): RouteResult {
     this.ensureCapacity(systems.length);
     for (let i = 0; i < systems.length; i += 1) {
       this.dist[i] = Number.POSITIVE_INFINITY;
@@ -38,8 +51,17 @@ export class RoutePlanner {
       this.visited[current] = 1;
       let gate = systems.firstGate[current] ?? -1;
       while (gate >= 0) {
-        if (gates.blocked[gate] !== 1) {
+        if (!gateIsBlockedFor(gates, gate, travelerFaction, hostilities)) {
           const neighbor = gates.to[gate] ?? 0;
+          const owner = systems.owner[neighbor] ?? -1;
+          if (
+            neighbor !== to &&
+            hostilities?.canTraverse !== undefined &&
+            !hostilities.canTraverse(travelerFaction, owner, tick)
+          ) {
+            gate = gates.nextInSystem[gate] ?? -1;
+            continue;
+          }
           const nextCost = (this.dist[current] ?? 0) + (gates.travelTicks[gate] ?? 0);
           const nextJumps = (this.jumps[current] ?? 0) + 1;
           if (nextCost < (this.dist[neighbor] ?? Number.POSITIVE_INFINITY)) {
@@ -130,4 +152,16 @@ export class RoutePlanner {
     this.previous = new Int32Array(next);
     this.visited = new Uint8Array(next);
   }
+}
+
+export function gateIsBlockedFor(
+  gates: Gates,
+  gate: number,
+  travelerFaction: number,
+  hostilities?: HostilityView
+): boolean {
+  if (gates.blocked[gate] === 1) return true;
+  const blockader = gates.blockadedBy[gate] ?? -1;
+  if (blockader < 0 || travelerFaction < 0 || blockader === travelerFaction) return false;
+  return hostilities?.isHostile(blockader, travelerFaction) === true;
 }
