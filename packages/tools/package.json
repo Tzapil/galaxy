@@ -29,10 +29,12 @@
     "scenarios:check": "tsx src/scenarios.ts",
     "pregalaxy:stage3": "corepack pnpm --filter @galaxy-sim/sim-core build",
     "galaxy:stage3": "tsx src/galaxy-stage3.ts",
-    "bench:stage7": "tsx src/bench.ts --stage 7 --seeds 50 --years 10000"
+    "bench:stage7": "tsx src/bench.ts --stage 7 --seeds 50 --years 10000",
+    "bench:stage8": "tsx src/stage-eight-bench.ts"
   },
   "dependencies": {
     "@galaxy-sim/sim-core": "workspace:*",
-    "@galaxy-sim/sim-data": "workspace:*"
+    "@galaxy-sim/sim-data": "workspace:*",
+    "@galaxy-sim/sim-worker": "workspace:*"
   }
 }

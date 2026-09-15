@@ -29,6 +29,7 @@ export type BuildingColumn =
   | "nextInBody";
 
 export class Buildings {
+  private technicalLimit: number | undefined;
   public type: Uint16Array;
   public body: Uint32Array;
   public batchRecipe: Int32Array;
@@ -89,6 +90,23 @@ export class Buildings {
     return this.arena.length;
   }
 
+  public setTechnicalLimit(limit: number | undefined): void {
+    if (limit !== undefined && (!Number.isSafeInteger(limit) || limit < this.length)) {
+      throw new RangeError(
+        "Building technical limit cannot be lower than the current building count."
+      );
+    }
+    this.technicalLimit = limit;
+  }
+
+  public canAdd(count = 1): boolean {
+    return (
+      Number.isSafeInteger(count) &&
+      count >= 0 &&
+      (this.technicalLimit === undefined || this.length + count <= this.technicalLimit)
+    );
+  }
+
   public addBuilt(
     data: StageOneData,
     bodies: Bodies,
@@ -97,6 +115,7 @@ export class Buildings {
     stockpiles?: Stockpiles
   ): number {
     const row = this.addShell(data, bodies, body, buildingType, BuildingState.UnderConstruction);
+    if (row < 0) return -1;
     this.activateBuilt(data, bodies, row, stockpiles);
     return row;
   }
@@ -109,6 +128,7 @@ export class Buildings {
     tick: number
   ): number {
     const row = this.addShell(data, bodies, body, buildingType, BuildingState.UnderConstruction);
+    if (row < 0) return -1;
     this.startedTick[row] = tick;
     this.finishTick[row] = -1;
     this.stateResource[row] = -1;
@@ -169,6 +189,7 @@ export class Buildings {
     buildingType: number,
     state: BuildingState
   ): number {
+    if (!this.canAdd()) return -1;
     const def = data.buildings[buildingType];
     if (def === undefined) throw new RangeError("Unknown building type.");
     const previousCapacity = this.arena.capacity;

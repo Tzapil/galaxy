@@ -1,0 +1,7 @@
+{
+  "stage": 8,
+  "seed": 20260904,
+  "ticks": 3650000,
+  "description": "Stage 8 observer regression keeps a bounded chronicle over a dynamic 10,000-year history",
+  "expectedPathologyStatus": "ok"
+}

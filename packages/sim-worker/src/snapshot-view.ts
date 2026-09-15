@@ -3,7 +3,6 @@ import {
   type StageOneRenderSnapshot,
   decodeStageOneRenderSnapshot
 } from "@galaxy-sim/sim-core";
-import type { StageOneSimulation } from "@galaxy-sim/sim-core";
 
 export const DEFAULT_RENDER_SLICES =
   RenderSliceBit.Map |
@@ -12,7 +11,10 @@ export const DEFAULT_RENDER_SLICES =
   RenderSliceBit.Buildings |
   RenderSliceBit.Events;
 
-export function buildRenderSnapshot(simulation: StageOneSimulation, slices: number): ArrayBuffer {
+export function buildRenderSnapshot(
+  simulation: { readonly renderSnapshot: (slices: number) => ArrayBuffer },
+  slices: number
+): ArrayBuffer {
   return simulation.renderSnapshot(slices);
 }
 

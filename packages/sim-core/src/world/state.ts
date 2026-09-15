@@ -53,6 +53,11 @@ export interface StageOneWorldCapacities {
   readonly cohesion: number;
 }
 
+export interface TechnicalEntityLimits {
+  readonly maxShips?: number;
+  readonly maxBuildings?: number;
+}
+
 export class StageOneWorld {
   public constructor(
     public readonly data: StageOneData,
@@ -423,6 +428,11 @@ export class StageOneWorld {
     return this;
   }
 
+  public setTechnicalLimits(limits: TechnicalEntityLimits = {}): void {
+    this.ships.setTechnicalLimit(limits.maxShips);
+    this.buildings.setTechnicalLimit(limits.maxBuildings);
+  }
+
   public addHauler(
     faction: number,
     currentSystem: number,
@@ -430,6 +440,7 @@ export class StageOneWorld {
     fuelCapacity: number,
     fuelPerJump: number
   ): number {
+    if (!this.ships.canAdd()) return -1;
     const stockpile = this.stockpiles.add();
     return this.ships.addHauler(
       faction,
@@ -450,6 +461,7 @@ export class StageOneWorld {
     fuelPerJump: number,
     blueprint = -1
   ): number {
+    if (!this.ships.canAdd()) return -1;
     const stockpile = this.stockpiles.add();
     return this.ships.addShip(
       faction,

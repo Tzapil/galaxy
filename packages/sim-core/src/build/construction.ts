@@ -38,6 +38,9 @@ export function startBuildingConstruction(
     buildingType,
     tick
   );
+  if (building < 0) {
+    return { ok: false, building: -1, waitingResource: -1 };
+  }
   const waitingResource = tryPayConstructionCost(data, world, building);
   if (waitingResource >= 0) {
     world.buildings.stateResource[building] = waitingResource;

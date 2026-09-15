@@ -90,3 +90,22 @@
 ## Golden baseline update
 
 - Reason: Stage 7 diplomacy, cohesion, secession, bounded long-horizon state, and combat-cost integration
+
+## Stage 8 observer interface
+
+- Added a batched, virtualized story feed with consequence-derived importance, milestone
+  retention, causal AI explanations, text/faction/type/importance filters, and map focus.
+- Added the five PixiJS galaxy data layers, bounded selected-system slices, system details,
+  uPlot history, faction comparison, instrumentation, and honest slowdown reporting.
+- Added versioned IndexedDB saves with full binary snapshots, deterministic controller
+  state, persisted multi-resolution history and compacted journals; rotating autosaves,
+  slot management, export/import, quota handling, and loading from the initial screen.
+- Added the complete data-driven new-game screen, deterministic preview, four presets,
+  validation, core-enforced technical limits persisted with saves, unlimited controls,
+  themes and persisted observer settings.
+- Added the Stage 8 regression and target acceptance stand. On the recorded machine the
+  synthetic 500/20,000/50,000 ceiling ran at 45.31 ticks/s and produced a 51,534,487-byte
+  full save including 10,000 years of history; overload slowed game time without skipping
+  simulation ticks.
+- Fixed the system-to-galaxy return race: retained snapshots now wait for PixiJS renderer
+  initialization before drawing.

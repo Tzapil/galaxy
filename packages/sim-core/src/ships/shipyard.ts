@@ -33,7 +33,12 @@ export interface ShipyardQueueResult {
   readonly ok: boolean;
   readonly order: number;
   readonly reason:
-    "queued" | "noShipyard" | "foreignBody" | "invalidBlueprint" | "missingComponents";
+    | "queued"
+    | "noShipyard"
+    | "foreignBody"
+    | "invalidBlueprint"
+    | "missingComponents"
+    | "technicalLimit";
   readonly missingResource: number;
 }
 
@@ -128,6 +133,9 @@ export function queueShipBuild(
   tick: number,
   useKitOrder = true
 ): ShipyardQueueResult {
+  if (!world.ships.canAdd()) {
+    return { ok: false, order: -1, reason: "technicalLimit", missingResource: -1 };
+  }
   if (!blueprintIsValidForFaction(world.blueprints, faction, blueprint)) {
     return { ok: false, order: -1, reason: "invalidBlueprint", missingResource: -1 };
   }
@@ -178,8 +186,7 @@ export function advanceShipyards(
       state === ShipyardOrderState.Building &&
       tick + 1e-9 >= (world.shipyardOrders.finishTick[order] ?? Number.POSITIVE_INFINITY)
     ) {
-      completeShipyardBuild(data, world, order, tick);
-      completed += 1;
+      if (completeShipyardBuild(data, world, order, tick)) completed += 1;
     }
   }
   return { started, completed };
@@ -270,12 +277,16 @@ function completeShipyardBuild(
   world: StageOneWorld,
   order: number,
   tick: number
-): void {
+): boolean {
   const blueprint = world.shipyardOrders.blueprint[order] ?? -1;
   const body = world.shipyardOrders.body[order] ?? -1;
   const faction = world.shipyardOrders.faction[order] ?? -1;
   const hull = data.hulls[world.blueprints.hull[blueprint] ?? -1];
-  if (hull === undefined || body < 0 || faction < 0) return;
+  if (hull === undefined || body < 0 || faction < 0) return false;
+  if (!world.ships.canAdd()) {
+    world.shipyardOrders.state[order] = ShipyardOrderState.Cancelled;
+    return false;
+  }
   const kitOrder = world.shipyardOrders.kitOrder[order] ?? -1;
   if (kitOrder >= 0) world.kitOrders.complete(kitOrder);
   const design = world.blueprints.design(blueprint);
@@ -301,6 +312,7 @@ function completeShipyardBuild(
     blueprint,
     1
   );
+  return true;
 }
 
 function blueprintIsValidForFaction(

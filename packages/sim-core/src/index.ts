@@ -2,6 +2,21 @@ export { EntityAllocator } from "./entity/ids.js";
 export type { EntityRef } from "./entity/ids.js";
 export { EventKind } from "./events/kinds.js";
 export { StageOneLogKind } from "./events/log.js";
+export type { StageOneLogListener } from "./events/log.js";
+export {
+  calculateStoryImportance,
+  compactStoryEvents,
+  isStoryMilestone,
+  storyImportanceBand,
+  storyKindForLog,
+  StoryEventKind
+} from "./events/story.js";
+export type {
+  CompactableStoryEvent,
+  StoryCenturySummary,
+  StoryImpact,
+  StoryImportanceBand
+} from "./events/story.js";
 export { BuildingState } from "./econ/buildings.js";
 export { buildEconGraph, computeBaseValues, explodeToRaw, recipeUnitCost } from "./econ/graph.js";
 export type { EconGraph, EconGraphInput } from "./econ/graph.js";
@@ -199,8 +214,12 @@ export type {
   StageTwoRunReport
 } from "./simulation/stage-two.js";
 export {
+  buildStageOneRenderSnapshot,
+  currentStoryEvents,
   decodeStageOneRenderSnapshot,
+  renderStoryEventForRow,
   RenderSliceBit,
+  RenderSystemFlag,
   STAGE_ONE_VIEW_MAGIC,
   STAGE_ONE_VIEW_VERSION
 } from "./stage-one/render-snapshot.js";
@@ -257,7 +276,7 @@ export { BodyType } from "./world/bodies.js";
 export { ColonyHistory } from "./world/colonies.js";
 export { CapitalDistances, Regions } from "./world/regions.js";
 export { StageOneWorld } from "./world/state.js";
-export type { StageOneWorldCapacities } from "./world/state.js";
+export type { StageOneWorldCapacities, TechnicalEntityLimits } from "./world/state.js";
 export { slotRangeForBody, totalSlotsForBody, freeSlots } from "./world/slots.js";
 export { buildStageTwoWorld } from "./world/build-stage-two-world.js";
 export { ShipRole, ShipState } from "./ships/ships.js";

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { StageOneLogKind } from "@galaxy-sim/sim-core";
 
 import { decodeRenderSnapshot } from "../src/index.js";
 import type { WorkerCommand, WorkerMessage } from "../src/protocol.js";
@@ -79,6 +80,13 @@ describe("worker protocol", () => {
     const first = new StageOneWorkerRuntime();
     first.handle({ type: "init", seed: 13 });
     first.advanceTicks(250);
+    const historyRequest = {
+      type: "history" as const,
+      request: { id: 91, series: [{ metric: "population" as const }] }
+    };
+    const historyBeforeSave = first
+      .handle(historyRequest)
+      .find((message) => message.type === "history");
     const saved = first
       .handle({ type: "save", slotId: "a" })
       .find((message) => message.type === "saved");
@@ -87,8 +95,16 @@ describe("worker protocol", () => {
     const second = new StageOneWorkerRuntime();
     second.handle({ type: "init", seed: 1 });
     second.handle({ type: "load", slotId: "a", buffer: saved.buffer });
+    const historyAfterLoad = second
+      .handle(historyRequest)
+      .find((message) => message.type === "history");
 
     expect(second.tick).toBe(first.tick);
+    expect(second.hash()).toBe(first.hash());
+    expect(historyAfterLoad).toEqual(historyBeforeSave);
+
+    first.advanceTicks(250);
+    second.advanceTicks(250);
     expect(second.hash()).toBe(first.hash());
   });
 
@@ -104,5 +120,51 @@ describe("worker protocol", () => {
     expect(snapshot.buffer).toBeInstanceOf(ArrayBuffer);
     expect(decoded.systems).toHaveLength(20);
     expect(decoded.colonies).toHaveLength(0);
+  });
+
+  it("generates a configured galaxy deterministically and returns a bounded system slice", () => {
+    const galaxy = {
+      systemCount: 100,
+      shape: "disc" as const,
+      regionCount: 4,
+      factionCount: 2,
+      factionMinJumps: 2,
+      startViabilityJumps: 2
+    };
+    const first = new StageOneWorkerRuntime();
+    const firstMessages = first.handle({ type: "init", seed: 73, params: { galaxy } });
+    const second = new StageOneWorkerRuntime();
+    second.handle({ type: "init", seed: 73, params: { galaxy } });
+
+    expect(firstMessages.some((message) => message.type === "error")).toBe(false);
+    expect(first.hash()).toBe(second.hash());
+    const snapshot = firstMessages.find((message) => message.type === "snapshot");
+    if (snapshot?.type !== "snapshot") throw new Error("Configured snapshot was not emitted.");
+    expect(decodeRenderSnapshot(snapshot.buffer).systems).toHaveLength(100);
+
+    const system = first
+      .handle({ type: "selectSystem", system: 0 })
+      .find((message) => message.type === "system");
+    if (system?.type !== "system") throw new Error("System slice was not emitted.");
+    expect(system.view.id).toBe(0);
+    expect(system.view.bodies.length).toBeLessThanOrEqual(16);
+    expect(system.view.approximateBytes).toBeLessThan(200_000);
+  });
+
+  it("batches observer events before technical log churn can evict them", () => {
+    let now = 0;
+    const runtime = new StageOneWorkerRuntime({ nowMs: () => now });
+    runtime.handle({ type: "init", seed: 31, params: { speed: 1 } });
+    runtime.advanceTicks(365);
+    now = 40;
+    const batch = runtime.advanceElapsed(0).find((message) => message.type === "events");
+
+    expect(batch?.type).toBe("events");
+    if (batch?.type === "events") {
+      expect(batch.events.length).toBeGreaterThan(0);
+      expect(batch.events.every((event) => event.kind !== StageOneLogKind.BatchComplete)).toBe(
+        true
+      );
+    }
   });
 });

@@ -25,6 +25,7 @@ export function scaleCivilianFleet(
   const capitalBody = world.factions.capitalBody[faction] ?? -1;
   const capitalSystem = world.factions.capitalSystem[faction] ?? -1;
   if (capitalBody < 0 || capitalSystem < 0) return { built: false, ship: -1 };
+  if (!world.ships.canAdd()) return { built: false, ship: -1 };
   const stockpile = world.bodies.stockpile[capitalBody] ?? 0;
   if (!removeShipKit(data, world, stockpile)) return { built: false, ship: -1 };
   world.factions.treasury[faction] = (world.factions.treasury[faction] ?? 0) - 250;

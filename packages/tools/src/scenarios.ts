@@ -10,7 +10,7 @@ import { runStageSevenCampaign } from "./stage-seven-bench.js";
 import { loadStageTwoData } from "./stage-two-loader.js";
 
 interface ScenarioFile {
-  readonly stage?: 0 | 1 | 2 | 6 | 7;
+  readonly stage?: 0 | 1 | 2 | 6 | 7 | 8;
   readonly seed: number;
   readonly ticks: number;
   readonly description: string;
@@ -24,7 +24,10 @@ export async function checkScenarios(): Promise<boolean> {
   const files = (await readdir(scenariosDir)).filter((file) => file.endsWith(".json")).sort();
   const stageTwoData = files.some(
     (file) =>
-      file.includes("stage-two") || file.includes("stage-six") || file.includes("stage-seven")
+      file.includes("stage-two") ||
+      file.includes("stage-six") ||
+      file.includes("stage-seven") ||
+      file.includes("stage-eight")
   )
     ? await loadStageTwoData()
     : undefined;

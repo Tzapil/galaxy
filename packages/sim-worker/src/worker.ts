@@ -2,7 +2,8 @@ import { StageOneWorkerRuntime } from "./runtime.js";
 import type { WorkerCommand, WorkerMessage } from "./protocol.js";
 
 const runtime = new StageOneWorkerRuntime({
-  nowMs: () => performance.now()
+  nowMs: () => performance.now(),
+  maxWorkMs: 12
 });
 
 let lastPump = performance.now();

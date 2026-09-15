@@ -1,0 +1,474 @@
+{
+  "generatedAt": "2026-09-11T23:03:07.701Z",
+  "seed": 20260904,
+  "target": {
+    "systems": 500,
+    "ships": 20000,
+    "buildings": 50000,
+    "ticksPerSecond": 1000
+  },
+  "actual": {
+    "systems": 500,
+    "ships": 20000,
+    "buildings": 50000,
+    "setupMs": 330.8093000000001,
+    "sampleTicks": 10,
+    "runMs": 220.7228,
+    "tickMs": 22.07228,
+    "ticksPerSecond": 45.305695650834444,
+    "renderSnapshotBytes": 2379540,
+    "renderSnapshotMs": 18.740800000000036,
+    "fullSaveBytes": 51534487,
+    "fullSaveMs": 70.5635999999995,
+    "estimatedEntityVisitsPerTick": 70500,
+    "heapUsedBytes": 29681552,
+    "externalBytes": 178696267,
+    "arrayBuffersBytes": 176137599,
+    "subsystemMs": [
+      106.22239999999988,
+      62.71590000000083,
+      0,
+      0.02080000000069049,
+      18.27890000000002,
+      57.379700000007006,
+      220.43569999999977
+    ]
+  },
+  "history": {
+    "horizonYears": 10000,
+    "points": 10000,
+    "workerBytes": 29600000
+  },
+  "storyAudit": {
+    "sampledRows": 30,
+    "rows": [
+      {
+        "serial": 1583771,
+        "year": 93,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1583772,
+        "year": 93,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1584787,
+        "year": 93,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1584788,
+        "year": 93,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1592773,
+        "year": 94,
+        "kind": 14,
+        "storyKind": 8,
+        "faction": 0,
+        "system": 0,
+        "importance": 66,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 4200,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1592786,
+        "year": 94,
+        "kind": 21,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 37,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.00022261156798674222,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1593708,
+        "year": 94,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1593709,
+        "year": 94,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1594769,
+        "year": 94,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1594770,
+        "year": 94,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1604643,
+        "year": 95,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1604644,
+        "year": 95,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1606204,
+        "year": 95,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1606205,
+        "year": 95,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1615059,
+        "year": 96,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1615060,
+        "year": 96,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1616935,
+        "year": 96,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1616936,
+        "year": 96,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1625386,
+        "year": 97,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1625387,
+        "year": 97,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1626581,
+        "year": 97,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1626582,
+        "year": 97,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1635844,
+        "year": 98,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1635845,
+        "year": 98,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1637091,
+        "year": 98,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1637092,
+        "year": 98,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1647400,
+        "year": 99,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1647401,
+        "year": 99,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 0,
+        "system": 0,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.1763826935901913,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1648699,
+        "year": 99,
+        "kind": 15,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      },
+      {
+        "serial": 1648700,
+        "year": 99,
+        "kind": 16,
+        "storyKind": 13,
+        "faction": 1,
+        "system": 10,
+        "importance": 38,
+        "impact": {
+          "systemsAffected": 1,
+          "productionValue": 0.28704640956930527,
+          "shipsAffected": 0
+        }
+      }
+    ]
+  },
+  "gracefulDegradation": {
+    "requestedTicks": 1000,
+    "advancedTicks": 1,
+    "actualSpeed": 1,
+    "skippedTicks": false
+  },
+  "note": "The entity ceiling run uses a generated 500-system galaxy plus inert housing/hauler rows to isolate worst-case traversal and serialization costs."
+}

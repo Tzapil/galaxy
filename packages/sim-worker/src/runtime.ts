@@ -1,23 +1,44 @@
 import {
+  buildStageThreeWorld,
+  currentStoryEvents,
+  createStageTwoDataFromGameData,
   Instrumentation,
-  StageOneSimulation,
+  renderStoryEventForRow,
+  StageTwoSimulation,
   type EntityCounters,
-  type InstrumentationSummary
+  type InstrumentationSummary,
+  type RenderEvent
 } from "@galaxy-sim/sim-core";
+import { GAME_DATA } from "@galaxy-sim/sim-data/game-data";
 
-import type { StageOneWorkerStats, WorkerCommand, WorkerMessage, WorkerSpeed } from "./protocol.js";
+import { HistoryAccumulator } from "./history.js";
+import { decodeWorkerSave, encodeWorkerSave } from "./save-envelope.js";
+import type {
+  FactionSummary,
+  StageOneInitParams,
+  StageOneWorkerStats,
+  TechnicalLimits,
+  WorkerCommand,
+  WorkerMessage,
+  WorkerSpeed
+} from "./protocol.js";
 import { DEFAULT_RENDER_SLICES, buildRenderSnapshot } from "./snapshot-view.js";
+import { buildSystemView } from "./system-view.js";
 
 const SNAPSHOT_INTERVAL_MS = 1000 / 30;
 const STATS_INTERVAL_MS = 250;
+const data = createStageTwoDataFromGameData(GAME_DATA);
 
 export interface StageOneWorkerRuntimeOptions {
   readonly nowMs?: () => number;
+  readonly maxWorkMs?: number;
 }
 
 export class StageOneWorkerRuntime {
   private readonly nowMs: () => number;
-  private simulation: StageOneSimulation | undefined;
+  private readonly maxWorkMs: number;
+  private simulation: StageTwoSimulation | undefined;
+  private history = new HistoryAccumulator();
   private instrumentation: Instrumentation | undefined;
   private instrumentationStartMs = 0;
   private targetSpeed: WorkerSpeed = 1;
@@ -29,26 +50,29 @@ export class StageOneWorkerRuntime {
   private lastStatsMs = Number.NEGATIVE_INFINITY;
   private lastActualSpeed = 0;
   private lastTickMs = 0;
+  private selectedSystem = -1;
+  private pendingStoryEvents: RenderEvent[] = [];
+  private unsubscribeStory: (() => void) | undefined;
+  private technicalLimits: TechnicalLimits = {};
 
   public constructor(options: StageOneWorkerRuntimeOptions = {}) {
     this.nowMs = options.nowMs ?? (() => 0);
+    this.maxWorkMs = options.maxWorkMs ?? Number.POSITIVE_INFINITY;
   }
 
   public handle(command: WorkerCommand): WorkerMessage[] {
     try {
-      if (command.type === "init")
-        return this.init(
-          command.seed,
-          command.params?.speed,
-          command.params?.startPaused,
-          command.params?.slices
-        );
+      if (command.type === "init") return this.init(command.seed, command.params);
       if (command.type === "setSpeed") return this.setSpeed(command.multiplier);
       if (command.type === "pause") return this.pause();
       if (command.type === "resume") return this.resume();
       if (command.type === "subscribe") return this.subscribe(command.slices);
       if (command.type === "save") return this.save(command.slotId);
-      if (command.type === "load") return this.load(command.slotId, command.buffer);
+      if (command.type === "load") {
+        return this.load(command.slotId, command.buffer, command.technicalLimits);
+      }
+      if (command.type === "selectSystem") return this.selectSystem(command.system);
+      if (command.type === "history") return [this.historyMessage(command.request)];
       return [this.error("Unknown worker command.")];
     } catch (error) {
       return [this.error(error instanceof Error ? error.message : "Unknown worker error.")];
@@ -63,25 +87,31 @@ export class StageOneWorkerRuntime {
     const wantedTicks = Math.floor(this.tickCredit);
     const allowedTicks = Math.max(0, Math.min(wantedTicks, Math.floor(maxTicks)));
     const started = this.nowMs();
-
+    let advancedTicks = 0;
     for (let i = 0; i < allowedTicks; i += 1) {
       const tickStarted = this.nowMs();
       this.simulation.step(this.instrumentation);
+      this.history.capture(this.simulation);
       this.lastTickMs = this.nowMs() - tickStarted;
+      advancedTicks += 1;
+      if (advancedTicks > 0 && this.nowMs() - started >= this.maxWorkMs) break;
     }
 
-    this.tickCredit -= allowedTicks;
-    if (allowedTicks < wantedTicks) this.tickCredit = 0;
-    this.lastActualSpeed = safeElapsed > 0 ? (allowedTicks / safeElapsed) * 1000 : 0;
-    if (allowedTicks > 0 && this.lastTickMs <= 0) {
-      this.lastTickMs = (this.nowMs() - started) / allowedTicks;
+    this.tickCredit -= advancedTicks;
+    if (advancedTicks < wantedTicks) this.tickCredit = 0;
+    this.lastActualSpeed = safeElapsed > 0 ? (advancedTicks / safeElapsed) * 1000 : 0;
+    if (advancedTicks > 0 && this.lastTickMs <= 0) {
+      this.lastTickMs = (this.nowMs() - started) / advancedTicks;
     }
-    return this.periodicMessages(allowedTicks, safeElapsed);
+    return this.periodicMessages(advancedTicks, safeElapsed);
   }
 
   public advanceTicks(ticks: number): void {
     if (this.simulation === undefined) throw new Error("Simulation is not initialized.");
-    for (let i = 0; i < ticks; i += 1) this.simulation.step(this.instrumentation);
+    for (let i = 0; i < ticks; i += 1) {
+      this.simulation.step(this.instrumentation);
+      this.history.capture(this.simulation);
+    }
   }
 
   public get tick(): number {
@@ -98,28 +128,37 @@ export class StageOneWorkerRuntime {
     return this.simulation.snapshot();
   }
 
-  private init(
-    seed: number,
-    speed?: WorkerSpeed,
-    startPaused?: boolean,
-    slices?: number
-  ): WorkerMessage[] {
-    this.simulation = StageOneSimulation.create(seed);
-    this.targetSpeed = speed ?? 1;
+  private init(seed: number, params: StageOneInitParams = {}): WorkerMessage[] {
+    this.simulation =
+      params.galaxy === undefined
+        ? StageTwoSimulation.create(seed, data)
+        : StageTwoSimulation.createFromWorld(
+            seed,
+            data,
+            buildStageThreeWorld(data, seed, params.galaxy)
+          );
+    this.technicalLimits = { ...params.technicalLimits };
+    applyTechnicalLimits(this.simulation, this.technicalLimits);
+    this.history = new HistoryAccumulator();
+    this.history.capture(this.simulation);
+    this.attachStoryFeed();
+    this.targetSpeed = params.speed ?? 1;
     if (this.targetSpeed !== 0) this.lastNonZeroSpeed = this.targetSpeed;
-    this.running = startPaused === true ? false : this.targetSpeed !== 0;
+    this.running = params.startPaused === true ? false : this.targetSpeed !== 0;
     this.tickCredit = 0;
-    this.subscribedSlices = slices ?? DEFAULT_RENDER_SLICES;
+    this.subscribedSlices = params.slices ?? DEFAULT_RENDER_SLICES;
+    this.selectedSystem = -1;
     this.instrumentationStartMs = this.nowMs();
     this.instrumentation = new Instrumentation({
       enabled: true,
-      targetTicksPerSecond: this.targetSpeed,
+      targetTicksPerSecond: params.targetTicksPerSecond ?? this.targetSpeed,
       historyCapacity: 256,
       nowMs: this.nowMs
     });
     this.lastSnapshotMs = Number.NEGATIVE_INFINITY;
     this.lastStatsMs = Number.NEGATIVE_INFINITY;
 
+    const storyMessage = this.drainStoryMessage();
     return [
       {
         channel: "control",
@@ -128,7 +167,8 @@ export class StageOneWorkerRuntime {
         hash: this.simulation.hash()
       },
       this.snapshotMessage(),
-      this.statsMessage()
+      this.statsMessage(),
+      ...(storyMessage === undefined ? [] : [storyMessage])
     ];
   }
 
@@ -165,15 +205,38 @@ export class StageOneWorkerRuntime {
 
   private save(slotId: string): WorkerMessage[] {
     const simulation = this.requireSimulation();
-    const buffer = simulation.snapshot();
-    return [{ channel: "control", type: "saved", slotId, tick: simulation.tick, buffer }];
+    const buffer = encodeWorkerSave(simulation.snapshot(), this.history.serialize());
+    return [
+      {
+        channel: "control",
+        type: "saved",
+        slotId,
+        tick: simulation.tick,
+        hash: simulation.hash(),
+        buffer
+      }
+    ];
   }
 
-  private load(slotId: string, buffer?: ArrayBuffer): WorkerMessage[] {
+  private load(
+    slotId: string,
+    buffer?: ArrayBuffer,
+    technicalLimits?: TechnicalLimits
+  ): WorkerMessage[] {
     if (buffer === undefined) return [this.error("Load command requires a snapshot buffer.")];
-    this.simulation = StageOneSimulation.fromSnapshot(buffer);
+    const payload = decodeWorkerSave(buffer);
+    this.simulation = StageTwoSimulation.fromSnapshot(payload.simulation, data);
+    if (technicalLimits !== undefined) this.technicalLimits = { ...technicalLimits };
+    applyTechnicalLimits(this.simulation, this.technicalLimits);
+    this.history =
+      payload.history === undefined
+        ? new HistoryAccumulator()
+        : HistoryAccumulator.deserialize(payload.history);
+    if (payload.history === undefined) this.history.capture(this.simulation);
+    this.attachStoryFeed();
     this.tickCredit = 0;
     this.resetInstrumentation();
+    const storyMessage = this.drainStoryMessage();
     return [
       {
         channel: "control",
@@ -183,8 +246,19 @@ export class StageOneWorkerRuntime {
         hash: this.simulation.hash()
       },
       this.snapshotMessage(),
-      this.statsMessage()
+      this.statsMessage(),
+      ...(this.selectedSystem >= 0 ? [this.systemMessage()] : []),
+      ...(storyMessage === undefined ? [] : [storyMessage])
     ];
+  }
+
+  private selectSystem(system: number): WorkerMessage[] {
+    const simulation = this.requireSimulation();
+    if (system < 0 || system >= simulation.world.systems.length) {
+      return [this.error(`Unknown system ${system}.`)];
+    }
+    this.selectedSystem = system;
+    return [this.systemMessage()];
   }
 
   private periodicMessages(_ticksAdvanced: number, elapsedMs: number): WorkerMessage[] {
@@ -192,6 +266,9 @@ export class StageOneWorkerRuntime {
     const now = this.nowMs();
     if (this.simulation !== undefined && now - this.lastSnapshotMs >= SNAPSHOT_INTERVAL_MS - 0.5) {
       messages.push(this.snapshotMessage());
+      if (this.selectedSystem >= 0) messages.push(this.systemMessage());
+      const storyMessage = this.drainStoryMessage();
+      if (storyMessage !== undefined) messages.push(storyMessage);
     }
     if (this.simulation !== undefined && now - this.lastStatsMs >= STATS_INTERVAL_MS) {
       if (elapsedMs <= 0) this.lastActualSpeed = 0;
@@ -234,6 +311,7 @@ export class StageOneWorkerRuntime {
       actualSpeed: this.running ? this.lastActualSpeed : 0,
       tickMs: this.lastTickMs,
       subsystemMs: summary?.subsystemMs ?? [],
+      tickMsHistory: summary?.tickMsHistory ?? [],
       counters:
         summary?.counters ??
         ({
@@ -241,7 +319,8 @@ export class StageOneWorkerRuntime {
           factions: simulation.world.factions.length,
           ships: simulation.world.ships.length,
           buildings: simulation.world.buildings.length
-        } satisfies EntityCounters)
+        } satisfies EntityCounters),
+      factions: factionSummaries(simulation)
     };
   }
 
@@ -258,7 +337,46 @@ export class StageOneWorkerRuntime {
     this.lastStatsMs = Number.NEGATIVE_INFINITY;
   }
 
-  private requireSimulation(): StageOneSimulation {
+  private systemMessage(): WorkerMessage {
+    const simulation = this.requireSimulation();
+    return {
+      channel: "system",
+      type: "system",
+      view: buildSystemView(simulation, this.selectedSystem)
+    };
+  }
+
+  private historyMessage(request: import("./history.js").HistoryRequest): WorkerMessage {
+    this.requireSimulation();
+    return { channel: "history", type: "history", payload: this.history.query(request) };
+  }
+
+  private attachStoryFeed(): void {
+    this.unsubscribeStory?.();
+    const simulation = this.requireSimulation();
+    this.pendingStoryEvents = currentStoryEvents(simulation.world);
+    this.unsubscribeStory = simulation.world.eventLog.subscribe((row) => {
+      const event = renderStoryEventForRow(simulation.world, row);
+      if (event === undefined) return;
+      this.pendingStoryEvents.push(event);
+      if (this.pendingStoryEvents.length > 6000) {
+        const milestones = this.pendingStoryEvents.filter((item) => item.milestone);
+        const routine = this.pendingStoryEvents.filter((item) => !item.milestone).slice(-1200);
+        this.pendingStoryEvents = [...milestones, ...routine].sort(
+          (left, right) => left.serial - right.serial
+        );
+      }
+    });
+  }
+
+  private drainStoryMessage(): WorkerMessage | undefined {
+    if (this.pendingStoryEvents.length === 0) return undefined;
+    const events = this.pendingStoryEvents;
+    this.pendingStoryEvents = [];
+    return { channel: "events", type: "events", events };
+  }
+
+  private requireSimulation(): StageTwoSimulation {
     if (this.simulation === undefined) throw new Error("Simulation is not initialized.");
     return this.simulation;
   }
@@ -266,4 +384,59 @@ export class StageOneWorkerRuntime {
   private error(message: string): WorkerMessage {
     return { channel: "control", type: "error", message };
   }
+}
+
+function applyTechnicalLimits(
+  simulation: StageTwoSimulation,
+  limits: TechnicalLimits | undefined
+): void {
+  if (limits?.maxShips !== undefined && simulation.world.ships.length > limits.maxShips) {
+    throw new RangeError(
+      "Initial fleet exceeds maxShips; enable unlimited ships or raise the limit."
+    );
+  }
+  if (
+    limits?.maxBuildings !== undefined &&
+    simulation.world.buildings.length > limits.maxBuildings
+  ) {
+    throw new RangeError(
+      "Initial industry exceeds maxBuildings; enable unlimited buildings or raise the limit."
+    );
+  }
+  simulation.world.setTechnicalLimits(limits);
+}
+
+function factionSummaries(simulation: StageTwoSimulation): FactionSummary[] {
+  const world = simulation.world;
+  const summaries: FactionSummary[] = [];
+  for (let faction = 0; faction < world.factions.length; faction += 1) {
+    let systems = 0;
+    let population = 0;
+    let ships = 0;
+    let fleetValue = 0;
+    for (let system = 0; system < world.systems.length; system += 1) {
+      if ((world.systems.owner[system] ?? -1) === faction) systems += 1;
+    }
+    for (let body = 0; body < world.bodies.length; body += 1) {
+      if ((world.bodies.owner[body] ?? -1) === faction)
+        population += world.bodies.population[body] ?? 0;
+    }
+    for (let ship = 0; ship < world.ships.length; ship += 1) {
+      if ((world.ships.faction[ship] ?? -1) !== faction) continue;
+      ships += 1;
+      const blueprint = world.ships.blueprint[ship] ?? -1;
+      fleetValue += blueprint >= 0 ? (world.blueprints.cost[blueprint] ?? 100) : 100;
+    }
+    const treasury = world.factions.treasury[faction] ?? 0;
+    summaries.push({
+      id: faction,
+      label: world.factions.label(faction),
+      systems,
+      population,
+      ships,
+      treasury,
+      power: population + fleetValue + Math.max(0, treasury) * 0.01
+    });
+  }
+  return summaries;
 }

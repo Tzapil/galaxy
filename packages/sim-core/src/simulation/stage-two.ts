@@ -33,6 +33,7 @@ import {
 import { BuildingState } from "../econ/buildings.js";
 import { validatePlacement } from "../econ/placement.js";
 import { EventKind } from "../events/kinds.js";
+import { StageOneLogKind } from "../events/log.js";
 import { EventBatch, EventQueue } from "../events/queue.js";
 import { InstrumentSubsystem, type Instrumentation } from "../instrument.js";
 import { JobBoard } from "../market/jobboard.js";
@@ -41,6 +42,7 @@ import { consumePopulationWithLocalRedistribution } from "../pop/consume-stage-t
 import { updatePopulationGrowth } from "../pop/growth.js";
 import { collectAndAdvanceResearch } from "../research/research.js";
 import { Rng } from "../rng.js";
+import type { ArenaSnapshot, NumericArray } from "../soa/arena.js";
 import { hashState } from "../snapshot/hash.js";
 import { readStateSnapshot } from "../snapshot/read.js";
 import type { SnapshotState } from "../snapshot/types.js";
@@ -172,10 +174,30 @@ export class StageTwoSimulation {
     const world = StageOneWorld.fromSnapshots(data, restored.arenas);
     const sim = new StageTwoSimulation(Rng.deserialize(root.state), data, world, restored.tick);
     sim.queue = EventQueue.deserialize(restored.eventQueueBuffer);
+    sim.restoreControllerState(restored.arenas);
     return sim;
   }
 
   private queue = new EventQueue(8192);
+
+  private restoreLastBottlenecksFromLog(): void {
+    const latestSerial = new Float64Array(this.lastBottleneckResource.length);
+    latestSerial.fill(-1);
+    for (let row = 0; row < this.world.eventLog.length; row += 1) {
+      if (this.world.eventLog.kind[row] !== StageOneLogKind.AiBottleneck) continue;
+      const faction = this.world.eventLog.subject[row] ?? -1;
+      const serial = this.world.eventLog.serial[row] ?? -1;
+      if (
+        faction < 0 ||
+        faction >= latestSerial.length ||
+        serial <= (latestSerial[faction] ?? -1)
+      ) {
+        continue;
+      }
+      latestSerial[faction] = serial;
+      this.lastBottleneckResource[faction] = this.world.eventLog.resource[row] ?? -1;
+    }
+  }
 
   public step(instrumentation?: Instrumentation): void {
     const tickStarted = instrumentation?.begin(InstrumentSubsystem.Total) ?? 0;
@@ -248,7 +270,15 @@ export class StageTwoSimulation {
   }
 
   public snapshot(): ArrayBuffer {
-    return writeStateSnapshot(this.snapshotState());
+    return writeStateSnapshot({
+      ...this.snapshotState(),
+      arenas: [
+        ...this.world.arenas(),
+        this.controllerSnapshot(),
+        this.jobBoardSnapshot(),
+        this.contractsSnapshot()
+      ]
+    });
   }
 
   public renderSnapshot(slices: number): ArrayBuffer {
@@ -266,6 +296,136 @@ export class StageTwoSimulation {
       eventQueue: this.queue,
       arenas: this.world.arenas()
     };
+  }
+
+  private controllerSnapshot(): ArenaSnapshot {
+    const rowCount = Math.max(
+      1,
+      this.lastBottleneckResource.length,
+      this.zeroStreakDays.length,
+      this.maxZeroStreakDays.length
+    );
+    return {
+      name: "stage_two_controller_v1",
+      rowCount,
+      columns: [
+        paddedColumn("lastBottleneckResource", "i32", this.lastBottleneckResource, rowCount, -1),
+        paddedColumn("zeroStreakDays", "u16", this.zeroStreakDays, rowCount),
+        paddedColumn("maxZeroStreakDays", "u16", this.maxZeroStreakDays, rowCount),
+        scalarColumn("completedBatches", this.completedBatches, rowCount),
+        scalarColumn("deliveredShipments", this.deliveredShipments, rowCount),
+        scalarColumn("missedDeparturesFuel", this.missedDeparturesFuel, rowCount),
+        scalarColumn("constructedBuildings", this.constructedBuildings, rowCount),
+        scalarColumn("disbandedShips", this.disbandedShips, rowCount),
+        scalarColumn("aiStrategicDecisions", this.aiStrategicDecisions, rowCount),
+        scalarColumn("aiOperationalDecisions", this.aiOperationalDecisions, rowCount),
+        scalarColumn("aiTacticalDecisions", this.aiTacticalDecisions, rowCount),
+        scalarColumn("aiBuildPlansStarted", this.aiBuildPlansStarted, rowCount),
+        scalarColumn("aiColonizationLaunches", this.aiColonizationLaunches, rowCount),
+        scalarColumn("aiFleetBuilds", this.aiFleetBuilds, rowCount),
+        scalarColumn("coloniesFounded", this.coloniesFounded, rowCount),
+        scalarColumn("aiOperations", this.aiOperations, rowCount),
+        scalarColumn("treasuryMin", this.treasuryMin, rowCount)
+      ]
+    };
+  }
+
+  private jobBoardSnapshot(): ArenaSnapshot {
+    const count = this.jobs.count;
+    return {
+      name: "stage_two_job_board_v1",
+      rowCount: count,
+      columns: [
+        { name: "faction", kind: "u16", data: this.jobs.faction.slice(0, count) },
+        { name: "sourceBody", kind: "u32", data: this.jobs.sourceBody.slice(0, count) },
+        { name: "targetBody", kind: "u32", data: this.jobs.targetBody.slice(0, count) },
+        { name: "sourceSystem", kind: "u32", data: this.jobs.sourceSystem.slice(0, count) },
+        { name: "targetSystem", kind: "u32", data: this.jobs.targetSystem.slice(0, count) },
+        { name: "resource", kind: "u16", data: this.jobs.resource.slice(0, count) },
+        { name: "quantity", kind: "f64", data: this.jobs.quantity.slice(0, count) },
+        { name: "travelTicks", kind: "f64", data: this.jobs.travelTicks.slice(0, count) },
+        { name: "score", kind: "f64", data: this.jobs.score.slice(0, count) },
+        { name: "reserved", kind: "u8", data: this.jobs.reserved.slice(0, count) },
+        { name: "kitOrder", kind: "i32", data: this.jobs.kitOrder.slice(0, count) },
+        { name: "compound", kind: "u8", data: this.jobs.compound.slice(0, count) }
+      ]
+    };
+  }
+
+  private contractsSnapshot(): ArenaSnapshot {
+    const count = this.contracts.count;
+    return {
+      name: "stage_two_contracts_v1",
+      rowCount: count,
+      columns: [
+        { name: "faction", kind: "i32", data: this.contracts.faction.slice(0, count) },
+        { name: "targetBody", kind: "i32", data: this.contracts.targetBody.slice(0, count) },
+        { name: "resource", kind: "i32", data: this.contracts.resource.slice(0, count) },
+        {
+          name: "creditsPerUnit",
+          kind: "f64",
+          data: this.contracts.creditsPerUnit.slice(0, count)
+        }
+      ]
+    };
+  }
+
+  private restoreControllerState(arenas: readonly ArenaSnapshot[]): void {
+    const controller = optionalSnapshotArena(arenas, "stage_two_controller_v1");
+    if (controller === undefined) {
+      this.restoreLastBottlenecksFromLog();
+      this.refreshContracts();
+      this.jobs.update(this.data, this.world, this.routes, this.contracts);
+      return;
+    }
+
+    copySnapshotColumn(controller, "lastBottleneckResource", this.lastBottleneckResource);
+    copySnapshotColumn(controller, "zeroStreakDays", this.zeroStreakDays);
+    copySnapshotColumn(controller, "maxZeroStreakDays", this.maxZeroStreakDays);
+    this.completedBatches = snapshotScalar(controller, "completedBatches");
+    this.deliveredShipments = snapshotScalar(controller, "deliveredShipments");
+    this.missedDeparturesFuel = snapshotScalar(controller, "missedDeparturesFuel");
+    this.constructedBuildings = snapshotScalar(controller, "constructedBuildings");
+    this.disbandedShips = snapshotScalar(controller, "disbandedShips");
+    this.aiStrategicDecisions = snapshotScalar(controller, "aiStrategicDecisions");
+    this.aiOperationalDecisions = snapshotScalar(controller, "aiOperationalDecisions");
+    this.aiTacticalDecisions = snapshotScalar(controller, "aiTacticalDecisions");
+    this.aiBuildPlansStarted = snapshotScalar(controller, "aiBuildPlansStarted");
+    this.aiColonizationLaunches = snapshotScalar(controller, "aiColonizationLaunches");
+    this.aiFleetBuilds = snapshotScalar(controller, "aiFleetBuilds");
+    this.coloniesFounded = snapshotScalar(controller, "coloniesFounded");
+    this.aiOperations = snapshotScalar(controller, "aiOperations");
+    this.treasuryMin = snapshotScalar(controller, "treasuryMin");
+
+    const jobs = optionalSnapshotArena(arenas, "stage_two_job_board_v1");
+    const contracts = optionalSnapshotArena(arenas, "stage_two_contracts_v1");
+    if (jobs === undefined || contracts === undefined) {
+      throw new Error("Stage two snapshot is missing deterministic controller caches.");
+    }
+    this.jobs.count = Math.min(jobs.rowCount, this.jobs.capacity);
+    copySnapshotColumn(jobs, "faction", this.jobs.faction, this.jobs.count);
+    copySnapshotColumn(jobs, "sourceBody", this.jobs.sourceBody, this.jobs.count);
+    copySnapshotColumn(jobs, "targetBody", this.jobs.targetBody, this.jobs.count);
+    copySnapshotColumn(jobs, "sourceSystem", this.jobs.sourceSystem, this.jobs.count);
+    copySnapshotColumn(jobs, "targetSystem", this.jobs.targetSystem, this.jobs.count);
+    copySnapshotColumn(jobs, "resource", this.jobs.resource, this.jobs.count);
+    copySnapshotColumn(jobs, "quantity", this.jobs.quantity, this.jobs.count);
+    copySnapshotColumn(jobs, "travelTicks", this.jobs.travelTicks, this.jobs.count);
+    copySnapshotColumn(jobs, "score", this.jobs.score, this.jobs.count);
+    copySnapshotColumn(jobs, "reserved", this.jobs.reserved, this.jobs.count);
+    copySnapshotColumn(jobs, "kitOrder", this.jobs.kitOrder, this.jobs.count);
+    copySnapshotColumn(jobs, "compound", this.jobs.compound, this.jobs.count);
+
+    this.contracts.count = Math.min(contracts.rowCount, this.contracts.capacity);
+    copySnapshotColumn(contracts, "faction", this.contracts.faction, this.contracts.count);
+    copySnapshotColumn(contracts, "targetBody", this.contracts.targetBody, this.contracts.count);
+    copySnapshotColumn(contracts, "resource", this.contracts.resource, this.contracts.count);
+    copySnapshotColumn(
+      contracts,
+      "creditsPerUnit",
+      this.contracts.creditsPerUnit,
+      this.contracts.count
+    );
   }
 
   public metrics(): StageTwoMetrics {
@@ -1236,4 +1396,59 @@ function recipeOutputsResource(recipe: StageOneBatchRecipe, resource: number): b
     if ((recipe.outputs[i]?.resource ?? -1) === resource) return true;
   }
   return false;
+}
+
+function paddedColumn(
+  name: string,
+  kind: "i32" | "u16",
+  source: NumericArray,
+  rowCount: number,
+  fill = 0
+): ArenaSnapshot["columns"][number] {
+  const data = kind === "i32" ? new Int32Array(rowCount) : new Uint16Array(rowCount);
+  data.fill(fill);
+  for (let row = 0; row < Math.min(source.length, rowCount); row += 1) {
+    data[row] = source[row] ?? fill;
+  }
+  return { name, kind, data };
+}
+
+function scalarColumn(
+  name: string,
+  value: number,
+  rowCount: number
+): ArenaSnapshot["columns"][number] {
+  const data = new Float64Array(rowCount);
+  data[0] = value;
+  return { name, kind: "f64", data };
+}
+
+function optionalSnapshotArena(
+  arenas: readonly ArenaSnapshot[],
+  name: string
+): ArenaSnapshot | undefined {
+  return arenas.find((arena) => arena.name === name);
+}
+
+function snapshotColumn(arena: ArenaSnapshot, name: string): NumericArray {
+  const column = arena.columns.find((candidate) => candidate.name === name);
+  if (column === undefined) {
+    throw new Error(`Snapshot arena ${arena.name} is missing column ${name}.`);
+  }
+  return column.data;
+}
+
+function copySnapshotColumn(
+  arena: ArenaSnapshot,
+  name: string,
+  target: NumericArray,
+  count = target.length
+): void {
+  const source = snapshotColumn(arena, name);
+  const copyCount = Math.min(count, source.length, target.length);
+  for (let row = 0; row < copyCount; row += 1) target[row] = source[row] ?? 0;
+}
+
+function snapshotScalar(arena: ArenaSnapshot, name: string): number {
+  return snapshotColumn(arena, name)[0] ?? 0;
 }

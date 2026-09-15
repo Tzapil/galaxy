@@ -39,6 +39,7 @@ export type ShipColumn =
   | "stockpile";
 
 export class Ships {
+  private technicalLimit: number | undefined;
   public generation: Uint32Array;
   public faction: Uint16Array;
   public role: Uint8Array;
@@ -148,6 +149,21 @@ export class Ships {
     return this.arena.length;
   }
 
+  public setTechnicalLimit(limit: number | undefined): void {
+    if (limit !== undefined && (!Number.isSafeInteger(limit) || limit < this.length)) {
+      throw new RangeError("Ship technical limit cannot be lower than the current ship count.");
+    }
+    this.technicalLimit = limit;
+  }
+
+  public canAdd(count = 1): boolean {
+    return (
+      Number.isSafeInteger(count) &&
+      count >= 0 &&
+      (this.technicalLimit === undefined || this.length + count <= this.technicalLimit)
+    );
+  }
+
   public addHauler(
     faction: number,
     currentSystem: number,
@@ -177,6 +193,7 @@ export class Ships {
     fuelPerJump: number,
     blueprint = -1
   ): number {
+    if (!this.canAdd()) return -1;
     const previousCapacity = this.arena.capacity;
     const row = this.arena.addRow();
     if (this.arena.capacity !== previousCapacity) this.refreshColumns();

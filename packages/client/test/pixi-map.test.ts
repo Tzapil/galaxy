@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const pixi = vi.hoisted(() => {
   type InitResolver = () => void;
@@ -109,8 +109,34 @@ vi.mock("pixi.js", () => ({
 }));
 
 import { PixiMap } from "../src/map/PixiMap.js";
+import type { StageOneRenderSnapshot } from "@galaxy-sim/sim-core";
 
 describe("PixiMap", () => {
+  beforeEach(() => {
+    pixi.state.applications.length = 0;
+    pixi.state.resolveInit = undefined;
+  });
+
+  it("accepts a retained snapshot while remount initialization is pending", async () => {
+    const map = new PixiMap(() => undefined);
+    const container = {
+      appendChild: vi.fn((_node: Node) => undefined)
+    } as unknown as HTMLElement;
+    const mount = map.mount(container);
+    let error: unknown;
+
+    try {
+      map.update({ systems: [], gates: [], ships: [] } as unknown as StageOneRenderSnapshot);
+    } catch (cause) {
+      error = cause;
+    }
+
+    map.destroy();
+    pixi.state.resolveInit?.();
+    await mount;
+    expect(error).toBeUndefined();
+  });
+
   it("can be destroyed before PIXI initialization exposes a canvas", async () => {
     const map = new PixiMap(() => undefined);
     const container = {

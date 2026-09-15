@@ -51,6 +51,8 @@ const DEFAULT_STAGE_ONE_EVENT_LOG_LIMIT = 4096;
 export type EventLogColumn =
   "serial" | "tick" | "kind" | "system" | "body" | "subject" | "resource" | "amount";
 
+export type StageOneLogListener = (row: number) => void;
+
 export class StageOneEventLog {
   public serial: Float64Array;
   public tick: Float64Array;
@@ -61,6 +63,7 @@ export class StageOneEventLog {
   public resource: Int32Array;
   public amount: Float64Array;
   private nextSerial = 0;
+  private readonly listeners = new Set<StageOneLogListener>();
 
   public constructor(
     public readonly arena: SoAArena<EventLogColumn>,
@@ -126,6 +129,11 @@ export class StageOneEventLog {
     return this.arena.length;
   }
 
+  public subscribe(listener: StageOneLogListener): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
   public append(
     tick: number,
     kind: StageOneLogKind,
@@ -148,6 +156,7 @@ export class StageOneEventLog {
     this.subject[row] = subject;
     this.resource[row] = resource;
     this.amount[row] = amount;
+    for (const listener of this.listeners) listener(row);
   }
 
   public recentRow(indexFromOldest: number, count = this.length): number {

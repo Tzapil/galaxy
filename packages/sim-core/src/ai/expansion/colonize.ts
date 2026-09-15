@@ -54,6 +54,7 @@ export function buildColonizerIfNeeded(
   const capitalBody = world.factions.capitalBody[faction] ?? -1;
   const capitalSystem = world.factions.capitalSystem[faction] ?? -1;
   if (capitalBody < 0 || capitalSystem < 0) return false;
+  if (!world.ships.canAdd()) return false;
   if ((world.factions.treasury[faction] ?? 0) < COLONIZER_CREDIT_COST) return false;
   const stockpile = world.bodies.stockpile[capitalBody] ?? 0;
   const hullFrames = data.resourceIndex.get("hull_frames") ?? -1;

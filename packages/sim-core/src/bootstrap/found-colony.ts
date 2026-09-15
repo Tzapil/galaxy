@@ -69,8 +69,9 @@ function addIfPlaceable(
   if (buildingType === undefined) return 0;
   const placement = validatePlacement(data, world, body, buildingType);
   if (!placement.ok) return 0;
-  world.buildings.addBuilt(data, world.bodies, body, buildingType, world.stockpiles);
-  return 1;
+  return world.buildings.addBuilt(data, world.bodies, body, buildingType, world.stockpiles) >= 0
+    ? 1
+    : 0;
 }
 
 function seedColonyStockpile(data: StageOneData, world: StageOneWorld, body: number): void {

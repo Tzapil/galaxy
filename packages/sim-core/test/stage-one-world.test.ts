@@ -96,4 +96,29 @@ describe("stage one world model", () => {
     expect(world.systems.bodyCount[0]).toBe(10_000);
     expect(traversed).toBe(10_000);
   });
+
+  it("enforces technical entity limits without consuming entity storage", () => {
+    const simulation = StageOneSimulation.create(20260904);
+    const world = simulation.world;
+    const shipCount = world.ships.length;
+    const buildingCount = world.buildings.length;
+    const stockpileCount = world.stockpiles.length;
+    const body = world.factions.capitalBody[0] ?? 0;
+    const housing = simulation.data.buildingIndex.get("housing") ?? -1;
+
+    world.setTechnicalLimits({ maxShips: shipCount, maxBuildings: buildingCount });
+
+    expect(world.addHauler(0, 0, 100, 100, 1)).toBe(-1);
+    expect(world.stockpiles.length).toBe(stockpileCount);
+    expect(
+      world.buildings.addBuilt(simulation.data, world.bodies, body, housing, world.stockpiles)
+    ).toBe(-1);
+    expect(world.buildings.length).toBe(buildingCount);
+
+    world.setTechnicalLimits();
+    expect(world.addHauler(0, 0, 100, 100, 1)).toBe(shipCount);
+    expect(
+      world.buildings.addBuilt(simulation.data, world.bodies, body, housing, world.stockpiles)
+    ).toBe(buildingCount);
+  });
 });

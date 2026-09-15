@@ -11,6 +11,10 @@
     "./node": {
       "types": "./dist/src/node-load.d.ts",
       "import": "./dist/src/node-load.js"
+    },
+    "./game-data": {
+      "types": "./dist/src/game-data.d.ts",
+      "import": "./dist/src/game-data.js"
     }
   },
   "types": "./dist/src/index.d.ts",

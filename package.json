@@ -17,7 +17,8 @@
     "bench": "corepack pnpm --filter @galaxy-sim/tools bench",
     "scenarios:check": "corepack pnpm --filter @galaxy-sim/tools scenarios:check",
     "galaxy:stage3": "corepack pnpm --filter @galaxy-sim/tools galaxy:stage3",
-    "stage7:long": "corepack pnpm --filter @galaxy-sim/tools bench:stage7"
+    "stage7:long": "corepack pnpm --filter @galaxy-sim/tools bench:stage7",
+    "stage8:acceptance": "corepack pnpm --filter @galaxy-sim/tools bench:stage8"
   },
   "devDependencies": {
     "@eslint/js": "latest",
